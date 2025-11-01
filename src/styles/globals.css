@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Mintara Color Tokens */
+  --mintara-background: #001A12;
+  --mintara-surface: #03261B;
+  --mintara-primary: #00A676;
+  --mintara-primary-glow: #96F9C4;
+  --mintara-accent: #00E0C6;
+  --mintara-border: #2C5E51;
+  --mintara-text-primary: #E8FFF5;
+  --mintara-text-secondary: #A7DAC6;
+  --mintara-warning: #FFC14D;
+  --mintara-error: #FF6B6B;
+  --mintara-soft-lime-glow: #B8FF9F;
+  --mintara-deep-emerald: #00A676;
+  --mintara-turquoise-shadow: #00E0C6;
+  
+  /* Base theme overrides for Mintara */
+  --background: #001A12;
+  --foreground: #E8FFF5;
+  --card: #03261B;
+  --card-foreground: #E8FFF5;
+  --popover: #03261B;
+  --popover-foreground: #E8FFF5;
+  --primary: #00A676;
+  --primary-foreground: #001A12;
+  --secondary: #2C5E51;
+  --secondary-foreground: #E8FFF5;
+  --muted: #2C5E51;
+  --muted-foreground: #A7DAC6;
+  --accent: #00E0C6;
+  --accent-foreground: #001A12;
+  --destructive: #FF6B6B;
+  --destructive-foreground: #E8FFF5;
+  --border: #2C5E51;
+  --input: #2C5E51;
+  --input-background: #03261B;
+  --ring: #00E0C6;
+  
+  /* Typography */
+  --font-size: 16px;
+  --font-weight-semibold: 600;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  
+  /* Spacing */
+  --radius: 1rem;
+  
+  /* Chart colors */
+  --chart-1: #00A676;
+  --chart-2: #00E0C6;
+  --chart-3: #96F9C4;
+  --chart-4: #B8FF9F;
+  --chart-5: #A7DAC6;
+}
+
+@theme inline {
+  --color-mintara-background: var(--mintara-background);
+  --color-mintara-surface: var(--mintara-surface);
+  --color-mintara-primary: var(--mintara-primary);
+  --color-mintara-primary-glow: var(--mintara-primary-glow);
+  --color-mintara-accent: var(--mintara-accent);
+  --color-mintara-border: var(--mintara-border);
+  --color-mintara-text-primary: var(--mintara-text-primary);
+  --color-mintara-text-secondary: var(--mintara-text-secondary);
+  --color-mintara-warning: var(--mintara-warning);
+  --color-mintara-error: var(--mintara-error);
+  --color-mintara-soft-lime-glow: var(--mintara-soft-lime-glow);
+  --color-mintara-deep-emerald: var(--mintara-deep-emerald);
+  --color-mintara-turquoise-shadow: var(--mintara-turquoise-shadow);
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-mintara-background text-mintara-text-primary;
+    font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+  }
+  
+  /* Gradient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #001A12 0%, #00A676 100%);
+    opacity: 1;
+    z-index: -2;
+  }
+  
+  /* Subtle particle texture */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(0, 230, 198, 0.03) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, rgba(150, 249, 196, 0.03) 0%, transparent 50%),
+                      radial-gradient(circle at 40% 20%, rgba(184, 255, 159, 0.02) 0%, transparent 50%);
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+/**
+ * Mintara Typography System
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: 3.5rem;
+      line-height: 4rem;
+      font-weight: 600;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      line-height: 3rem;
+      font-weight: 600;
+    }
+
+    h3 {
+      font-size: 1.75rem;
+      line-height: 2.25rem;
+      font-weight: 500;
+    }
+
+    h4 {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+      font-weight: 500;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.5rem;
+      font-weight: 400;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.25rem;
+    }
+
+    button {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5rem;
+    }
+
+    input, textarea {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5rem;
+    }
+  }
+}
+
+/* Custom animations */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 224, 198, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 224, 198, 0.5);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-glow {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+html {
+  font-size: var(--font-size);
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mintara-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mintara-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mintara-primary);
+}

@@ -1,11 +1,17 @@
-import { Logo } from './Logo';
-import { Twitter, Send, Github } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { Twitter, Send, Github } from "lucide-react";
 
-interface FooterProps {
-  onNavigate: (page: string) => void;
-}
+import { Logo } from "./Logo";
 
-export function Footer({ onNavigate }: FooterProps) {
+const quickLinks = [
+  { label: "Home", to: "/" },
+  { label: "Token Builder", to: "/token-builder" },
+  { label: "AI NFT Builder", to: "/ai-nft-builder" },
+  { label: "Launchpad", to: "/launchpad" },
+  { label: "Whitepaper", to: "/whitepaper" },
+];
+
+export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -29,50 +35,18 @@ export function Footer({ onNavigate }: FooterProps) {
 
             {/* Quick Links */}
             <div>
-              <h3 className="font-semibold text-mintara-text-primary mb-4">
-                Quick Links
-              </h3>
+              <h3 className="font-semibold text-mintara-text-primary mb-4">Quick Links</h3>
               <ul className="space-y-2.5">
-                <li>
-                  <button
-                    onClick={() => onNavigate('home')}
-                    className="text-sm text-mintara-text-primary/90 hover:text-mintara-accent transition-colors"
-                  >
-                    Home
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => onNavigate('token-builder')}
-                    className="text-sm text-mintara-text-primary/90 hover:text-mintara-accent transition-colors"
-                  >
-                    Token Builder
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => onNavigate('ai-nft-builder')}
-                    className="text-sm text-mintara-text-primary/90 hover:text-mintara-accent transition-colors"
-                  >
-                    AI NFT Builder
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => onNavigate('whitepaper')}
-                    className="text-sm text-mintara-text-primary/90 hover:text-mintara-accent transition-colors"
-                  >
-                    Minta Token
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => onNavigate('whitepaper')}
-                    className="text-sm text-mintara-text-primary/90 hover:text-mintara-accent transition-colors"
-                  >
-                    Whitepaper
-                  </button>
-                </li>
+                {quickLinks.map((item) => (
+                  <li key={item.to}>
+                    <Link
+                      to={item.to}
+                      className="text-sm text-mintara-text-primary/90 hover:text-mintara-accent transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -103,12 +77,12 @@ export function Footer({ onNavigate }: FooterProps) {
                   </a>
                 </li>
                 <li>
-                  <button
-                    onClick={() => onNavigate('whitepaper')}
+                  <Link
+                    to="/whitepaper"
                     className="text-sm text-mintara-text-primary/90 hover:text-mintara-accent transition-colors"
                   >
                     Docs
-                  </button>
+                  </Link>
                 </li>
               </ul>
             </div>

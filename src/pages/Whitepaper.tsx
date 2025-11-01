@@ -1,10 +1,12 @@
-import { Card } from '../ui/card';
-import { 
-  Sparkles, 
-  Shield, 
-  Zap, 
-  Bot, 
-  Coins, 
+import type { ReactNode } from "react";
+
+import { Card } from "@/components/ui/card";
+import {
+  Sparkles,
+  Shield,
+  Zap,
+  Bot,
+  Coins,
   Award,
   Users,
   Lock,
@@ -16,17 +18,17 @@ import {
   Server,
   Twitter,
   Send,
-  Github
-} from 'lucide-react';
-import { Logo } from '../Logo';
-import { Badge } from '../ui/badge';
-import { motion } from 'motion/react';
+  Github,
+} from "lucide-react";
+import { Logo } from "@/components/Logo";
+import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 
 const SectionDivider = () => (
   <div className="h-px bg-mintara-border opacity-40"></div>
 );
 
-const FadeInSection = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
+const FadeInSection = ({ children, delay = 0 }: { children: ReactNode; delay?: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -37,7 +39,7 @@ const FadeInSection = ({ children, delay = 0 }: { children: React.ReactNode; del
   </motion.div>
 );
 
-export function Whitepaper() {
+export default function WhitepaperPage() {
   const tokenInfo = [
     { param: 'Name', value: 'Mintara Token' },
     { param: 'Symbol', value: 'MINTA' },

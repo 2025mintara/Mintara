@@ -243,13 +243,13 @@ export function Dashboard() {
                 <div className="flex gap-4 justify-center">
                   <Button
                     variant="outline"
-                    onClick={() => window.location.hash = '#token-builder'}
+                    onClick={() => window.location.href = '/token-builder'}
                   >
                     Create Token
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => window.location.hash = '#ai-nft-builder'}
+                    onClick={() => window.location.href = '/ai-nft-builder'}
                   >
                     Create NFT
                   </Button>

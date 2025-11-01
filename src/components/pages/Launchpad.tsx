@@ -271,6 +271,115 @@ export function Launchpad({ onNavigate }: LaunchpadProps) {
           </div>
         </Card>
 
+        {/* IVO Launchpad Section */}
+        <div className="mt-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-semibold text-mintara-text-primary mb-4">
+              Active Initial Validator Offerings (IVO)
+            </h2>
+            <p className="text-mintara-text-secondary max-w-2xl mx-auto">
+              Participate in upcoming token launches and support innovative projects on Base Network
+            </p>
+          </div>
+
+          {isLoading ? (
+            <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
+              <Loader2 className="w-8 h-8 text-mintara-accent animate-spin mx-auto mb-4" />
+              <p className="text-mintara-text-secondary">Loading active IVOs...</p>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {ivos.map((ivo) => {
+                const progress = getProgressPercentage(ivo.current, ivo.goal);
+                const remainingDays = Math.ceil(
+                  (new Date(ivo.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                );
+
+                return (
+                  <Card
+                    key={ivo.id}
+                    className="p-6 bg-mintara-surface/50 border-mintara-border backdrop-blur-sm hover:border-mintara-accent/50 transition-all duration-300"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold text-mintara-text-primary">
+                            {ivo.name}
+                          </h3>
+                          {ivo.verified && (
+                            <Badge className="bg-mintara-accent/20 text-mintara-accent border-mintara-accent/30">
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Verified
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-mintara-text-secondary mb-1">
+                          {ivo.symbol} ? {ivo.tokenPrice} USDC per token
+                        </p>
+                        <p className="text-xs text-mintara-text-secondary line-clamp-2">
+                          {ivo.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-mintara-text-secondary">Progress</span>
+                        <span className="text-mintara-text-primary font-medium">
+                          {progress.toFixed(1)}%
+                        </span>
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                      <div className="flex justify-between text-xs text-mintara-text-secondary">
+                        <span>
+                          {parseFloat(ivo.current).toLocaleString()} / {parseFloat(ivo.goal).toLocaleString()} USDC
+                        </span>
+                        <span>{ivo.participants} participants</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mb-4 text-xs text-mintara-text-secondary">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {remainingDays > 0 ? `${remainingDays} days left` : 'Ended'}
+                      </span>
+                    </div>
+
+                    <Button
+                      className="w-full"
+                      onClick={() => handleParticipate(ivo)}
+                      disabled={participating === ivo.id || !address || remainingDays <= 0}
+                    >
+                      {participating === ivo.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : remainingDays <= 0 ? (
+                        'Ended'
+                      ) : (
+                        'Participate'
+                      )}
+                    </Button>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+
+          {!isLoading && ivos.length === 0 && (
+            <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
+              <Rocket className="w-12 h-12 text-mintara-accent mx-auto mb-4 opacity-50" />
+              <p className="text-mintara-text-secondary mb-2">
+                No active IVOs at the moment
+              </p>
+              <p className="text-sm text-mintara-text-secondary">
+                Check back soon for new opportunities!
+              </p>
+            </Card>
+          )}
+        </div>
+
         {/* CTA Section */}
         <div className="mt-12 text-center">
           <Card className="p-12 bg-gradient-to-br from-mintara-surface/80 to-mintara-primary/10 border-mintara-border backdrop-blur-sm">

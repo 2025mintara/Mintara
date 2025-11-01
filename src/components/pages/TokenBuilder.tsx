@@ -72,7 +72,8 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     try {
       setIsDeploying(true);
       
-      // Convert wallet client to ethers signer
+      // Convert wallet client to ethers provider and signer
+      // wagmi walletClient can be used as an EIP-1193 provider
       const provider = new ethers.BrowserProvider(walletClient as any);
       const signer = await provider.getSigner();
 

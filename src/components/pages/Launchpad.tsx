@@ -1,13 +1,123 @@
+import { useState, useEffect } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
-import { Rocket, TrendingUp, Clock } from 'lucide-react';
+import { Rocket, TrendingUp, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAccount } from 'wagmi';
+import { Progress } from '../ui/progress';
+import { Badge } from '../ui/badge';
 
 interface LaunchpadProps {
   onNavigate: (page: string) => void;
 }
 
+interface IVO {
+  id: string;
+  name: string;
+  symbol: string;
+  goal: string;
+  current: string;
+  participants: number;
+  verified: boolean;
+  endDate: string;
+  description: string;
+  tokenPrice: string;
+}
+
 export function Launchpad({ onNavigate }: LaunchpadProps) {
+  const { address } = useAccount();
+  const [ivos, setIvos] = useState<IVO[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [participating, setParticipating] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load IVOs from mock data or API
+    const mockIVOs: IVO[] = [
+      {
+        id: '1',
+        name: 'Base Launch Protocol',
+        symbol: 'BLP',
+        goal: '500000',
+        current: '325000',
+        participants: 1247,
+        verified: true,
+        endDate: '2025-03-15',
+        description: 'A revolutionary protocol for launching tokens on Base Network',
+        tokenPrice: '0.05',
+      },
+      {
+        id: '2',
+        name: 'Decentralized AI Platform',
+        symbol: 'DAIP',
+        goal: '1000000',
+        current: '780000',
+        participants: 2156,
+        verified: true,
+        endDate: '2025-04-01',
+        description: 'AI-powered decentralized computing platform',
+        tokenPrice: '0.10',
+      },
+      {
+        id: '3',
+        name: 'Community Governance Token',
+        symbol: 'CGT',
+        goal: '250000',
+        current: '89000',
+        participants: 534,
+        verified: false,
+        endDate: '2025-03-20',
+        description: 'Community-driven governance token for Base ecosystem',
+        tokenPrice: '0.02',
+      },
+    ];
+
+    setTimeout(() => {
+      setIvos(mockIVOs);
+      setIsLoading(false);
+    }, 500);
+  }, []);
+
+  const handleParticipate = async (ivo: IVO) => {
+    if (!address) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    try {
+      setParticipating(ivo.id);
+      
+      // Simulate participation transaction
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Save participation to localStorage
+      const participation = {
+        ivoId: ivo.id,
+        ivoName: ivo.name,
+        symbol: ivo.symbol,
+        walletAddress: address,
+        participatedAt: new Date().toISOString(),
+        amount: '100', // Default participation amount
+      };
+
+      const existing = JSON.parse(localStorage.getItem('mintara_ivo_participations') || '[]');
+      existing.push(participation);
+      localStorage.setItem('mintara_ivo_participations', JSON.stringify(existing));
+
+      toast.success(`Successfully participated in ${ivo.name}!`);
+    } catch (error) {
+      console.error('Participation error:', error);
+      toast.error('Failed to participate. Please try again.');
+    } finally {
+      setParticipating(null);
+    }
+  };
+
+  const getProgressPercentage = (current: string, goal: string) => {
+    const currentNum = parseFloat(current);
+    const goalNum = parseFloat(goal);
+    return Math.min((currentNum / goalNum) * 100, 100);
+  };
+
   return (
     <div className="min-h-screen pt-32 px-6 py-16">
       <div className="max-w-[1200px] mx-auto">

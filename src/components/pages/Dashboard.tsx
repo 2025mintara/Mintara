@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ExternalLink, Share2, Coins, MessageCircle, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ExternalLink, Share2, Coins, MessageCircle, X, RefreshCw, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -12,24 +12,47 @@ import {
 } from '../ui/select';
 import { toast } from 'sonner';
 
+interface Creation {
+  name: string;
+  symbol?: string;
+  address?: string;
+  imageUrl?: string;
+  network: string;
+  createdAt: string;
+  type: 'token' | 'nft';
+  txHash?: string;
+  totalSupply?: string;
+  decimals?: number;
+}
+
 export function Dashboard() {
   const [chatOpen, setChatOpen] = useState(false);
   const [tokenType, setTokenType] = useState('meme');
+  const [myCreations, setMyCreations] = useState<Creation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const myTokens = [
-    {
-      name: 'My Awesome Token',
-      symbol: 'MAT',
-      address: '0x1234...5678',
-      type: 'token',
-    },
-    {
-      name: 'Cool NFT Collection',
-      symbol: 'CNC',
-      address: '0xabcd...ef01',
-      type: 'nft',
-    },
-  ];
+  const loadCreations = () => {
+    try {
+      const tokens = JSON.parse(localStorage.getItem('mintara_tokens') || '[]');
+      const nfts = JSON.parse(localStorage.getItem('mintara_nfts') || '[]');
+      
+      // Combine and sort by creation date (newest first)
+      const allCreations = [...tokens, ...nfts].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      setMyCreations(allCreations);
+    } catch (error) {
+      console.error('Error loading creations:', error);
+      toast.error('Failed to load your creations');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCreations();
+  }, []);
 
   const tokenomicsRecommendations: Record<string, any> = {
     meme: {
@@ -98,72 +121,139 @@ export function Dashboard() {
 
           {/* My Creations Tab */}
           <TabsContent value="creations" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              {myTokens.map((item, index) => (
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-semibold text-mintara-text-primary">
+                My Creations ({myCreations.length})
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsLoading(true);
+                  loadCreations();
+                  toast.success('Data refreshed!');
+                }}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
+            
+            {isLoading ? (
+              <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
+                <p className="text-mintara-text-secondary">Loading your creations...</p>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {myCreations.map((item, index) => (
                 <Card
                   key={index}
                   className="p-6 bg-mintara-surface/50 border-mintara-border backdrop-blur-sm hover:border-mintara-accent/50 transition-all duration-300"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-mintara-primary/20 flex items-center justify-center">
-                        <Coins className="w-6 h-6 text-mintara-accent" />
-                      </div>
+                      {item.type === 'nft' && item.imageUrl ? (
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-mintara-primary/20 flex items-center justify-center">
+                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-mintara-primary/20 flex items-center justify-center">
+                          {item.type === 'nft' ? (
+                            <ImageIcon className="w-6 h-6 text-mintara-accent" />
+                          ) : (
+                            <Coins className="w-6 h-6 text-mintara-accent" />
+                          )}
+                        </div>
+                      )}
                       <div>
                         <h3 className="text-lg font-semibold text-mintara-text-primary">
                           {item.name}
                         </h3>
                         <p className="text-sm text-mintara-text-secondary">
-                          {item.symbol}
+                          {item.symbol || 'NFT'} ? {item.network}
                         </p>
+                        {item.totalSupply && (
+                          <p className="text-xs text-mintara-text-secondary mt-1">
+                            Supply: {item.totalSupply} ? Decimals: {item.decimals || 18}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <span className="px-2 py-1 rounded bg-mintara-accent/20 text-mintara-accent text-xs font-medium">
+                    <span className="px-2 py-1 rounded bg-mintara-accent/20 text-mintara-accent text-xs font-medium uppercase">
                       {item.type}
                     </span>
                   </div>
-                  <p className="text-sm text-mintara-text-secondary mb-4 font-mono">
-                    {item.address}
-                  </p>
+                  {item.address && (
+                    <p className="text-sm text-mintara-text-secondary mb-4 font-mono">
+                      {item.address.length > 42 ? `${item.address.slice(0, 6)}...${item.address.slice(-4)}` : item.address}
+                    </p>
+                  )}
+                  {item.txHash && (
+                    <p className="text-xs text-mintara-text-secondary mb-4 font-mono">
+                      TX: {item.txHash.slice(0, 10)}...
+                    </p>
+                  )}
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
-                      onClick={() => window.open(`https://basescan.org/address/${item.address}`, '_blank')}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-1" />
-                      BaseScan
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
-                      onClick={() => toast.info('Re-mint feature coming soon!')}
-                    >
-                      Re-Mint
-                    </Button>
+                    {item.address && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
+                        onClick={() => window.open(`https://basescan.org/address/${item.address}`, '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-1" />
+                        BaseScan
+                      </Button>
+                    )}
+                    {item.imageUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
+                        onClick={() => window.open(item.imageUrl!, '_blank')}
+                      >
+                        <ImageIcon className="w-4 h-4 mr-1" />
+                        View Image
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
                       className="border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
                       onClick={() => {
-                        navigator.clipboard.writeText(item.address);
-                        toast.success('Address copied to clipboard!');
+                        const text = item.address || item.imageUrl || item.name;
+                        navigator.clipboard.writeText(text);
+                        toast.success('Copied to clipboard!');
                       }}
                     >
                       <Share2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </Card>
-              ))}
-            </div>
-
-            {myTokens.length === 0 && (
+                ))}
+              </div>
+            )}
+            
+            {!isLoading && myCreations.length === 0 && (
               <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
-                <p className="text-mintara-text-secondary">
+                <p className="text-mintara-text-secondary mb-4">
                   No creations yet. Start by creating a token or NFT!
                 </p>
+                <div className="flex gap-4 justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={() => window.location.hash = '#token-builder'}
+                  >
+                    Create Token
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => window.location.hash = '#ai-nft-builder'}
+                  >
+                    Create NFT
+                  </Button>
+                </div>
               </Card>
             )}
           </TabsContent>

@@ -269,16 +269,26 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
                 Your Generated NFTs
               </h3>
               <div className="grid md:grid-cols-3 gap-6">
-                {[1, 2, 3].map((index) => (
+                {generatedImages.map((image, index) => (
                   <Card
                     key={index}
-                    className="p-4 bg-mintara-background border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 hover:scale-105"
+                    className={`p-4 bg-mintara-background border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 hover:scale-105 cursor-pointer ${
+                      selectedImageIndex === index ? 'border-mintara-accent ring-2 ring-mintara-accent/50' : ''
+                    }`}
+                    onClick={() => setSelectedImageIndex(index)}
                   >
-                    <div className="aspect-square bg-gradient-to-br from-mintara-primary/20 to-mintara-accent/20 rounded-lg mb-4 flex items-center justify-center">
-                      <Sparkles className="w-12 h-12 text-mintara-accent opacity-50" />
+                    <div className="aspect-square rounded-lg mb-4 overflow-hidden bg-mintara-background">
+                      <img
+                        src={image}
+                        alt={`Generated NFT ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <p className="text-sm text-mintara-text-secondary text-center">
-                      NFT Preview #{index}
+                      NFT Preview #{index + 1}
+                      {selectedImageIndex === index && (
+                        <span className="block text-mintara-accent mt-1">Selected</span>
+                      )}
                     </p>
                   </Card>
                 ))}
@@ -342,9 +352,16 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
                 size="lg"
                 variant="outline"
                 className="w-full"
-                disabled={!isConnected}
+                disabled={!isConnected || isMinting || generatedImages.length === 0}
               >
-                Mint Now
+                {isMinting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Minting NFT...
+                  </>
+                ) : (
+                  'Mint Now'
+                )}
               </Button>
               {!isConnected && (
                 <div className="flex items-center gap-2 mt-3 px-4 py-2 rounded-lg bg-mintara-warning/10 border border-mintara-warning/30">

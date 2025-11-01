@@ -10,7 +10,6 @@ import { useWallet } from '../WalletContext';
 import { useAccount, useWalletClient } from 'wagmi';
 import { ethers } from 'ethers';
 import { deployERC20Token, type TokenDeploymentParams } from '../../lib/contracts';
-import { DEPLOYMENT_FEE, BASE_CONFIG } from '../../lib/baseConfig';
 import { toast } from 'sonner';
 import {
   Select,
@@ -456,11 +455,32 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
               Your token has been deployed to Base Network
             </DialogDescription>
           </DialogHeader>
+          {deploymentResult && (
+            <div className="space-y-2 pt-2 pb-4 px-4 bg-mintara-background/50 rounded-lg border border-mintara-border">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-mintara-text-secondary">Contract Address:</span>
+                <span className="text-sm font-mono text-mintara-text-primary">
+                  {deploymentResult.address.slice(0, 6)}...{deploymentResult.address.slice(-4)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-mintara-text-secondary">Transaction:</span>
+                <span className="text-sm font-mono text-mintara-text-primary">
+                  {deploymentResult.txHash.slice(0, 10)}...
+                </span>
+              </div>
+            </div>
+          )}
           <div className="space-y-3 pt-4">
             <Button
               variant="outline"
               className="w-full gap-2"
-              onClick={() => window.open('https://basescan.org', '_blank')}
+              onClick={() => {
+                const url = deploymentResult
+                  ? `https://basescan.org/address/${deploymentResult.address}`
+                  : 'https://basescan.org';
+                window.open(url, '_blank');
+              }}
             >
               <ExternalLink className="w-4 h-4" />
               View on BaseScan

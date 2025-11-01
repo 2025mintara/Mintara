@@ -44,7 +44,8 @@ function AppContent() {
   const getCurrentPage = () => {
     const path = location.pathname;
     if (path === '/') return 'home';
-    return path.slice(1).replace(/-/g, '-');
+    // Convert /token-builder to token-builder, etc.
+    return path.slice(1);
   };
 
   return (

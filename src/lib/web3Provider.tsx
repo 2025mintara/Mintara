@@ -9,7 +9,7 @@ import { ReactNode } from 'react';
 const queryClient = new QueryClient();
 
 // Get default wallets from RainbowKit
-const { connectors } = getDefaultWallets({
+const wallets = getDefaultWallets({
   appName: 'Mintara Base',
   projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'your-project-id',
   chains: [base],
@@ -18,7 +18,7 @@ const { connectors } = getDefaultWallets({
 // Configure wagmi for Base Mainnet
 const config = createConfig({
   chains: [base],
-  connectors,
+  connectors: wallets.connectors,
   transports: {
     [base.id]: http(import.meta.env.VITE_BASE_RPC_URL || 'https://mainnet.base.org'),
   },

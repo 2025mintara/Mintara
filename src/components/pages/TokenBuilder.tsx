@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, Coins, Flame, Send, Info, Upload, Link2, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle } from 'lucide-react';
+import { HelpCircle, Coins, Flame, Send, Info, Upload, Link2, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
@@ -7,6 +7,11 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { FeeBadge } from '../FeeBadge';
 import { useWallet } from '../WalletContext';
+import { useAccount, useWalletClient } from 'wagmi';
+import { ethers } from 'ethers';
+import { deployERC20Token, type TokenDeploymentParams } from '../../lib/contracts';
+import { DEPLOYMENT_FEE, BASE_CONFIG } from '../../lib/baseConfig';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -35,21 +40,80 @@ interface TokenBuilderProps {
 
 export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const { isConnected } = useWallet();
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deploymentResult, setDeploymentResult] = useState<{ address: string; txHash: string } | null>(null);
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     symbol: '',
-    decimals: '9',
+    decimals: '18',
     supply: '',
     description: '',
     payWith: 'ETH',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowSuccessModal(true);
+    
+    if (!isConnected || !address || !walletClient) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!formData.name || !formData.symbol || !formData.supply) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setIsDeploying(true);
+      
+      // Convert wallet client to ethers signer
+      const provider = new ethers.BrowserProvider(walletClient as any);
+      const signer = await provider.getSigner();
+
+      const params: TokenDeploymentParams = {
+        name: formData.name,
+        symbol: formData.symbol.toUpperCase(),
+        decimals: parseInt(formData.decimals) || 18,
+        totalSupply: formData.supply,
+        description: formData.description,
+        logoUrl: logoUrl || undefined,
+      };
+
+      const result = await deployERC20Token(provider, signer, params);
+      
+      setDeploymentResult(result);
+      
+      // Save to localStorage for dashboard
+      const tokenData = {
+        name: formData.name,
+        symbol: formData.symbol.toUpperCase(),
+        address: result.address,
+        txHash: result.txHash,
+        network: 'Base',
+        decimals: params.decimals,
+        totalSupply: formData.supply,
+        createdAt: new Date().toISOString(),
+        type: 'token',
+      };
+
+      const existingTokens = JSON.parse(localStorage.getItem('mintara_tokens') || '[]');
+      existingTokens.push(tokenData);
+      localStorage.setItem('mintara_tokens', JSON.stringify(existingTokens));
+
+      setShowSuccessModal(true);
+      toast.success('Token deployed successfully!');
+    } catch (error) {
+      console.error('Deployment error:', error);
+      toast.error(error instanceof Error ? error.message : 'Token deployment failed');
+    } finally {
+      setIsDeploying(false);
+    }
   };
 
   const handleAskAI = () => {
@@ -272,9 +336,16 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={!isConnected}
+                disabled={!isConnected || isDeploying}
               >
-                Create Token
+                {isDeploying ? (
+                  <>
+                    <Loader2 className=\"w-4 h-4 mr-2 animate-spin\" />
+                    Deploying Token...
+                  </>
+                ) : (
+                  'Create Token'
+                )}
               </Button>
               {!isConnected && (
                 <div className="flex items-center gap-2 mt-3 px-4 py-2 rounded-lg bg-mintara-warning/10 border border-mintara-warning/30">

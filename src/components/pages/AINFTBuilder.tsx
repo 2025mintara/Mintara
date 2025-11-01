@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Sparkles, Zap, CheckCircle2, ExternalLink, Share2, Download, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -7,6 +7,9 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { FeeBadge } from '../FeeBadge';
 import { useWallet } from '../WalletContext';
+import { generateImageWithHF } from '../../lib/hf';
+import { uploadToIPFS, uploadJSONToIPFS } from '../../lib/ipfs';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +28,9 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
   const [previews, setPreviews] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isMinting, setIsMinting] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [nftMetadata, setNftMetadata] = useState({
     name: '',
     description: '',
@@ -36,16 +42,114 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
     'Fantasy landscape with mountains and aurora',
   ]);
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
-      setPreviews(true);
-    }, 2000);
-  };
+  const handleGenerate = useCallback(async () => {
+    if (!prompt.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
 
-  const handleMint = () => {
-    setShowSuccessModal(true);
+    setIsGenerating(true);
+    setGeneratedImages([]);
+    setPreviews(false);
+
+    try {
+      // Generate 3 images
+      const numImages = 3;
+      const imagePromises = Array.from({ length: numImages }, () =>
+        generateImageWithHF({
+          prompt: prompt,
+          num_images: 1,
+          num_inference_steps: 50,
+          guidance_scale: 7.5,
+        })
+      );
+
+      const results = await Promise.all(imagePromises);
+      const images = results.map((result) => result.image).filter(Boolean);
+
+      if (images.length > 0) {
+        setGeneratedImages(images);
+        setPreviews(true);
+        toast.success(`Generated ${images.length} NFT${images.length > 1 ? 's' : ''}!`);
+      } else {
+        toast.error('Failed to generate images. Please try again.');
+      }
+    } catch (error) {
+      console.error('Generation error:', error);
+      toast.error('Failed to generate images. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [prompt]);
+
+  const handleMint = async () => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (generatedImages.length === 0) {
+      toast.error('Please generate images first');
+      return;
+    }
+
+    if (!nftMetadata.name) {
+      toast.error('Please enter an NFT name');
+      return;
+    }
+
+    try {
+      setIsMinting(true);
+      
+      // Convert base64 image to blob
+      const selectedImage = generatedImages[selectedImageIndex];
+      const imageBlob = await fetch(selectedImage).then((r) => r.blob());
+      const imageFile = new File([imageBlob], `nft-${Date.now()}.png`, { type: 'image/png' });
+
+      // Upload image to IPFS
+      toast.info('Uploading image to IPFS...');
+      const imageResult = await uploadToIPFS(imageFile, `nft-${nftMetadata.name}.png`);
+
+      // Create metadata
+      const metadata = {
+        name: nftMetadata.name,
+        description: nftMetadata.description || prompt,
+        image: imageResult.url,
+        attributes: [
+          { trait_type: 'Collection', value: nftMetadata.collection || 'AI Generated' },
+          { trait_type: 'Prompt', value: prompt },
+        ],
+      };
+
+      // Upload metadata to IPFS
+      toast.info('Uploading metadata to IPFS...');
+      const metadataResult = await uploadJSONToIPFS(metadata);
+
+      // Save to localStorage
+      const nftData = {
+        name: nftMetadata.name,
+        description: nftMetadata.description || prompt,
+        imageUrl: imageResult.url,
+        metadataUrl: metadataResult.url,
+        prompt: prompt,
+        collection: nftMetadata.collection || 'AI Generated',
+        network: 'Base',
+        createdAt: new Date().toISOString(),
+        type: 'nft',
+      };
+
+      const existingNFTs = JSON.parse(localStorage.getItem('mintara_nfts') || '[]');
+      existingNFTs.push(nftData);
+      localStorage.setItem('mintara_nfts', JSON.stringify(existingNFTs));
+
+      toast.success('NFT minted successfully!');
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Minting error:', error);
+      toast.error('Failed to mint NFT. Please try again.');
+    } finally {
+      setIsMinting(false);
+    }
   };
 
   const handleRecentPromptClick = (recentPrompt: string) => {
@@ -144,7 +248,7 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
 
             {/* Model Info */}
             <div className="text-center text-xs text-mintara-text-secondary pt-2 border-t border-mintara-border">
-              Model: SDXL Turbo v1.1 | Resolution: 512×512 | Optimization: ON
+              Model: SDXL Turbo v1.1 | Resolution: 512?512 | Optimization: ON
             </div>
           </div>
 
@@ -159,7 +263,7 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
           )}
 
           {/* Preview Area */}
-          {previews && !isGenerating && (
+          {previews && !isGenerating && generatedImages.length > 0 && (
             <div className="mt-12 space-y-6">
               <h3 className="text-2xl font-semibold text-mintara-text-primary">
                 Your Generated NFTs
@@ -292,7 +396,7 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
               </div>
             </div>
             <DialogTitle className="text-mintara-text-primary text-center text-2xl">
-              🎉 NFT Minted Successfully!
+              ?? NFT Minted Successfully!
             </DialogTitle>
             <DialogDescription className="text-mintara-text-secondary text-center pt-2">
               Your NFT has been minted on Base Network
@@ -311,7 +415,7 @@ export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
               variant="secondary"
               className="w-full gap-2"
               onClick={() => {
-                const shareText = `Check out my AI-generated NFT on Mintara Base! 🎨`;
+                const shareText = `Check out my AI-generated NFT on Mintara Base! ??`;
                 if (navigator.share) {
                   navigator.share({ text: shareText });
                 } else {

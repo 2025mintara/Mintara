@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, Coins, Flame, Send, Info, Upload, Link2, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle } from 'lucide-react';
+import { HelpCircle, Coins, Flame, Send, Info, Upload, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
@@ -208,7 +208,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
               <Label className="text-mintara-text-primary">
                 Upload Logo (Optional)
               </Label>
-              <Tabs value={uploadMethod} onValueChange={(v) => setUploadMethod(v as 'upload' | 'url')}>
+              <Tabs value={uploadMethod} onValueChange={(v: string) => setUploadMethod(v as 'upload' | 'url')}>
                 <TabsList className="grid w-full grid-cols-2 bg-mintara-surface/50 border border-mintara-border">
                   <TabsTrigger value="upload">Upload</TabsTrigger>
                   <TabsTrigger value="url">Use URL</TabsTrigger>
@@ -249,7 +249,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
               </Label>
               <Select
                 value={formData.payWith}
-                onValueChange={(value) =>
+                onValueChange={(value: string) =>
                   setFormData({ ...formData, payWith: value })
                 }
               >

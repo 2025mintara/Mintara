@@ -19,7 +19,7 @@ interface AINFTBuilderProps {
   onNavigate: (page: string) => void;
 }
 
-export function AINFTBuilder({ onNavigate }: AINFTBuilderProps) {
+export function AINFTBuilder({ }: AINFTBuilderProps) {
   const { isConnected } = useWallet();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);

@@ -36,7 +36,7 @@ function App() {
           {currentPage === 'home' && <Home onNavigate={handleNavigate} />}
           {currentPage === 'token-builder' && <TokenBuilder onNavigate={handleNavigate} />}
           {currentPage === 'ai-nft-builder' && <AINFTBuilder onNavigate={handleNavigate} />}
-          {currentPage === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
+          {currentPage === 'dashboard' && <Dashboard />}
           {currentPage === 'whitepaper' && <Whitepaper />}
           {currentPage === 'launchpad' && <Launchpad onNavigate={handleNavigate} />}
         </main>

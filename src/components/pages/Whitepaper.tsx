@@ -7,7 +7,6 @@ import {
   Coins, 
   Award,
   Users,
-  Lock,
   CheckCircle2,
   Network,
   Rocket,

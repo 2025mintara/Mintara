@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, Zap, CheckCircle2, ExternalLink, Share2, Download, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -6,7 +6,15 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { FeeBadge } from '../FeeBadge';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { toast } from 'sonner';
+import {
+  OWNER_WALLET,
+  USDC_CONTRACT_ADDRESS,
+  USDC_ABI,
+  getNFTBuilderFee,
+  formatUSDC,
+} from '../../utils/feePayment';
 import {
   Dialog,
   DialogContent,
@@ -20,11 +28,12 @@ interface AINFTBuilderProps {
 }
 
 export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [nftMetadata, setNftMetadata] = useState({
     name: '',
     description: '',
@@ -36,6 +45,20 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
     'Fantasy landscape with mountains and aurora',
   ]);
 
+  const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
+  
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      setIsProcessing(false);
+      setShowSuccessModal(true);
+      toast.success('Fee paid successfully! NFT minting in progress...');
+    }
+  }, [isConfirmed]);
+
   const handleGenerate = () => {
     setIsGenerating(true);
     setTimeout(() => {
@@ -44,8 +67,36 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
     }, 2000);
   };
 
-  const handleMint = () => {
-    setShowSuccessModal(true);
+  const handleMint = async () => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!nftMetadata.name || !nftMetadata.description) {
+      toast.error('Please fill in NFT name and description');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const feeAmount = getNFTBuilderFee();
+      
+      toast.info(`Sending ${formatUSDC(feeAmount)} USDC fee to owner...`);
+      
+      writeContract({
+        address: USDC_CONTRACT_ADDRESS,
+        abi: USDC_ABI,
+        functionName: 'transfer',
+        args: [OWNER_WALLET, feeAmount],
+      });
+      
+    } catch (error) {
+      console.error('Fee payment error:', error);
+      toast.error('Failed to process fee payment');
+      setIsProcessing(false);
+    }
   };
 
   const handleRecentPromptClick = (recentPrompt: string) => {
@@ -238,9 +289,16 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                 size="lg"
                 variant="outline"
                 className="w-full"
-                disabled={!isConnected}
+                disabled={!isConnected || isProcessing || isWritePending || isConfirming}
               >
-                Mint Now
+                {isProcessing || isWritePending || isConfirming ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isConfirming ? 'Confirming...' : 'Processing Payment...'}
+                  </>
+                ) : (
+                  'Mint Now'
+                )}
               </Button>
               {!isConnected && (
                 <div className="flex items-center gap-2 mt-3 px-4 py-2 rounded-lg bg-mintara-warning/10 border border-mintara-warning/30">

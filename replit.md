@@ -40,7 +40,27 @@ The project is configured to run on Replit with:
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 
+## Fee Payment System
+All platform fees are automatically sent to the owner wallet address via USDC on Base Network:
+- **Owner Wallet**: 0x71DEdF5544692aF64FC2ce040a2b3dA573957275
+- **Token Builder Fee**: 1 USDC per token deployment
+- **NFT Builder Fee**: 1 USDC per NFT mint
+- **Payment Method**: USDC (Base Network contract: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
+- **Payment Flow**: User connects wallet → Creates token/NFT → Pays 1 USDC to owner → Transaction confirmed → Token deployed/NFT minted
+
 ## Recent Changes
+
+### November 4, 2025 - Late Evening
+- **CRITICAL**: Implemented real blockchain fee payment system
+- Created feePayment.ts utility with USDC contract integration
+- Integrated wagmi's useWriteContract and useWaitForTransactionReceipt hooks
+- TokenBuilder now processes real USDC payments to owner wallet before deployment
+- AINFTBuilder now processes real USDC payments to owner wallet before minting
+- Added loading states and transaction confirmation handling
+- All fees (100%) automatically go to owner wallet: 0x71DEdF5544692aF64FC2ce040a2b3dA573957275
+- Users see real-time transaction status with toast notifications
+- Customized OnchainKit wallet button with Mintara theme (green/turquoise gradient)
+- Moved all OnchainKit CSS to globals.css for cleaner imports
 
 ### November 4, 2025 - Evening
 - **Major Upgrade**: Integrated Coinbase OnchainKit for real wallet connectivity

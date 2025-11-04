@@ -46,6 +46,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -55,6 +56,18 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     description: '',
     payWith: 'USDC',
   });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
   
@@ -266,15 +279,29 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
                   <TabsTrigger value="url">Use URL</TabsTrigger>
                 </TabsList>
                 <TabsContent value="upload" className="mt-4">
-                  <div className="border-2 border-dashed border-mintara-border rounded-lg p-8 text-center hover:border-mintara-accent/50 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 text-mintara-accent mx-auto mb-3" />
-                    <p className="text-sm text-mintara-text-primary mb-1">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-xs text-mintara-text-secondary">
-                      PNG or SVG • 512×512px recommended
-                    </p>
-                  </div>
+                  <label className="block cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <div className="border-2 border-dashed border-mintara-border rounded-lg p-8 text-center hover:border-mintara-accent/50 transition-colors">
+                      <Upload className="w-8 h-8 text-mintara-accent mx-auto mb-3" />
+                      <p className="text-sm text-mintara-text-primary mb-1">
+                        {logoFile ? logoFile.name : 'Click to upload or drag and drop'}
+                      </p>
+                      <p className="text-xs text-mintara-text-secondary">
+                        PNG, JPG, SVG • 512×512px recommended
+                      </p>
+                    </div>
+                  </label>
+                  {logoFile && logoUrl && (
+                    <div className="mt-3 p-3 bg-mintara-surface/30 border border-mintara-border rounded-lg">
+                      <p className="text-xs text-mintara-text-secondary mb-2">Preview:</p>
+                      <img src={logoUrl} alt="Logo preview" className="w-16 h-16 rounded-lg object-cover" />
+                    </div>
+                  )}
                 </TabsContent>
                 <TabsContent value="url" className="mt-4">
                   <Input

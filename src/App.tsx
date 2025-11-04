@@ -57,7 +57,7 @@ function App() {
           config={{
             appearance: {
               name: 'Mintara Base',
-              logo: '/icon.png',
+              logo: `${window.location.origin}/icon.png`,
               mode: 'auto',
               theme: 'default',
             },

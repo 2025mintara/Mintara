@@ -10,7 +10,7 @@ import { Launchpad } from './components/pages/Launchpad';
 import { Toaster } from './components/ui/sonner';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
+import { WagmiProvider, createStorage } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { http, createConfig } from 'wagmi';
 import { coinbaseWallet } from '@wagmi/connectors';
@@ -22,13 +22,15 @@ const wagmiConfig = createConfig({
   connectors: [
     coinbaseWallet({
       appName: 'Mintara Base',
-      appLogoUrl: '/icon.png',
+      appLogoUrl: '/logo.svg',
       preference: 'smartWalletOnly',
     }),
   ],
   transports: {
     [base.id]: http(),
   },
+  storage: createStorage({ storage: window.localStorage }),
+  ssr: false,
 });
 
 function App() {

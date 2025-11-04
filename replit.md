@@ -50,6 +50,17 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
+### November 4, 2025 - Very Late Night
+- **ALL MAJOR ISSUES FIXED**: 
+  1. Fixed wallet modal logo to match site logo (uses window.location.origin)
+  2. Fixed Token Builder logo upload - now opens file input properly with file preview
+  3. Fixed NFT Builder AI generation - integrated Hugging Face SDXL Turbo API
+- Created src/utils/huggingface.ts for real AI image generation
+- Added HUGGINGFACE_API_KEY to environment (via Replit Secrets)
+- NFT Builder now generates real AI images and displays them
+- Token Builder has working file upload with drag-and-drop support and image preview
+- All TypeScript errors resolved
+
 ### November 4, 2025 - Late Night
 - **WALLET MODAL FIX**: Configured OnchainKit wallet modal with Coinbase Smart Wallet
 - Simplified wagmi connectors to use only Coinbase Wallet for better OnchainKit integration

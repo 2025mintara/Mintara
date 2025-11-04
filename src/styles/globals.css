@@ -249,3 +249,85 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--mintara-primary);
 }
+
+/* ===== OnchainKit Wallet Customization for Mintara Theme ===== */
+
+/* Connect Wallet Button - Force Mintara Colors */
+div[class*="ock"] button,
+button[data-testid*="wallet"],
+button[class*="ConnectWallet"],
+div[data-ockwallet] button,
+[class*="ockConnectWallet"] button {
+  background: linear-gradient(135deg, #00A676 0%, #00E0C6 100%) !important;
+  border: none !important;
+  color: #E8FFF5 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(0, 166, 118, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+div[class*="ock"] button:hover,
+button[data-testid*="wallet"]:hover,
+button[class*="ConnectWallet"]:hover,
+div[data-ockwallet] button:hover,
+[class*="ockConnectWallet"] button:hover {
+  background: linear-gradient(135deg, #00E0C6 0%, #00A676 100%) !important;
+  box-shadow: 0 6px 20px rgba(0, 224, 198, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Wallet text */
+div[class*="ock"] button span,
+button[data-testid*="wallet"] span,
+div[data-ockwallet] button span {
+  color: #E8FFF5 !important;
+}
+
+/* Wallet dropdown and modal backgrounds */
+div[class*="ockModal"],
+div[class*="ockWalletDropdown"],
+div[data-ockwallet-modal],
+div[data-ockwallet-dropdown] {
+  background: #03261B !important;
+  border: 1px solid #2C5E51 !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Wallet dropdown items */
+div[class*="ockWalletDropdown"] button,
+div[data-ockwallet-dropdown] button {
+  color: #E8FFF5 !important;
+  background: transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+div[class*="ockWalletDropdown"] button:hover,
+div[data-ockwallet-dropdown] button:hover {
+  background: rgba(0, 224, 198, 0.1) !important;
+  color: #00E0C6 !important;
+}
+
+/* Override OnchainKit default colors */
+:root {
+  --ock-bg-default: #03261B;
+  --ock-bg-alternate: #001A12;
+  --ock-bg-inverse: #E8FFF5;
+  --ock-bg-primary: #00A676;
+  --ock-bg-secondary: #00E0C6;
+  --ock-text-foreground: #E8FFF5;
+  --ock-text-foreground-muted: #A7DAC6;
+  --ock-text-inverse: #001A12;
+  --ock-border: #2C5E51;
+}
+
+/* Extra specificity for button */
+[data-testid="ockConnectButton"],
+[class~="ockConnectWallet_Button"] {
+  background: linear-gradient(135deg, #00A676 0%, #00E0C6 100%) !important;
+  color: #E8FFF5 !important;
+}
+
+[data-testid="ockConnectButton"]:hover,
+[class~="ockConnectWallet_Button"]:hover {
+  background: linear-gradient(135deg, #00E0C6 0%, #00A676 100%) !important;
+}

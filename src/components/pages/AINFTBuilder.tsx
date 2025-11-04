@@ -124,7 +124,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
   const features = [
     {
       icon: Sparkles,
-      title: 'SDXL Turbo Model',
+      title: 'FLUX AI Model',
       description: 'Latest AI technology for stunning NFT generation',
     },
     {
@@ -213,7 +213,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
 
             {/* Model Info */}
             <div className="text-center text-xs text-mintara-text-secondary pt-2 border-t border-mintara-border">
-              Model: SDXL Turbo v1.1 | Resolution: 512×512 | Optimization: ON
+              Model: Pollinations AI (FLUX) | Resolution: 512×512 | Enhancement: ON
             </div>
           </div>
 
@@ -241,7 +241,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                     className="w-full aspect-square rounded-lg object-cover mb-4"
                   />
                   <p className="text-sm text-mintara-text-secondary text-center">
-                    Generated with SDXL Turbo
+                    Generated with Pollinations AI
                   </p>
                 </Card>
               </div>

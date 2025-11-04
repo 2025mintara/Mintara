@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Logo } from '../Logo';
 import { Badge } from '../ui/badge';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 const SectionDivider = () => (
   <div className="h-px bg-mintara-border opacity-40"></div>

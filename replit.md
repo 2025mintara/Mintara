@@ -50,6 +50,14 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
+### November 4, 2025 - Late Night
+- **WALLET MODAL FIX**: Configured OnchainKit wallet modal with Coinbase Smart Wallet
+- Simplified wagmi connectors to use only Coinbase Wallet for better OnchainKit integration
+- Added Identity components (Avatar, Name, Address, EthBalance) to WalletDropdown
+- Set wallet display mode to 'modal' in OnchainKitProvider config
+- Modal infrastructure is in place (WalletModal, Dialog components rendering)
+- Removed unused connector imports (walletConnect, injected)
+
 ### November 4, 2025 - Late Evening
 - **CRITICAL**: Implemented real blockchain fee payment system
 - Created feePayment.ts utility with USDC contract integration

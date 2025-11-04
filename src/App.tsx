@@ -13,22 +13,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { http, createConfig } from 'wagmi';
-import { coinbaseWallet, walletConnect, injected } from '@wagmi/connectors';
+import { coinbaseWallet } from '@wagmi/connectors';
 
 const queryClient = new QueryClient();
 
 const wagmiConfig = createConfig({
   chains: [base],
   connectors: [
-    injected({
-      target: 'metaMask',
-    }),
     coinbaseWallet({
-      appName: import.meta.env.VITE_APP_NAME || 'Mintara Base',
-      appLogoUrl: 'https://mintara.base.org/icon.png',
-    }),
-    walletConnect({
-      projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3',
+      appName: 'Mintara Base',
+      appLogoUrl: '/icon.png',
+      preference: 'smartWalletOnly',
     }),
   ],
   transports: {
@@ -59,6 +54,17 @@ function App() {
         <OnchainKitProvider
           apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY}
           chain={base}
+          config={{
+            appearance: {
+              name: 'Mintara Base',
+              logo: '/icon.png',
+              mode: 'auto',
+              theme: 'default',
+            },
+            wallet: {
+              display: 'modal',
+            },
+          }}
         >
           <div className="min-h-screen">
             <Navbar currentPage={currentPage} onNavigate={handleNavigate} />

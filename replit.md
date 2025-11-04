@@ -17,11 +17,13 @@ Mintara Base is a no-code platform for creating tokens and AI-generated NFTs on 
 5. **Wallet Integration** - Connect wallet functionality for Base Network
 
 ## Technology Stack
-- **Framework**: React 18.3.1
+- **Framework**: React 19.0.0
 - **Build Tool**: Vite 6.3.5
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4.1.16 with @tailwindcss/postcss
 - **UI Library**: Radix UI components
+- **Wallet Integration**: Coinbase OnchainKit 1.1.2 with wagmi & viem
+- **Web3**: Base Network (Chain ID: 8453)
 - **Icons**: Lucide React
 - **Forms**: React Hook Form
 - **Charts**: Recharts
@@ -40,7 +42,18 @@ The project is configured to run on Replit with:
 
 ## Recent Changes
 
-### November 4, 2025
+### November 4, 2025 - Evening
+- **Major Upgrade**: Integrated Coinbase OnchainKit for real wallet connectivity
+- Upgraded to React 19.0.0 (required for OnchainKit compatibility)
+- Added wagmi, viem, and @tanstack/react-query for Web3 functionality
+- Replaced mock WalletContext with real OnchainKit wallet components
+- Configured WagmiProvider and OnchainKitProvider for Base Network
+- Removed old WalletContext system entirely
+- Updated TokenBuilder and AINFTBuilder to use wagmi's useAccount hook
+- OnchainKit supports Metamask, Coinbase Wallet, WalletConnect, and more
+
+### November 4, 2025 - Afternoon
+- Fixed critical Tailwind CSS v4 issue by adding `@import "tailwindcss"` to globals.css
 - Fixed Tailwind CSS color configuration (removed hsl() wrapper, colors now work properly)
 - Added allowedHosts: true to Vite config for Replit proxy compatibility
 - Fixed TypeScript errors in Dashboard component (added onNavigate prop interface)

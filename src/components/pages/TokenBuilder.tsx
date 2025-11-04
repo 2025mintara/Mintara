@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, Coins, Flame, Send, Info, Upload, Link2, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle } from 'lucide-react';
+import { HelpCircle, Coins, Flame, Send, Info, Upload, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';

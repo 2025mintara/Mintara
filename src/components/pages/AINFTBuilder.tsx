@@ -15,6 +15,7 @@ import {
   getNFTBuilderFee,
   formatUSDC,
 } from '../../utils/feePayment';
+import { generateImage } from '../../utils/huggingface';
 import {
   Dialog,
   DialogContent,
@@ -28,9 +29,10 @@ interface AINFTBuilderProps {
 }
 
 export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -59,12 +61,28 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
     }
   }, [isConfirmed]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
+    setGeneratedImageUrl('');
+    
+    try {
+      toast.info('Generating your NFT with AI...');
+      const imageUrl = await generateImage(prompt);
+      setGeneratedImageUrl(imageUrl);
       setPreviews(true);
-    }, 2000);
+      toast.success('NFT generated successfully!');
+    } catch (error) {
+      console.error('Image generation error:', error);
+      toast.error('Failed to generate image. Please try again.');
+      setPreviews(false);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleMint = async () => {
@@ -210,25 +228,22 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
           )}
 
           {/* Preview Area */}
-          {previews && !isGenerating && (
+          {previews && !isGenerating && generatedImageUrl && (
             <div className="mt-12 space-y-6">
               <h3 className="text-2xl font-semibold text-mintara-text-primary">
-                Your Generated NFTs
+                Your Generated NFT
               </h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                {[1, 2, 3].map((index) => (
-                  <Card
-                    key={index}
-                    className="p-4 bg-mintara-background border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 hover:scale-105"
-                  >
-                    <div className="aspect-square bg-gradient-to-br from-mintara-primary/20 to-mintara-accent/20 rounded-lg mb-4 flex items-center justify-center">
-                      <Sparkles className="w-12 h-12 text-mintara-accent opacity-50" />
-                    </div>
-                    <p className="text-sm text-mintara-text-secondary text-center">
-                      NFT Preview #{index}
-                    </p>
-                  </Card>
-                ))}
+              <div className="flex justify-center">
+                <Card className="p-4 bg-mintara-background border-mintara-border max-w-md w-full">
+                  <img 
+                    src={generatedImageUrl} 
+                    alt="Generated NFT" 
+                    className="w-full aspect-square rounded-lg object-cover mb-4"
+                  />
+                  <p className="text-sm text-mintara-text-secondary text-center">
+                    Generated with SDXL Turbo
+                  </p>
+                </Card>
               </div>
 
               {/* Metadata Form */}

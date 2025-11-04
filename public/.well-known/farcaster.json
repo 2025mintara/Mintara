@@ -1,0 +1,28 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "baseBuilder": {
+    "ownerAddress": "0x71DEdF5544692aF64FC2ce040a2b3dA573957275"
+  },
+  "frame": {
+    "version": "next",
+    "name": "Mintara Base",
+    "iconUrl": "https://67ca7400-e186-4f3b-9d4b-b459d1c6f073-00-nerqvq31m2qa.sisko.replit.dev/icon.png",
+    "homeUrl": "https://67ca7400-e186-4f3b-9d4b-b459d1c6f073-00-nerqvq31m2qa.sisko.replit.dev",
+    "imageUrl": "https://67ca7400-e186-4f3b-9d4b-b459d1c6f073-00-nerqvq31m2qa.sisko.replit.dev/og-image.png",
+    "buttonTitle": "Launch Mintara",
+    "splashImageUrl": "https://67ca7400-e186-4f3b-9d4b-b459d1c6f073-00-nerqvq31m2qa.sisko.replit.dev/splash.png",
+    "splashBackgroundColor": "#001A12",
+    "description": "No-code platform for creating tokens and AI-generated NFTs on Base Network",
+    "primaryCategory": "blockchain",
+    "tags": ["defi", "nft", "token", "base", "web3"],
+    "requiredChains": ["eip155:8453"],
+    "requiredCapabilities": [
+      "actions.signIn",
+      "wallet.getEthereumProvider"
+    ]
+  }
+}

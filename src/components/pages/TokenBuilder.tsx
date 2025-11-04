@@ -42,7 +42,7 @@ interface TokenBuilderProps {
 }
 
 export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
-  const { isConnected, address } = useAccount();
+  const { isConnected } = useAccount();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');

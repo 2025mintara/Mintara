@@ -50,6 +50,13 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
+### November 4, 2025 - Very Late Night (WALLET CONNECTOR UPGRADE)
+- **WALLET CONNECTORS EXPANDED**: Added MetaMask, WalletConnect, and Safe wallet support
+- Users can now connect with: Coinbase Wallet, MetaMask, WalletConnect (mobile), Safe wallet
+- Changed Coinbase preference from 'smartWalletOnly' to 'all' for broader compatibility
+- WalletConnect configured with public project ID and proper metadata
+- Token Factory ABI and contracts prepared for future token deployment
+
 ### November 4, 2025 - Very Late Night (FINAL FIXES v2)
 - **NFT AI BUILDER FIX**: Switched to Pollinations AI (completely free, no API key needed)
 - Pollinations AI uses FLUX model for high-quality NFT generation

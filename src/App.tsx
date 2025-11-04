@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider, createStorage } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { http, createConfig } from 'wagmi';
-import { coinbaseWallet } from '@wagmi/connectors';
+import { coinbaseWallet, walletConnect, injected, safe } from '@wagmi/connectors';
 
 const queryClient = new QueryClient();
 
@@ -23,7 +23,24 @@ const wagmiConfig = createConfig({
     coinbaseWallet({
       appName: 'Mintara Base',
       appLogoUrl: '/logo.svg',
-      preference: 'smartWalletOnly',
+      preference: 'all',
+    }),
+    injected({
+      target: 'metaMask',
+    }),
+    walletConnect({
+      projectId: '3fbb6bba6f1de962d911bb5b5c9dba88',
+      metadata: {
+        name: 'Mintara Base',
+        description: 'No-code token and NFT creation on Base Network',
+        url: window.location.origin,
+        icons: [`${window.location.origin}/logo.svg`],
+      },
+      showQrModal: true,
+    }),
+    safe({
+      allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/],
+      debug: false,
     }),
   ],
   transports: {

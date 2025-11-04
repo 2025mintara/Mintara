@@ -1,29 +1,14 @@
 export async function generateImage(prompt: string): Promise<string> {
-  const API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
-  
-  if (!API_KEY) {
-    throw new Error('Hugging Face API key not configured');
-  }
-
   try {
-    const response = await fetch(
-      `https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          inputs: prompt,
-        }),
-      }
-    );
-
+    // Using Pollinations AI - completely free, no API key required
+    const encodedPrompt = encodeURIComponent(prompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&enhance=true`;
+    
+    // Fetch the image
+    const response = await fetch(imageUrl);
+    
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Hugging Face API Error:', errorText);
-      throw new Error(`Image generation failed: ${errorText}`);
+      throw new Error(`Image generation failed: ${response.statusText}`);
     }
 
     const blob = await response.blob();

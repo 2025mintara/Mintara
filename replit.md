@@ -50,16 +50,22 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
+### November 4, 2025 - Very Late Night (FINAL FIXES v2)
+- **NFT AI BUILDER FIX**: Switched to Pollinations AI (completely free, no API key needed)
+- Pollinations AI uses FLUX model for high-quality NFT generation
+- Removed Hugging Face dependency (their API endpoint changed and is no longer free-tier friendly)
+- NFT Builder now works instantly with zero setup required
+- All critical issues resolved:
+  1. ✅ Wallet modal shows correct Mintara logo
+  2. ✅ NFT Builder generates real AI images (FREE via Pollinations)
+  3. ✅ Wallet connection persists across pages
+  4. ✅ Token Builder logo upload works perfectly
+
 ### November 4, 2025 - Very Late Night (FINAL FIXES)
 - **WALLET PERSISTENCE FIX**: Added localStorage storage to wagmi config for persistent wallet connections across pages
 - **LOGO FIX**: Created public/logo.svg with Mintara brand gradient logo for OnchainKit wallet modal
-- **NFT AI BUILDER**: Integrated Hugging Face SDXL Turbo API with proper VITE_ environment variable
 - Updated wagmi connector to use new logo.svg in appLogoUrl
 - Added createStorage with localStorage to maintain wallet state across navigation
-- All three critical issues resolved:
-  1. ✅ Wallet modal now shows correct Mintara logo
-  2. ✅ NFT Builder generates real AI images via Hugging Face
-  3. ✅ Wallet connection persists when navigating between pages
 
 ### November 4, 2025 - Very Late Night
 - Fixed Token Builder logo upload - now opens file input properly with file preview

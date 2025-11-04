@@ -38,7 +38,16 @@ The project is configured to run on Replit with:
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 
-## Recent Changes (November 2, 2025)
+## Recent Changes
+
+### November 4, 2025
+- Fixed Tailwind CSS color configuration (removed hsl() wrapper, colors now work properly)
+- Added allowedHosts: true to Vite config for Replit proxy compatibility
+- Fixed TypeScript errors in Dashboard component (added onNavigate prop interface)
+- Removed unused Lock icon import from Whitepaper component
+- Updated index.html title for better SEO
+
+### November 2, 2025
 - Fixed TypeScript configuration (removed Next.js references)
 - Updated Vite config for Replit environment (port 5000, host 0.0.0.0)
 - Fixed package imports (removed version-specific import paths)

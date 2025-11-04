@@ -12,7 +12,11 @@ import {
 } from '../ui/select';
 import { toast } from 'sonner';
 
-export function Dashboard() {
+interface DashboardProps {
+  onNavigate: (page: string) => void;
+}
+
+export function Dashboard({ onNavigate }: DashboardProps) {
   const [chatOpen, setChatOpen] = useState(false);
   const [tokenType, setTokenType] = useState('meme');
 

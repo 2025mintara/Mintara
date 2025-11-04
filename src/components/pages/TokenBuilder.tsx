@@ -1,12 +1,20 @@
-import { useState } from 'react';
-import { HelpCircle, Coins, Flame, Send, Info, Upload, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { HelpCircle, Coins, Flame, Send, Info, Upload, CheckCircle2, ExternalLink, Share2, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { FeeBadge } from '../FeeBadge';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { toast } from 'sonner';
+import {
+  OWNER_WALLET,
+  USDC_CONTRACT_ADDRESS,
+  USDC_ABI,
+  getTokenBuilderFee,
+  formatUSDC,
+} from '../../utils/feePayment';
 import {
   Select,
   SelectContent,
@@ -34,22 +42,66 @@ interface TokenBuilderProps {
 }
 
 export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     symbol: '',
     decimals: '9',
     supply: '',
     description: '',
-    payWith: 'ETH',
+    payWith: 'USDC',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
+  
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
+
+  useEffect(() => {
+    if (isConfirmed) {
+      setIsProcessing(false);
+      setShowSuccessModal(true);
+      toast.success('Fee paid successfully! Token deployment in progress...');
+    }
+  }, [isConfirmed]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowSuccessModal(true);
+    
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!formData.name || !formData.symbol || !formData.supply) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const feeAmount = getTokenBuilderFee();
+      
+      toast.info(`Sending ${formatUSDC(feeAmount)} USDC fee to owner...`);
+      
+      writeContract({
+        address: USDC_CONTRACT_ADDRESS,
+        abi: USDC_ABI,
+        functionName: 'transfer',
+        args: [OWNER_WALLET, feeAmount],
+      });
+      
+    } catch (error) {
+      console.error('Fee payment error:', error);
+      toast.error('Failed to process fee payment');
+      setIsProcessing(false);
+    }
   };
 
   const handleAskAI = () => {
@@ -272,9 +324,16 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={!isConnected}
+                disabled={!isConnected || isProcessing || isWritePending || isConfirming}
               >
-                Create Token
+                {isProcessing || isWritePending || isConfirming ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isConfirming ? 'Confirming...' : 'Processing Payment...'}
+                  </>
+                ) : (
+                  'Create Token'
+                )}
               </Button>
               {!isConnected && (
                 <div className="flex items-center gap-2 mt-3 px-4 py-2 rounded-lg bg-mintara-warning/10 border border-mintara-warning/30">

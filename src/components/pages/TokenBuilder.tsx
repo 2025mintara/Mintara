@@ -6,7 +6,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { FeeBadge } from '../FeeBadge';
-import { useWallet } from '../WalletContext';
+import { useAccount } from 'wagmi';
 import {
   Select,
   SelectContent,
@@ -34,7 +34,7 @@ interface TokenBuilderProps {
 }
 
 export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
-  const { isConnected } = useWallet();
+  const { isConnected } = useAccount();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');

@@ -6,7 +6,7 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { FeeBadge } from '../FeeBadge';
-import { useWallet } from '../WalletContext';
+import { useAccount } from 'wagmi';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ interface AINFTBuilderProps {
 }
 
 export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
-  const { isConnected } = useWallet();
+  const { isConnected } = useAccount();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);

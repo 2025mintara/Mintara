@@ -8,12 +8,11 @@ import { Dashboard } from './components/pages/Dashboard';
 import { Whitepaper } from './components/pages/Whitepaper';
 import { Launchpad } from './components/pages/Launchpad';
 import { Toaster } from './components/ui/sonner';
-import { OnchainKitProvider } from '@coinbase/onchainkit/OnchainKitProvider';
+import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { http, createConfig } from 'wagmi';
-import type { ReactNode } from 'react';
 
 const queryClient = new QueryClient();
 

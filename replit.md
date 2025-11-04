@@ -50,14 +50,21 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
+### November 4, 2025 - Very Late Night (FINAL FIXES)
+- **WALLET PERSISTENCE FIX**: Added localStorage storage to wagmi config for persistent wallet connections across pages
+- **LOGO FIX**: Created public/logo.svg with Mintara brand gradient logo for OnchainKit wallet modal
+- **NFT AI BUILDER**: Integrated Hugging Face SDXL Turbo API with proper VITE_ environment variable
+- Updated wagmi connector to use new logo.svg in appLogoUrl
+- Added createStorage with localStorage to maintain wallet state across navigation
+- All three critical issues resolved:
+  1. ✅ Wallet modal now shows correct Mintara logo
+  2. ✅ NFT Builder generates real AI images via Hugging Face
+  3. ✅ Wallet connection persists when navigating between pages
+
 ### November 4, 2025 - Very Late Night
-- **ALL MAJOR ISSUES FIXED**: 
-  1. Fixed wallet modal logo to match site logo (uses window.location.origin)
-  2. Fixed Token Builder logo upload - now opens file input properly with file preview
-  3. Fixed NFT Builder AI generation - integrated Hugging Face SDXL Turbo API
+- Fixed Token Builder logo upload - now opens file input properly with file preview
 - Created src/utils/huggingface.ts for real AI image generation
 - Added HUGGINGFACE_API_KEY to environment (via Replit Secrets)
-- NFT Builder now generates real AI images and displays them
 - Token Builder has working file upload with drag-and-drop support and image preview
 - All TypeScript errors resolved
 

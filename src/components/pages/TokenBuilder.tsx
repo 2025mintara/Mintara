@@ -8,6 +8,7 @@ import { Textarea } from '../ui/textarea';
 import { FeeBadge } from '../FeeBadge';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
+import { parseUnits } from 'viem';
 import {
   OWNER_WALLET,
   USDC_CONTRACT_ADDRESS,
@@ -15,6 +16,10 @@ import {
   getTokenBuilderFee,
   formatUSDC,
 } from '../../utils/feePayment';
+import {
+  TOKEN_FACTORY_ADDRESS,
+  TOKEN_FACTORY_ABI,
+} from '../../utils/tokenFactory';
 import {
   Select,
   SelectContent,
@@ -48,6 +53,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const [logoUrl, setLogoUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [deployedTokenAddress, setDeployedTokenAddress] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     symbol: '',
@@ -55,6 +61,8 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     supply: '',
     description: '',
     payWith: 'USDC',
+    canMint: false,
+    canBurn: false,
   });
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,17 +79,24 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
 
   const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
   
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
     hash,
   });
 
   useEffect(() => {
-    if (isConfirmed) {
+    if (isConfirmed && receipt) {
+      if (receipt.logs && receipt.logs.length > 0) {
+        const tokenCreatedLog = receipt.logs.find(log => log.topics[0] === '0x...');
+        if (tokenCreatedLog && tokenCreatedLog.topics[1]) {
+          const tokenAddr = `0x${tokenCreatedLog.topics[1].slice(-40)}`;
+          setDeployedTokenAddress(tokenAddr);
+        }
+      }
       setIsProcessing(false);
       setShowSuccessModal(true);
-      toast.success('Fee paid successfully! Token deployment in progress...');
+      toast.success('Token created successfully!');
     }
-  }, [isConfirmed]);
+  }, [isConfirmed, receipt]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,19 +115,27 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
 
     try {
       const feeAmount = getTokenBuilderFee();
+      const initialSupply = parseUnits(formData.supply, parseInt(formData.decimals));
       
-      toast.info(`Sending ${formatUSDC(feeAmount)} USDC fee to owner...`);
+      toast.info('Creating your token on Base Network...');
       
       writeContract({
-        address: USDC_CONTRACT_ADDRESS,
-        abi: USDC_ABI,
-        functionName: 'transfer',
-        args: [OWNER_WALLET, feeAmount],
+        address: TOKEN_FACTORY_ADDRESS,
+        abi: TOKEN_FACTORY_ABI,
+        functionName: 'createToken',
+        args: [
+          formData.name,
+          formData.symbol,
+          parseInt(formData.decimals),
+          BigInt(formData.supply),
+          formData.canMint,
+          formData.canBurn,
+        ],
       });
       
     } catch (error) {
-      console.error('Fee payment error:', error);
-      toast.error('Failed to process fee payment');
+      console.error('Token creation error:', error);
+      toast.error('Failed to create token');
       setIsProcessing(false);
     }
   };

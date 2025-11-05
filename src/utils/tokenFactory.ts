@@ -1,6 +1,6 @@
 import type { Address } from 'viem';
 
-export const TOKEN_FACTORY_ADDRESS: Address = '0x0000000000000000000000000000000000000000';
+export const TOKEN_FACTORY_ADDRESS: Address = '0x8384442FA9384F6276Cf175F8EB48c737ee204a6';
 
 export const TOKEN_FACTORY_ABI = [
   {

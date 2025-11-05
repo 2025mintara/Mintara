@@ -33,7 +33,7 @@ interface AINFTBuilderProps {
 }
 
 export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
-  const { isConnected, address, chain } = useAccount();
+  const { isConnected, chain } = useAccount();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
@@ -41,7 +41,6 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStep, setPaymentStep] = useState<'idle' | 'paying' | 'paid' | 'minting'>('idle');
-  const [collectionAddress, setCollectionAddress] = useState<string>('');
   const [nftMetadata, setNftMetadata] = useState({
     name: '',
     description: '',
@@ -92,33 +91,21 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       
       const mintNFT = async () => {
         try {
-          const tokenURI = JSON.stringify({
-            name: nftMetadata.name,
-            description: nftMetadata.description,
-            image: generatedImageUrl,
-            attributes: [
-              { trait_type: 'AI Model', value: 'Pollinations FLUX' },
-              { trait_type: 'Prompt', value: prompt },
+          const hash = await writeMint({
+            address: NFT_FACTORY_ADDRESS,
+            abi: NFT_FACTORY_ABI,
+            functionName: 'createCollection',
+            args: [
+              nftMetadata.collection,
+              nftMetadata.symbol,
+              nftMetadata.collection,
+              nftMetadata.description,
             ],
+            chainId: 8453, // BASE NETWORK ZORUNLU
           });
-
-          if (!collectionAddress) {
-            const hash = await writeMint({
-              address: NFT_FACTORY_ADDRESS,
-              abi: NFT_FACTORY_ABI,
-              functionName: 'createCollection',
-              args: [
-                nftMetadata.collection,
-                nftMetadata.symbol,
-                nftMetadata.collection,
-                nftMetadata.description,
-              ],
-              chainId: 8453, // BASE NETWORK ZORUNLU
-            });
-            
-            console.log('✅ NFT minting transaction sent! Hash:', hash);
-            setMintHash(hash);
-          }
+          
+          console.log('✅ NFT minting transaction sent! Hash:', hash);
+          setMintHash(hash);
           setPaymentStep('minting');
         } catch (error: any) {
           console.error('❌ NFT minting error:', error);
@@ -134,7 +121,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       
       mintNFT();
     }
-  }, [isPaymentConfirmed, paymentStep, nftMetadata, generatedImageUrl, prompt, collectionAddress, writeMint]);
+  }, [isPaymentConfirmed, paymentStep, nftMetadata, writeMint]);
 
   useEffect(() => {
     if (isMintConfirmed && paymentStep === 'minting') {
@@ -408,12 +395,12 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                 size="lg"
                 variant="outline"
                 className="w-full"
-                disabled={!isConnected || isProcessing || isWritePending || isConfirming}
+                disabled={!isConnected || isProcessing}
               >
-                {isProcessing || isWritePending || isConfirming ? (
+                {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isConfirming ? 'Confirming...' : 'Processing Payment...'}
+                    Processing...
                   </>
                 ) : (
                   'Mint Now'

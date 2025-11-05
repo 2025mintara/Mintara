@@ -76,8 +76,11 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     }
   };
 
-  const { writeContract: writePayment, data: paymentHash } = useWriteContract();
-  const { writeContract: writeToken, data: tokenHash } = useWriteContract();
+  const { writeContractAsync: writePayment } = useWriteContract();
+  const { writeContractAsync: writeToken } = useWriteContract();
+  
+  const [paymentHash, setPaymentHash] = useState<`0x${string}` | undefined>();
+  const [tokenHash, setTokenHash] = useState<`0x${string}` | undefined>();
   
   const { isSuccess: isPaymentConfirmed, isError: isPaymentError } = useWaitForTransactionReceipt({
     hash: paymentHash,
@@ -116,30 +119,41 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
       setPaymentStep('paid');
       toast.success('Fee paid! Creating your token...');
       
-      try {
-        const supplyBigInt = BigInt(formData.supply);
-        console.log('Supply as BigInt:', supplyBigInt.toString());
-        
-        writeToken({
-          address: TOKEN_FACTORY_ADDRESS,
-          abi: TOKEN_FACTORY_ABI,
-          functionName: 'createToken',
-          args: [
-            formData.name,
-            formData.symbol,
-            Number(formData.decimals),
-            supplyBigInt,
-            formData.canMint,
-            formData.canBurn,
-          ],
-        });
-        setPaymentStep('creating');
-      } catch (error) {
-        console.error('❌ Token creation error:', error);
-        toast.error('Failed to create token. Please try again.');
-        setIsProcessing(false);
-        setPaymentStep('idle');
-      }
+      const createToken = async () => {
+        try {
+          const supplyBigInt = BigInt(formData.supply);
+          console.log('Supply as BigInt:', supplyBigInt.toString());
+          
+          const hash = await writeToken({
+            address: TOKEN_FACTORY_ADDRESS,
+            abi: TOKEN_FACTORY_ABI,
+            functionName: 'createToken',
+            args: [
+              formData.name,
+              formData.symbol,
+              Number(formData.decimals),
+              supplyBigInt,
+              formData.canMint,
+              formData.canBurn,
+            ],
+          });
+          
+          console.log('✅ Token creation transaction sent! Hash:', hash);
+          setTokenHash(hash);
+          setPaymentStep('creating');
+        } catch (error: any) {
+          console.error('❌ Token creation error:', error);
+          if (error?.message?.includes('User rejected')) {
+            toast.error('Token creation cancelled');
+          } else {
+            toast.error('Failed to create token. Please try again.');
+          }
+          setIsProcessing(false);
+          setPaymentStep('idle');
+        }
+      };
+      
+      createToken();
     }
   }, [isPaymentConfirmed, paymentStep, formData, writeToken]);
 
@@ -177,18 +191,23 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
       const feeAmount = getTokenBuilderFee();
       toast.info(`Paying ${formatUSDC(feeAmount)} USDC fee...`);
       
-      const result = writePayment({
+      const hash = await writePayment({
         address: USDC_CONTRACT_ADDRESS,
         abi: USDC_ABI,
         functionName: 'transfer',
         args: [OWNER_WALLET, feeAmount],
       });
 
-      console.log('Payment transaction sent:', result);
+      console.log('✅ Payment transaction sent! Hash:', hash);
+      setPaymentHash(hash);
       
-    } catch (error) {
-      console.error('Fee payment error:', error);
-      toast.error('Failed to process fee payment');
+    } catch (error: any) {
+      console.error('❌ Fee payment error:', error);
+      if (error?.message?.includes('User rejected')) {
+        toast.error('Payment cancelled');
+      } else {
+        toast.error('Failed to process fee payment');
+      }
       setIsProcessing(false);
       setPaymentStep('idle');
     }

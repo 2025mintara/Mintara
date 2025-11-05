@@ -387,12 +387,14 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={!isConnected || isProcessing || isWritePending || isConfirming}
+                disabled={!isConnected || isProcessing}
               >
-                {isProcessing || isWritePending || isConfirming ? (
+                {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isConfirming ? 'Confirming...' : 'Processing Payment...'}
+                    {paymentStep === 'paying' && 'Processing Payment...'}
+                    {paymentStep === 'paid' && 'Payment Confirmed...'}
+                    {paymentStep === 'creating' && 'Creating Token...'}
                   </>
                 ) : (
                   'Create Token'

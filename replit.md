@@ -50,7 +50,16 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
-### November 5, 2025 - WALLET & TRANSACTION FIX
+### November 5, 2025 - VERCEL DEPLOYMENT FIX
+- **CRITICAL FIX**: Fixed import paths for Vercel production builds
+- Changed all component imports from relative paths (`./components/...`) to alias paths (`@/components/...`)
+- Build now completes successfully without errors
+- Removed Hardhat dependencies from package.json to prevent peer dependency conflicts
+- Build output directory: `build/` (configured in vite.config.ts)
+- All TypeScript/LSP errors resolved
+- Ready for GitHub + Vercel deployment
+
+### November 5, 2025 - WALLET & TRANSACTION FIX (Previous)
 - **CRITICAL FIX**: Token Builder and AI NFT Builder two-step transactions now work properly
 - Changed from `writeContract` to `writeContractAsync` for proper async/await handling
 - Added `chainId: 8453` to ALL transactions to force Base Network (prevents Ethereum mainnet errors)

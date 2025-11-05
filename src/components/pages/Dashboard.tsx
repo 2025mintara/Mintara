@@ -10,6 +10,10 @@ import { shareOnTwitter, getBaseScanUrl } from '../../utils/socialShare';
 import { TokenManagementModal } from '../TokenManagementModal';
 import { TokenInfoModal } from '../TokenInfoModal';
 import { MultisendModal } from '../MultisendModal';
+import { NFTGallery } from '../NFTGallery';
+import { AirdropTool } from '../AirdropTool';
+import { TokenVesting } from '../TokenVesting';
+import { LiquidityPoolCreator } from '../LiquidityPoolCreator';
 import {
   Select,
   SelectContent,
@@ -48,20 +52,20 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     args: address ? [address] : undefined,
   });
 
-  const myTokens = [
-    ...(userTokens || []).map((token: any) => ({
-      name: token.name,
-      symbol: token.symbol,
-      address: token.tokenAddress,
-      type: 'token',
-    })),
-    ...(userNFTs || []).map((nft: any) => ({
-      name: nft.collectionName,
-      symbol: nft.symbol,
-      address: nft.collectionAddress,
-      type: 'nft',
-    })),
-  ];
+  const myTokens = (userTokens || []).map((token: any) => ({
+    name: token.name,
+    symbol: token.symbol,
+    address: token.tokenAddress,
+    type: 'token',
+  }));
+
+  const myNFTCollections = (userNFTs || []).map((nft: any) => ({
+    collectionAddress: nft.collectionAddress,
+    name: nft.name,
+    symbol: nft.symbol,
+    collectionName: nft.collectionName,
+    collectionDescription: nft.collectionDescription,
+  }));
 
   const tokenomicsRecommendations: Record<string, any> = {
     meme: {
@@ -112,19 +116,37 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
               value="creations"
               className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
             >
-              My Creations
+              My Tokens
+            </TabsTrigger>
+            <TabsTrigger
+              value="nfts"
+              className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
+            >
+              NFT Gallery
             </TabsTrigger>
             <TabsTrigger
               value="tokenomics"
               className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
             >
-              AI Tokenomics Designer
+              AI Tokenomics
             </TabsTrigger>
             <TabsTrigger
-              value="credits"
+              value="airdrop"
               className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
             >
-              Credits
+              Airdrop
+            </TabsTrigger>
+            <TabsTrigger
+              value="vesting"
+              className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
+            >
+              Vesting
+            </TabsTrigger>
+            <TabsTrigger
+              value="liquidity"
+              className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
+            >
+              Liquidity
             </TabsTrigger>
           </TabsList>
 
@@ -265,10 +287,15 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
             {myTokens.length === 0 && (
               <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
                 <p className="text-mintara-text-secondary">
-                  No creations yet. Start by creating a token or NFT!
+                  No tokens yet. Start by creating a token with Token Builder!
                 </p>
               </Card>
             )}
+          </TabsContent>
+
+          {/* NFT Gallery Tab */}
+          <TabsContent value="nfts" className="space-y-6">
+            <NFTGallery nftCollections={myNFTCollections} />
           </TabsContent>
 
           {/* AI Tokenomics Designer Tab */}
@@ -354,30 +381,19 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
             </Card>
           </TabsContent>
 
-          {/* Credits Tab */}
-          <TabsContent value="credits" className="space-y-6">
-            <Card className="p-12 bg-mintara-surface/50 border-mintara-border backdrop-blur-sm text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-mintara-primary/20 mb-6">
-                <Coins className="w-10 h-10 text-mintara-accent" />
-              </div>
-              <h2 className="text-3xl font-semibold text-mintara-text-primary mb-2">
-                7 Credits
-              </h2>
-              <p className="text-mintara-text-secondary mb-8">
-                10 credits = 1 free mint
-              </p>
-              <div className="max-w-md mx-auto">
-                <div className="h-3 bg-mintara-background rounded-full overflow-hidden mb-2">
-                  <div
-                    className="h-full bg-gradient-to-r from-mintara-primary to-mintara-accent transition-all duration-500"
-                    style={{ width: '70%' }}
-                  ></div>
-                </div>
-                <p className="text-sm text-mintara-text-secondary">
-                  3 more credits until your next free mint!
-                </p>
-              </div>
-            </Card>
+          {/* Airdrop Tab */}
+          <TabsContent value="airdrop" className="space-y-6">
+            <AirdropTool />
+          </TabsContent>
+
+          {/* Vesting Tab */}
+          <TabsContent value="vesting" className="space-y-6">
+            <TokenVesting />
+          </TabsContent>
+
+          {/* Liquidity Tab */}
+          <TabsContent value="liquidity" className="space-y-6">
+            <LiquidityPoolCreator />
           </TabsContent>
         </Tabs>
       </div>

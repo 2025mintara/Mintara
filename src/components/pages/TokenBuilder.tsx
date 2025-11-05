@@ -105,11 +105,21 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
 
   useEffect(() => {
     if (isPaymentConfirmed && paymentStep === 'paying') {
-      console.log('Payment confirmed! Creating token...');
+      console.log('✅ Payment confirmed! Now creating token...');
+      console.log('Token data:', {
+        name: formData.name,
+        symbol: formData.symbol,
+        decimals: formData.decimals,
+        supply: formData.supply,
+      });
+      
       setPaymentStep('paid');
       toast.success('Fee paid! Creating your token...');
       
-      setTimeout(() => {
+      try {
+        const supplyBigInt = BigInt(formData.supply);
+        console.log('Supply as BigInt:', supplyBigInt.toString());
+        
         writeToken({
           address: TOKEN_FACTORY_ADDRESS,
           abi: TOKEN_FACTORY_ABI,
@@ -118,13 +128,18 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
             formData.name,
             formData.symbol,
             Number(formData.decimals),
-            BigInt(formData.supply),
+            supplyBigInt,
             formData.canMint,
             formData.canBurn,
           ],
         });
         setPaymentStep('creating');
-      }, 1000);
+      } catch (error) {
+        console.error('❌ Token creation error:', error);
+        toast.error('Failed to create token. Please try again.');
+        setIsProcessing(false);
+        setPaymentStep('idle');
+      }
     }
   }, [isPaymentConfirmed, paymentStep, formData, writeToken]);
 
@@ -162,12 +177,14 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
       const feeAmount = getTokenBuilderFee();
       toast.info(`Paying ${formatUSDC(feeAmount)} USDC fee...`);
       
-      writePayment({
+      const result = writePayment({
         address: USDC_CONTRACT_ADDRESS,
         abi: USDC_ABI,
         functionName: 'transfer',
         args: [OWNER_WALLET, feeAmount],
       });
+
+      console.log('Payment transaction sent:', result);
       
     } catch (error) {
       console.error('Fee payment error:', error);

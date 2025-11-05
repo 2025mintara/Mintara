@@ -50,7 +50,51 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
-### November 5, 2025 - FULL FEATURE UPDATE
+### November 5, 2025 - ADVANCED FEATURES UPDATE
+- **4 MAJOR FEATURES ADDED**: NFT Gallery, Liquidity Pool Creator, Airdrop Tool, Token Vesting System!
+
+#### New Features:
+1. **NFT Gallery** ✅
+   - Grid view display of user's NFT collections
+   - NFT preview with metadata (image, name, description, attributes)
+   - Click to view full NFT details in modal
+   - OpenSea and BaseScan links for each NFT
+   - Real-time NFT data from blockchain
+   - Shows up to 4 NFT previews per collection
+
+2. **Liquidity Pool Creator** ✅
+   - Create liquidity pools on Base DEXs (Aerodrome, Uniswap V3, BaseSwap)
+   - Token + ETH pair configuration
+   - Automatic price calculation
+   - Pool share tracking
+   - View pools on Aerodrome
+   - Manage existing pools
+
+3. **Airdrop Tool** ✅
+   - CSV file upload for bulk airdrops
+   - Manual CSV paste support
+   - Download CSV template
+   - Batch token distribution
+   - Real-time sending progress
+   - Total amount calculation
+   - Supports unlimited recipients
+
+4. **Token Vesting/Locking** ✅
+   - Create vesting schedules with cliff periods
+   - Linear vesting over time
+   - Beneficiary management
+   - Real-time vested amount calculation
+   - Progress tracking with visual bars
+   - Release tokens when available
+   - Active/Completed status tracking
+
+#### Dashboard Updates:
+- Expanded to 6 tabs: My Tokens, NFT Gallery, AI Tokenomics, Airdrop, Vesting, Liquidity
+- Removed "Credits" tab (not relevant)
+- All features accessible from main dashboard
+- Consistent Mintara theme across all new components
+
+### November 5, 2025 - FULL FEATURE UPDATE (Previous)
 - **ALL FEATURES COMPLETED**: Tüm kritik özellikler eklendi ve çalışıyor!
 
 #### Smart Contracts Deployed:

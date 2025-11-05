@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ExternalLink, Share2, Coins, MessageCircle, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { useAccount, useReadContract } from 'wagmi';
+import { TOKEN_FACTORY_ADDRESS, TOKEN_FACTORY_ABI } from '../../utils/tokenFactory';
+import { NFT_FACTORY_ADDRESS, NFT_FACTORY_ABI } from '../../utils/nftFactory';
+import { shareOnTwitter, getBaseScanUrl } from '../../utils/socialShare';
 import {
   Select,
   SelectContent,
@@ -17,22 +21,37 @@ interface DashboardProps {
 }
 
 export function Dashboard({ onNavigate }: DashboardProps) {
+  const { address } = useAccount();
   const [chatOpen, setChatOpen] = useState(false);
   const [tokenType, setTokenType] = useState('meme');
 
+  const { data: userTokens } = useReadContract({
+    address: TOKEN_FACTORY_ADDRESS,
+    abi: TOKEN_FACTORY_ABI,
+    functionName: 'getUserTokens',
+    args: address ? [address] : undefined,
+  });
+
+  const { data: userNFTs } = useReadContract({
+    address: NFT_FACTORY_ADDRESS,
+    abi: NFT_FACTORY_ABI,
+    functionName: 'getUserCollections',
+    args: address ? [address] : undefined,
+  });
+
   const myTokens = [
-    {
-      name: 'My Awesome Token',
-      symbol: 'MAT',
-      address: '0x1234...5678',
+    ...(userTokens || []).map((token: any) => ({
+      name: token.name,
+      symbol: token.symbol,
+      address: token.tokenAddress,
       type: 'token',
-    },
-    {
-      name: 'Cool NFT Collection',
-      symbol: 'CNC',
-      address: '0xabcd...ef01',
+    })),
+    ...(userNFTs || []).map((nft: any) => ({
+      name: nft.collectionName,
+      symbol: nft.symbol,
+      address: nft.collectionAddress,
       type: 'nft',
-    },
+    })),
   ];
 
   const tokenomicsRecommendations: Record<string, any> = {
@@ -134,7 +153,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                       variant="outline"
                       size="sm"
                       className="flex-1 border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
-                      onClick={() => window.open(`https://basescan.org/address/${item.address}`, '_blank')}
+                      onClick={() => window.open(getBaseScanUrl(item.address, item.type === 'token' ? 'token' : 'address'), '_blank')}
                     >
                       <ExternalLink className="w-4 h-4 mr-1" />
                       BaseScan
@@ -143,9 +162,10 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                       variant="outline"
                       size="sm"
                       className="flex-1 border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
-                      onClick={() => toast.info('Re-mint feature coming soon!')}
+                      onClick={() => shareOnTwitter(`Check out my ${item.type} ${item.name} (${item.symbol}) on Base Network!`, getBaseScanUrl(item.address))}
                     >
-                      Re-Mint
+                      <Share2 className="w-4 h-4 mr-1" />
+                      Share
                     </Button>
                     <Button
                       variant="outline"
@@ -156,7 +176,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                         toast.success('Address copied to clipboard!');
                       }}
                     >
-                      <Share2 className="w-4 h-4" />
+                      Copy
                     </Button>
                   </div>
                 </Card>

@@ -15,6 +15,10 @@ import {
   getNFTBuilderFee,
   formatUSDC,
 } from '../../utils/feePayment';
+import {
+  NFT_FACTORY_ADDRESS,
+  NFT_FACTORY_ABI,
+} from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import {
   Dialog,
@@ -29,17 +33,20 @@ interface AINFTBuilderProps {
 }
 
 export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<'idle' | 'paying' | 'paid' | 'minting'>('idle');
+  const [collectionAddress, setCollectionAddress] = useState<string>('');
   const [nftMetadata, setNftMetadata] = useState({
     name: '',
     description: '',
-    collection: '',
+    collection: 'My NFT Collection',
+    symbol: 'MNFT',
   });
   const [recentPrompts] = useState([
     'A futuristic cyberpunk city with neon lights',
@@ -47,19 +54,57 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
     'Fantasy landscape with mountains and aurora',
   ]);
 
-  const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
+  const { writeContract: writePayment, data: paymentHash } = useWriteContract();
+  const { writeContract: writeMint, data: mintHash } = useWriteContract();
   
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+  const { isSuccess: isPaymentConfirmed } = useWaitForTransactionReceipt({
+    hash: paymentHash,
+  });
+
+  const { isSuccess: isMintConfirmed } = useWaitForTransactionReceipt({
+    hash: mintHash,
   });
 
   useEffect(() => {
-    if (isConfirmed) {
-      setIsProcessing(false);
-      setShowSuccessModal(true);
-      toast.success('Fee paid successfully! NFT minting in progress...');
+    if (isPaymentConfirmed && paymentStep === 'paying') {
+      setPaymentStep('paid');
+      toast.success('Fee paid! Minting your NFT...');
+      
+      const tokenURI = JSON.stringify({
+        name: nftMetadata.name,
+        description: nftMetadata.description,
+        image: generatedImageUrl,
+        attributes: [
+          { trait_type: 'AI Model', value: 'Pollinations FLUX' },
+          { trait_type: 'Prompt', value: prompt },
+        ],
+      });
+
+      if (!collectionAddress) {
+        writeMint({
+          address: NFT_FACTORY_ADDRESS,
+          abi: NFT_FACTORY_ABI,
+          functionName: 'createCollection',
+          args: [
+            nftMetadata.collection,
+            nftMetadata.symbol,
+            nftMetadata.collection,
+            nftMetadata.description,
+          ],
+        });
+      }
+      setPaymentStep('minting');
     }
-  }, [isConfirmed]);
+  }, [isPaymentConfirmed, paymentStep, nftMetadata, generatedImageUrl, prompt, collectionAddress, writeMint]);
+
+  useEffect(() => {
+    if (isMintConfirmed && paymentStep === 'minting') {
+      setIsProcessing(false);
+      setPaymentStep('idle');
+      setShowSuccessModal(true);
+      toast.success('NFT minted successfully! Check your wallet.');
+    }
+  }, [isMintConfirmed, paymentStep]);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -96,14 +141,20 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       return;
     }
 
+    if (!generatedImageUrl) {
+      toast.error('Please generate an image first');
+      return;
+    }
+
     setIsProcessing(true);
+    setPaymentStep('paying');
 
     try {
       const feeAmount = getNFTBuilderFee();
       
-      toast.info(`Sending ${formatUSDC(feeAmount)} USDC fee to owner...`);
+      toast.info(`Paying ${formatUSDC(feeAmount)} USDC fee...`);
       
-      writeContract({
+      writePayment({
         address: USDC_CONTRACT_ADDRESS,
         abi: USDC_ABI,
         functionName: 'transfer',
@@ -114,6 +165,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       console.error('Fee payment error:', error);
       toast.error('Failed to process fee payment');
       setIsProcessing(false);
+      setPaymentStep('idle');
     }
   };
 

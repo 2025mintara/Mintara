@@ -136,6 +136,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
               formData.canMint,
               formData.canBurn,
             ],
+            chainId: 8453, // BASE NETWORK ZORUNLU
           });
           
           console.log('✅ Token creation transaction sent! Hash:', hash);
@@ -196,6 +197,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
         abi: USDC_ABI,
         functionName: 'transfer',
         args: [OWNER_WALLET, feeAmount],
+        chainId: 8453, // BASE NETWORK ZORUNLU
       });
 
       console.log('✅ Payment transaction sent! Hash:', hash);

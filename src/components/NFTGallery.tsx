@@ -4,7 +4,7 @@ import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { useReadContract } from 'wagmi';
-import { NFT_FACTORY_ABI, ERC721_ABI } from '../utils/nftFactory';
+import { ERC721_ABI } from '../utils/nftFactory';
 import { getBaseScanUrl, getOpenSeaUrl } from '../utils/socialShare';
 import type { Address } from 'viem';
 

@@ -38,3 +38,10 @@ out
 
 # TypeScript
 *.tsbuildinfo
+
+# Replit specific
+attached_assets
+contracts
+hardhat.config.ts
+.replit
+replit.nix

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ExternalLink, Share2, Coins, MessageCircle, X } from 'lucide-react';
+import { useState } from 'react';
+import { ExternalLink, Share2, Coins, MessageCircle, X, Flame, Send, Info } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -7,6 +7,9 @@ import { useAccount, useReadContract } from 'wagmi';
 import { TOKEN_FACTORY_ADDRESS, TOKEN_FACTORY_ABI } from '../../utils/tokenFactory';
 import { NFT_FACTORY_ADDRESS, NFT_FACTORY_ABI } from '../../utils/nftFactory';
 import { shareOnTwitter, getBaseScanUrl } from '../../utils/socialShare';
+import { TokenManagementModal } from '../TokenManagementModal';
+import { TokenInfoModal } from '../TokenInfoModal';
+import { MultisendModal } from '../MultisendModal';
 import {
   Select,
   SelectContent,
@@ -20,10 +23,16 @@ interface DashboardProps {
   onNavigate: (page: string) => void;
 }
 
-export function Dashboard({ onNavigate }: DashboardProps) {
+export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   const { address } = useAccount();
   const [chatOpen, setChatOpen] = useState(false);
   const [tokenType, setTokenType] = useState('meme');
+  const [selectedToken, setSelectedToken] = useState<{ address: string; symbol: string } | null>(null);
+  const [managementAction, setManagementAction] = useState<'mint' | 'burn' | 'transfer' | null>(null);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [infoTokenAddress, setInfoTokenAddress] = useState<string>('');
+  const [showMultisendModal, setShowMultisendModal] = useState(false);
+  const [multisendToken, setMultisendToken] = useState<{ address: string; symbol: string } | null>(null);
 
   const { data: userTokens } = useReadContract({
     address: TOKEN_FACTORY_ADDRESS,
@@ -148,6 +157,76 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   <p className="text-sm text-mintara-text-secondary mb-4 font-mono">
                     {item.address}
                   </p>
+                  
+                  {item.type === 'token' && (
+                    <>
+                      <div className="grid grid-cols-3 gap-2 mb-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-mintara-border text-mintara-primary hover:bg-mintara-primary/10"
+                          onClick={() => {
+                            setSelectedToken({ address: item.address, symbol: item.symbol });
+                            setManagementAction('mint');
+                          }}
+                        >
+                          <Coins className="w-4 h-4 mr-1" />
+                          Mint
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-mintara-border text-red-400 hover:bg-red-400/10"
+                          onClick={() => {
+                            setSelectedToken({ address: item.address, symbol: item.symbol });
+                            setManagementAction('burn');
+                          }}
+                        >
+                          <Flame className="w-4 h-4 mr-1" />
+                          Burn
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-mintara-border text-mintara-accent hover:bg-mintara-accent/10"
+                          onClick={() => {
+                            setSelectedToken({ address: item.address, symbol: item.symbol });
+                            setManagementAction('transfer');
+                          }}
+                        >
+                          <Send className="w-4 h-4 mr-1" />
+                          Transfer
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-mintara-border text-purple-400 hover:bg-purple-400/10"
+                          onClick={() => {
+                            setMultisendToken({ address: item.address, symbol: item.symbol });
+                            setShowMultisendModal(true);
+                          }}
+                        >
+                          <Send className="w-4 h-4 mr-1" />
+                          Multisend
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
+                          onClick={() => {
+                            setInfoTokenAddress(item.address);
+                            setShowInfoModal(true);
+                          }}
+                        >
+                          <Info className="w-4 h-4 mr-1" />
+                          Info
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                  
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -345,6 +424,43 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           </button>
         )}
       </div>
+
+      {/* Token Management Modal */}
+      {selectedToken && (
+        <TokenManagementModal
+          isOpen={!!managementAction}
+          onClose={() => {
+            setManagementAction(null);
+            setSelectedToken(null);
+          }}
+          tokenAddress={selectedToken.address}
+          tokenSymbol={selectedToken.symbol}
+          action={managementAction}
+        />
+      )}
+
+      {/* Token Info Modal */}
+      <TokenInfoModal
+        isOpen={showInfoModal}
+        onClose={() => {
+          setShowInfoModal(false);
+          setInfoTokenAddress('');
+        }}
+        tokenAddress={infoTokenAddress}
+      />
+
+      {/* Multisend Modal */}
+      {multisendToken && (
+        <MultisendModal
+          isOpen={showMultisendModal}
+          onClose={() => {
+            setShowMultisendModal(false);
+            setMultisendToken(null);
+          }}
+          tokenAddress={multisendToken.address}
+          tokenSymbol={multisendToken.symbol}
+        />
+      )}
     </div>
   );
 }

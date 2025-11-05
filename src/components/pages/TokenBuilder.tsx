@@ -13,6 +13,13 @@ import {
   TOKEN_FACTORY_ABI,
 } from '../../utils/tokenFactory';
 import {
+  OWNER_WALLET,
+  USDC_CONTRACT_ADDRESS,
+  USDC_ABI,
+  getTokenBuilderFee,
+  formatUSDC,
+} from '../../utils/feePayment';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -45,6 +52,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const [logoUrl, setLogoUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<'idle' | 'paying' | 'paid' | 'creating'>('idle');
   const [formData, setFormData] = useState({
     name: '',
     symbol: '',
@@ -68,19 +76,47 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     }
   };
 
-  const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
+  const { writeContract: writePayment, data: paymentHash } = useWriteContract();
+  const { writeContract: writeToken, data: tokenHash } = useWriteContract();
   
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
-    hash,
+  const { isSuccess: isPaymentConfirmed } = useWaitForTransactionReceipt({
+    hash: paymentHash,
+  });
+
+  const { isSuccess: isTokenConfirmed } = useWaitForTransactionReceipt({
+    hash: tokenHash,
   });
 
   useEffect(() => {
-    if (isConfirmed) {
+    if (isPaymentConfirmed && paymentStep === 'paying') {
+      setPaymentStep('paid');
+      toast.success('Fee paid! Creating your token...');
+      
+      writeToken({
+        address: TOKEN_FACTORY_ADDRESS,
+        abi: TOKEN_FACTORY_ABI,
+        functionName: 'createToken',
+        args: [
+          formData.name,
+          formData.symbol,
+          Number(formData.decimals),
+          BigInt(formData.supply),
+          formData.canMint,
+          formData.canBurn,
+        ],
+      });
+      setPaymentStep('creating');
+    }
+  }, [isPaymentConfirmed, paymentStep, formData, writeToken]);
+
+  useEffect(() => {
+    if (isTokenConfirmed && paymentStep === 'creating') {
       setIsProcessing(false);
+      setPaymentStep('idle');
       setShowSuccessModal(true);
       toast.success('Token created successfully! Check your wallet.');
     }
-  }, [isConfirmed]);
+  }, [isTokenConfirmed, paymentStep]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,28 +132,24 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     }
 
     setIsProcessing(true);
+    setPaymentStep('paying');
 
     try {
-      toast.info('Creating your token on Base Network...');
+      const feeAmount = getTokenBuilderFee();
+      toast.info(`Paying ${formatUSDC(feeAmount)} USDC fee...`);
       
-      writeContract({
-        address: TOKEN_FACTORY_ADDRESS,
-        abi: TOKEN_FACTORY_ABI,
-        functionName: 'createToken',
-        args: [
-          formData.name,
-          formData.symbol,
-          Number(formData.decimals),
-          BigInt(formData.supply),
-          formData.canMint,
-          formData.canBurn,
-        ],
+      writePayment({
+        address: USDC_CONTRACT_ADDRESS,
+        abi: USDC_ABI,
+        functionName: 'transfer',
+        args: [OWNER_WALLET, feeAmount],
       });
       
     } catch (error) {
-      console.error('Token creation error:', error);
-      toast.error('Failed to create token');
+      console.error('Fee payment error:', error);
+      toast.error('Failed to process fee payment');
       setIsProcessing(false);
+      setPaymentStep('idle');
     }
   };
 

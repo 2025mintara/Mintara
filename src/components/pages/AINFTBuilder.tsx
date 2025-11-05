@@ -33,7 +33,7 @@ interface AINFTBuilderProps {
 }
 
 export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
-  const { isConnected, address } = useAccount();
+  const { isConnected, address, chain } = useAccount();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
@@ -133,6 +133,11 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
   const handleMint = async () => {
     if (!isConnected) {
       toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (chain?.id !== 8453) {
+      toast.error('Please switch to Base Network in your wallet');
       return;
     }
 

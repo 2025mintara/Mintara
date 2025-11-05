@@ -46,7 +46,7 @@ interface TokenBuilderProps {
 }
 
 export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
-  const { isConnected } = useAccount();
+  const { isConnected, chain } = useAccount();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');
@@ -123,6 +123,11 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     
     if (!isConnected) {
       toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (chain?.id !== 8453) {
+      toast.error('Please switch to Base Network in your wallet');
       return;
     }
 

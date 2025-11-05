@@ -79,33 +79,52 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const { writeContract: writePayment, data: paymentHash } = useWriteContract();
   const { writeContract: writeToken, data: tokenHash } = useWriteContract();
   
-  const { isSuccess: isPaymentConfirmed } = useWaitForTransactionReceipt({
+  const { isSuccess: isPaymentConfirmed, isError: isPaymentError } = useWaitForTransactionReceipt({
     hash: paymentHash,
   });
 
-  const { isSuccess: isTokenConfirmed } = useWaitForTransactionReceipt({
+  const { isSuccess: isTokenConfirmed, isError: isTokenError } = useWaitForTransactionReceipt({
     hash: tokenHash,
   });
 
   useEffect(() => {
+    if (isPaymentError && paymentStep === 'paying') {
+      toast.error('Payment transaction failed. Please try again.');
+      setIsProcessing(false);
+      setPaymentStep('idle');
+    }
+  }, [isPaymentError, paymentStep]);
+
+  useEffect(() => {
+    if (isTokenError && paymentStep === 'creating') {
+      toast.error('Token creation failed. Please try again.');
+      setIsProcessing(false);
+      setPaymentStep('idle');
+    }
+  }, [isTokenError, paymentStep]);
+
+  useEffect(() => {
     if (isPaymentConfirmed && paymentStep === 'paying') {
+      console.log('Payment confirmed! Creating token...');
       setPaymentStep('paid');
       toast.success('Fee paid! Creating your token...');
       
-      writeToken({
-        address: TOKEN_FACTORY_ADDRESS,
-        abi: TOKEN_FACTORY_ABI,
-        functionName: 'createToken',
-        args: [
-          formData.name,
-          formData.symbol,
-          Number(formData.decimals),
-          BigInt(formData.supply),
-          formData.canMint,
-          formData.canBurn,
-        ],
-      });
-      setPaymentStep('creating');
+      setTimeout(() => {
+        writeToken({
+          address: TOKEN_FACTORY_ADDRESS,
+          abi: TOKEN_FACTORY_ABI,
+          functionName: 'createToken',
+          args: [
+            formData.name,
+            formData.symbol,
+            Number(formData.decimals),
+            BigInt(formData.supply),
+            formData.canMint,
+            formData.canBurn,
+          ],
+        });
+        setPaymentStep('creating');
+      }, 1000);
     }
   }, [isPaymentConfirmed, paymentStep, formData, writeToken]);
 

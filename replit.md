@@ -50,7 +50,23 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
-### November 5, 2025 - ADVANCED FEATURES UPDATE
+### November 5, 2025 - WALLET & TRANSACTION FIX
+- **CRITICAL FIX**: Token Builder and AI NFT Builder two-step transactions now work properly
+- Changed from `writeContract` to `writeContractAsync` for proper async/await handling
+- Added `chainId: 8453` to ALL transactions to force Base Network (prevents Ethereum mainnet errors)
+- Both payment and creation/minting transactions now trigger correctly
+- Added comprehensive error handling and user-friendly error messages
+- **WALLET EXPANSION**: Added support for 7 different wallets:
+  1. Coinbase Wallet (Smart Wallet + Standard)
+  2. MetaMask
+  3. Trust Wallet
+  4. Rabby Wallet
+  5. Phantom
+  6. WalletConnect (mobile wallets)
+  7. Safe (Gnosis Safe)
+- All transactions now stay on Base Network (no more high gas fees from wrong network)
+
+### November 5, 2025 - ADVANCED FEATURES UPDATE (Previous)
 - **4 MAJOR FEATURES ADDED**: NFT Gallery, Liquidity Pool Creator, Airdrop Tool, Token Vesting System!
 
 #### New Features:

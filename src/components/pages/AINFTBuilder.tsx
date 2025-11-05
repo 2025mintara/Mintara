@@ -54,46 +54,85 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
     'Fantasy landscape with mountains and aurora',
   ]);
 
-  const { writeContract: writePayment, data: paymentHash } = useWriteContract();
-  const { writeContract: writeMint, data: mintHash } = useWriteContract();
+  const { writeContractAsync: writePayment } = useWriteContract();
+  const { writeContractAsync: writeMint } = useWriteContract();
   
-  const { isSuccess: isPaymentConfirmed } = useWaitForTransactionReceipt({
+  const [paymentHash, setPaymentHash] = useState<`0x${string}` | undefined>();
+  const [mintHash, setMintHash] = useState<`0x${string}` | undefined>();
+  
+  const { isSuccess: isPaymentConfirmed, isError: isPaymentError } = useWaitForTransactionReceipt({
     hash: paymentHash,
   });
 
-  const { isSuccess: isMintConfirmed } = useWaitForTransactionReceipt({
+  const { isSuccess: isMintConfirmed, isError: isMintError } = useWaitForTransactionReceipt({
     hash: mintHash,
   });
 
   useEffect(() => {
+    if (isPaymentError && paymentStep === 'paying') {
+      toast.error('Payment transaction failed. Please try again.');
+      setIsProcessing(false);
+      setPaymentStep('idle');
+    }
+  }, [isPaymentError, paymentStep]);
+
+  useEffect(() => {
+    if (isMintError && paymentStep === 'minting') {
+      toast.error('NFT minting failed. Please try again.');
+      setIsProcessing(false);
+      setPaymentStep('idle');
+    }
+  }, [isMintError, paymentStep]);
+
+  useEffect(() => {
     if (isPaymentConfirmed && paymentStep === 'paying') {
+      console.log('✅ Payment confirmed! Now minting NFT...');
       setPaymentStep('paid');
       toast.success('Fee paid! Minting your NFT...');
       
-      const tokenURI = JSON.stringify({
-        name: nftMetadata.name,
-        description: nftMetadata.description,
-        image: generatedImageUrl,
-        attributes: [
-          { trait_type: 'AI Model', value: 'Pollinations FLUX' },
-          { trait_type: 'Prompt', value: prompt },
-        ],
-      });
+      const mintNFT = async () => {
+        try {
+          const tokenURI = JSON.stringify({
+            name: nftMetadata.name,
+            description: nftMetadata.description,
+            image: generatedImageUrl,
+            attributes: [
+              { trait_type: 'AI Model', value: 'Pollinations FLUX' },
+              { trait_type: 'Prompt', value: prompt },
+            ],
+          });
 
-      if (!collectionAddress) {
-        writeMint({
-          address: NFT_FACTORY_ADDRESS,
-          abi: NFT_FACTORY_ABI,
-          functionName: 'createCollection',
-          args: [
-            nftMetadata.collection,
-            nftMetadata.symbol,
-            nftMetadata.collection,
-            nftMetadata.description,
-          ],
-        });
-      }
-      setPaymentStep('minting');
+          if (!collectionAddress) {
+            const hash = await writeMint({
+              address: NFT_FACTORY_ADDRESS,
+              abi: NFT_FACTORY_ABI,
+              functionName: 'createCollection',
+              args: [
+                nftMetadata.collection,
+                nftMetadata.symbol,
+                nftMetadata.collection,
+                nftMetadata.description,
+              ],
+              chainId: 8453, // BASE NETWORK ZORUNLU
+            });
+            
+            console.log('✅ NFT minting transaction sent! Hash:', hash);
+            setMintHash(hash);
+          }
+          setPaymentStep('minting');
+        } catch (error: any) {
+          console.error('❌ NFT minting error:', error);
+          if (error?.message?.includes('User rejected')) {
+            toast.error('NFT minting cancelled');
+          } else {
+            toast.error('Failed to mint NFT. Please try again.');
+          }
+          setIsProcessing(false);
+          setPaymentStep('idle');
+        }
+      };
+      
+      mintNFT();
     }
   }, [isPaymentConfirmed, paymentStep, nftMetadata, generatedImageUrl, prompt, collectionAddress, writeMint]);
 
@@ -159,16 +198,24 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       
       toast.info(`Paying ${formatUSDC(feeAmount)} USDC fee...`);
       
-      writePayment({
+      const hash = await writePayment({
         address: USDC_CONTRACT_ADDRESS,
         abi: USDC_ABI,
         functionName: 'transfer',
         args: [OWNER_WALLET, feeAmount],
+        chainId: 8453, // BASE NETWORK ZORUNLU
       });
+
+      console.log('✅ Payment transaction sent! Hash:', hash);
+      setPaymentHash(hash);
       
-    } catch (error) {
-      console.error('Fee payment error:', error);
-      toast.error('Failed to process fee payment');
+    } catch (error: any) {
+      console.error('❌ Fee payment error:', error);
+      if (error?.message?.includes('User rejected')) {
+        toast.error('Payment cancelled');
+      } else {
+        toast.error('Failed to process fee payment');
+      }
       setIsProcessing(false);
       setPaymentStep('idle');
     }

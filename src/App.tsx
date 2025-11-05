@@ -28,6 +28,27 @@ const wagmiConfig = createConfig({
     injected({
       target: 'metaMask',
     }),
+    injected({
+      target: {
+        id: 'trust',
+        name: 'Trust Wallet',
+        provider: (window as any)?.trustwallet,
+      },
+    }),
+    injected({
+      target: {
+        id: 'rabby',
+        name: 'Rabby Wallet',
+        provider: (window as any)?.rabby,
+      },
+    }),
+    injected({
+      target: {
+        id: 'phantom',
+        name: 'Phantom',
+        provider: (window as any)?.phantom?.ethereum,
+      },
+    }),
     walletConnect({
       projectId: '3fbb6bba6f1de962d911bb5b5c9dba88',
       metadata: {

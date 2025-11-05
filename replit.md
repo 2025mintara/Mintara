@@ -50,6 +50,15 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
+### November 5, 2025 - Early Morning (REAL TOKEN DEPLOYMENT)
+- **GERÇEK TOKEN FACTORY DEPLOYED**: MintaraTokenFactory contract Base Mainnet'e deploy edildi
+- Contract Address: `0x8384442FA9384F6276Cf175F8EB48c737ee204a6`
+- Foundry (Forge, Cast, Anvil) kuruldu ve kullanıma hazır
+- Token Builder artık gerçek token oluşturuyor (mock değil)
+- Kullanıcı token oluşturduğunda otomatik olarak cüzdanına düşüyor
+- Mint/Burn özellikleri optional olarak eklenebiliyor
+- Tüm token'lar Base Network'te gerçekten deploy ediliyor
+
 ### November 4, 2025 - Very Late Night (WALLET CONNECTOR UPGRADE)
 - **WALLET CONNECTORS EXPANDED**: Added MetaMask, WalletConnect, and Safe wallet support
 - Users can now connect with: Coinbase Wallet, MetaMask, WalletConnect (mobile), Safe wallet

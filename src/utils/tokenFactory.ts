@@ -12,7 +12,8 @@ export const TOKEN_FACTORY_ABI = [
       { name: 'symbol', type: 'string' },
       { name: 'decimals', type: 'uint8' },
       { name: 'initialSupply', type: 'uint256' },
-      { name: 'owner', type: 'address' }
+      { name: 'canMint', type: 'bool' },
+      { name: 'canBurn', type: 'bool' }
     ],
     outputs: [{ name: 'tokenAddress', type: 'address' }]
   }

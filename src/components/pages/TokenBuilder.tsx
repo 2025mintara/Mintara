@@ -8,14 +8,6 @@ import { Textarea } from '../ui/textarea';
 import { FeeBadge } from '../FeeBadge';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
-import { parseUnits } from 'viem';
-import {
-  OWNER_WALLET,
-  USDC_CONTRACT_ADDRESS,
-  USDC_ABI,
-  getTokenBuilderFee,
-  formatUSDC,
-} from '../../utils/feePayment';
 import {
   TOKEN_FACTORY_ADDRESS,
   TOKEN_FACTORY_ABI,
@@ -53,7 +45,6 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const [logoUrl, setLogoUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [deployedTokenAddress, setDeployedTokenAddress] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     symbol: '',
@@ -79,24 +70,17 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
 
   const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
   
-  const { isLoading: isConfirming, isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   });
 
   useEffect(() => {
-    if (isConfirmed && receipt) {
-      if (receipt.logs && receipt.logs.length > 0) {
-        const tokenCreatedLog = receipt.logs.find(log => log.topics[0] === '0x...');
-        if (tokenCreatedLog && tokenCreatedLog.topics[1]) {
-          const tokenAddr = `0x${tokenCreatedLog.topics[1].slice(-40)}`;
-          setDeployedTokenAddress(tokenAddr);
-        }
-      }
+    if (isConfirmed) {
       setIsProcessing(false);
       setShowSuccessModal(true);
-      toast.success('Token created successfully!');
+      toast.success('Token created successfully! Check your wallet.');
     }
-  }, [isConfirmed, receipt]);
+  }, [isConfirmed]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,9 +98,6 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     setIsProcessing(true);
 
     try {
-      const feeAmount = getTokenBuilderFee();
-      const initialSupply = parseUnits(formData.supply, parseInt(formData.decimals));
-      
       toast.info('Creating your token on Base Network...');
       
       writeContract({
@@ -126,7 +107,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
         args: [
           formData.name,
           formData.symbol,
-          parseInt(formData.decimals),
+          Number(formData.decimals),
           BigInt(formData.supply),
           formData.canMint,
           formData.canBurn,

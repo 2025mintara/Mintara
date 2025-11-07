@@ -657,70 +657,61 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
             </DialogDescription>
           </DialogHeader>
           
-          {createdTokenAddress && (
-            <div className="bg-mintara-background/50 p-3 rounded-lg border border-mintara-border">
-              <p className="text-xs text-mintara-text-secondary mb-1">Contract Address:</p>
-              <div className="flex items-center gap-2">
-                <code className="text-xs font-mono text-mintara-accent break-all flex-1">
-                  {createdTokenAddress}
-                </code>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(createdTokenAddress);
-                    toast.success('Address copied!');
-                  }}
-                  className="h-6 w-6 p-0"
-                >
-                  <Info className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-          )}
-
           <div className="space-y-3 pt-4">
+            {createdTokenAddress && (
+              <div className="p-3 bg-mintara-background/50 border border-mintara-border rounded-lg">
+                <p className="text-xs text-mintara-text-secondary mb-1">Contract Address</p>
+                <div className="flex items-center gap-2">
+                  <code className="text-xs text-mintara-text-primary break-all flex-1">
+                    {createdTokenAddress}
+                  </code>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      navigator.clipboard.writeText(createdTokenAddress);
+                      toast.success('Address copied!');
+                    }}
+                  >
+                    📋
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <Button
               variant="outline"
               className="w-full gap-2"
-              onClick={() => {
-                const url = createdTokenAddress 
-                  ? `https://basescan.org/address/${createdTokenAddress}`
-                  : `https://basescan.org/tx/${tokenHash}`;
-                window.open(url, '_blank');
-              }}
-              disabled={!createdTokenAddress && !tokenHash}
+              onClick={() => window.open(`https://basescan.org/address/${createdTokenAddress}`, '_blank')}
+              disabled={!createdTokenAddress}
             >
               <ExternalLink className="w-4 h-4" />
               View on BaseScan
             </Button>
             
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  const text = `I just created ${formData.symbol} token on @base! 🚀\n\nContract: ${createdTokenAddress}\n\nBuilt with @mintara_base\n\n#BaseNetwork #Crypto`;
-                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
-                }}
-                disabled={!createdTokenAddress}
-              >
-                <Share2 className="w-3 h-3 mr-1" />
-                Twitter
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  const text = `I just created ${formData.symbol} token on Base! 🚀\n\nContract: ${createdTokenAddress}\n\nBuilt with Mintara Base`;
-                  window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`, '_blank');
-                }}
-                disabled={!createdTokenAddress}
-              >
-                <Share2 className="w-3 h-3 mr-1" />
-                Farcaster
-              </Button>
-            </div>
+            <Button
+              variant="secondary"
+              className="w-full gap-2"
+              onClick={() => {
+                const shareText = `I just created ${formData.symbol} token on Base Network! 🚀\n\nContract: ${createdTokenAddress}\n\nBuilt with Mintara Base\nhttps://mintara.base`;
+                if (navigator.share) {
+                  navigator.share({ 
+                    text: shareText,
+                    title: `${formData.symbol} Token Created!`
+                  }).catch(() => {
+                    navigator.clipboard.writeText(shareText);
+                    toast.success('Share text copied!');
+                  });
+                } else {
+                  navigator.clipboard.writeText(shareText);
+                  toast.success('Share text copied!');
+                }
+              }}
+              disabled={!createdTokenAddress}
+            >
+              <Share2 className="w-4 h-4" />
+              Share
+            </Button>
             
             <Button
               className="w-full"

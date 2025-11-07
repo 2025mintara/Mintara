@@ -10,64 +10,17 @@ import { Launchpad } from '@/components/pages/Launchpad';
 import { Toaster } from '@/components/ui/sonner';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider, createStorage } from 'wagmi';
+import { WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { http, createConfig } from 'wagmi';
-import { coinbaseWallet, walletConnect, injected, safe } from '@wagmi/connectors';
+import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
 
 const queryClient = new QueryClient();
 
-const wagmiConfig = createConfig({
+const wagmiConfig = getDefaultConfig({
+  appName: 'Mintara Base',
+  projectId: '3fbb6bba6f1de962d911bb5b5c9dba88',
   chains: [base],
-  connectors: [
-    coinbaseWallet({
-      appName: 'Mintara Base',
-      appLogoUrl: '/logo.svg',
-      preference: 'all',
-    }),
-    injected({
-      target: 'metaMask',
-    }),
-    injected({
-      target: {
-        id: 'trust',
-        name: 'Trust Wallet',
-        provider: (window as any)?.trustwallet,
-      },
-    }),
-    injected({
-      target: {
-        id: 'rabby',
-        name: 'Rabby Wallet',
-        provider: (window as any)?.rabby,
-      },
-    }),
-    injected({
-      target: {
-        id: 'phantom',
-        name: 'Phantom',
-        provider: (window as any)?.phantom?.ethereum,
-      },
-    }),
-    walletConnect({
-      projectId: '3fbb6bba6f1de962d911bb5b5c9dba88',
-      metadata: {
-        name: 'Mintara Base',
-        description: 'No-code token and NFT creation on Base Network',
-        url: window.location.origin,
-        icons: [`${window.location.origin}/logo.svg`],
-      },
-      showQrModal: true,
-    }),
-    safe({
-      allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/],
-      debug: false,
-    }),
-  ],
-  transports: {
-    [base.id]: http(),
-  },
-  storage: createStorage({ storage: window.localStorage }),
   ssr: false,
 });
 
@@ -91,18 +44,26 @@ function App() {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <OnchainKitProvider
-          apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY}
-          chain={base}
-          config={{
-            appearance: {
-              name: 'Mintara Base',
-              logo: `${window.location.origin}/logo.svg`,
-              mode: 'auto',
-              theme: 'default',
-            },
-            wallet: {
-              display: 'modal',
+        <RainbowKitProvider
+          theme={darkTheme({
+            accentColor: '#00A676',
+            accentColorForeground: 'white',
+            borderRadius: 'medium',
+          })}
+          initialChain={base}
+        >
+          <OnchainKitProvider
+            apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY}
+            chain={base}
+            config={{
+              appearance: {
+                name: 'Mintara Base',
+                logo: `${window.location.origin}/logo.svg`,
+                mode: 'auto',
+                theme: 'default',
+              },
+              wallet: {
+                display: 'modal',
             },
           }}
         >
@@ -131,6 +92,7 @@ function App() {
             />
           </div>
         </OnchainKitProvider>
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

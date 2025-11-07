@@ -19,6 +19,21 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Primary: #E8FFF5
 - Text Secondary: #A7DAC6
 
+## Recent Changes
+### November 7, 2025 - NFT Minting System Fully Fixed
+- **MAJOR FIX**: NFT minting process completely rebuilt
+- Payment → Collection creation → Metadata IPFS upload → NFT mint flow working
+- Collection address captured from `NFTCollectionCreated` event logs
+- NFT metadata (name, description, image, attributes) automatically uploaded to Pinata IPFS
+- Success Modal displays collection address with copy button and BaseScan link
+- NFTs will appear in wallets using ERC721 metadata standard
+- Dashboard NFT Gallery tab displays collections and NFT previews
+- Token logos uploaded to Pinata IPFS with "Stored on IPFS" badge indicator
+
+### November 7, 2025 - Dashboard Features Status
+- **Working**: Token management (mint, burn, transfer), NFT Gallery, Token Info modals
+- **Simulated**: Airdrop Tool (transfers work but individual transactions), Token Vesting (localStorage based), Liquidity Pool Creator (UI only, not connected to DEXs)
+
 ## External Dependencies
 - **Web3**:
     - RainbowKit (for wallet connection)

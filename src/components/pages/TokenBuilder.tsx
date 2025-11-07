@@ -20,7 +20,7 @@ import {
   getTokenBuilderFee,
   formatUSDC,
 } from '../../utils/feePayment';
-import { uploadToIPFS } from '../../utils/tokenLogoStorage';
+import { uploadToIPFS, saveTokenLogo } from '../../utils/tokenLogoStorage';
 import {
   Select,
   SelectContent,
@@ -201,7 +201,6 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
           setCreatedTokenAddress(tokenAddress);
           
           if (logoUrl) {
-            const { saveTokenLogo } = require('../../utils/tokenLogoStorage');
             saveTokenLogo({
               tokenAddress,
               logoUrl,
@@ -209,7 +208,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
               tokenSymbol: formData.symbol,
               uploadedAt: Date.now(),
             });
-            console.log('💾 Logo saved for token:', tokenAddress);
+            console.log('💾 Logo saved to localStorage for Dashboard:', tokenAddress);
           }
           
           toast.success('Token created successfully! Check your wallet.');

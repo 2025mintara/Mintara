@@ -212,85 +212,23 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             toast.success('Metadata uploaded! Now minting NFT...');
             
             try {
-              let hash: `0x${string}`;
-              let mintSuccess = false;
+              const hash = await writeMint({
+                address: collectionAddress as Address,
+                abi: ERC721_ABI,
+                functionName: 'safeMint',
+                args: [address as Address, metadataURI],
+                chainId: 8453,
+              });
               
-              try {
-                hash = await writeMint({
-                  address: NFT_FACTORY_ADDRESS,
-                  abi: NFT_FACTORY_ABI,
-                  functionName: 'mintNFT',
-                  args: [collectionAddress, metadataURI],
-                  chainId: 8453,
-                });
-                console.log('✅ NFT mint via factory sent! Hash:', hash);
-                mintSuccess = true;
-              } catch (factoryError: any) {
-                console.warn('⚠️ Factory mint failed, trying alternatives...', factoryError);
-                
-                if (factoryError?.message?.includes('User rejected')) {
-                  throw factoryError;
-                }
-                
-                try {
-                  hash = await writeMint({
-                    address: collectionAddress as Address,
-                    abi: ERC721_ABI,
-                    functionName: 'safeMint',
-                    args: [address as Address, metadataURI],
-                    chainId: 8453,
-                  });
-                  console.log('✅ NFT mint via safeMint sent! Hash:', hash);
-                  mintSuccess = true;
-                } catch (safeMintError: any) {
-                  console.warn('⚠️ safeMint failed, trying mint()...', safeMintError);
-                  
-                  if (safeMintError?.message?.includes('User rejected')) {
-                    throw safeMintError;
-                  }
-                  
-                  try {
-                    hash = await writeMint({
-                      address: collectionAddress as Address,
-                      abi: ERC721_ABI,
-                      functionName: 'mint',
-                      args: [address as Address],
-                      chainId: 8453,
-                    });
-                    console.log('✅ NFT mint via mint() sent! Hash:', hash);
-                    mintSuccess = true;
-                    toast.info('NFT minted! Setting metadata separately...');
-                  } catch (mintFuncError: any) {
-                    console.warn('⚠️ mint() failed, trying mintTo()...', mintFuncError);
-                    
-                    if (mintFuncError?.message?.includes('User rejected')) {
-                      throw mintFuncError;
-                    }
-                    
-                    hash = await writeMint({
-                      address: collectionAddress as Address,
-                      abi: ERC721_ABI,
-                      functionName: 'mintTo',
-                      args: [address as Address],
-                      chainId: 8453,
-                    });
-                    console.log('✅ NFT mint via mintTo() sent! Hash:', hash);
-                    mintSuccess = true;
-                  }
-                }
-                
-                if (mintSuccess) {
-                  toast.info('Minting directly to collection...');
-                }
-              }
-              
+              console.log('✅ NFT minted successfully! Hash:', hash);
+              toast.success('NFT mint transaction sent!');
               setMintHash(hash);
             } catch (mintError: any) {
-              console.error('❌ All mint attempts failed:', mintError);
+              console.error('❌ NFT mint failed:', mintError);
               if (mintError?.message?.includes('User rejected')) {
                 toast.error('NFT minting cancelled');
               } else {
-                toast.error('Failed to mint NFT. The collection may require special permissions.');
+                toast.error('Failed to mint NFT: ' + (mintError?.shortMessage || 'Unknown error'));
               }
               setIsProcessing(false);
               setPaymentStep('idle');

@@ -11,9 +11,6 @@ import { TokenManagementModal } from '../TokenManagementModal';
 import { TokenInfoModal } from '../TokenInfoModal';
 import { MultisendModal } from '../MultisendModal';
 import { NFTGallery } from '../NFTGallery';
-import { AirdropTool } from '../AirdropTool';
-import { TokenVesting } from '../TokenVesting';
-import { LiquidityPoolCreator } from '../LiquidityPoolCreator';
 import { getTokenLogo } from '../../utils/tokenLogoStorage';
 import {
   Select,
@@ -131,24 +128,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
               className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
             >
               AI Tokenomics
-            </TabsTrigger>
-            <TabsTrigger
-              value="airdrop"
-              className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
-            >
-              Airdrop
-            </TabsTrigger>
-            <TabsTrigger
-              value="vesting"
-              className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
-            >
-              Vesting
-            </TabsTrigger>
-            <TabsTrigger
-              value="liquidity"
-              className="data-[state=active]:bg-mintara-primary data-[state=active]:text-white"
-            >
-              Liquidity
             </TabsTrigger>
           </TabsList>
 
@@ -391,20 +370,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
             </Card>
           </TabsContent>
 
-          {/* Airdrop Tab */}
-          <TabsContent value="airdrop" className="space-y-6">
-            <AirdropTool />
-          </TabsContent>
-
-          {/* Vesting Tab */}
-          <TabsContent value="vesting" className="space-y-6">
-            <TokenVesting />
-          </TabsContent>
-
-          {/* Liquidity Tab */}
-          <TabsContent value="liquidity" className="space-y-6">
-            <LiquidityPoolCreator />
-          </TabsContent>
         </Tabs>
       </div>
 

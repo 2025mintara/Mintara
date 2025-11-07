@@ -21,7 +21,7 @@ import {
   ERC721_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
-import { parseEventLogs } from 'viem';
+import { parseEventLogs, type Address } from 'viem';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,7 @@ interface AINFTBuilderProps {
 }
 
 export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
-  const { isConnected, chain } = useAccount();
+  const { isConnected, chain, address } = useAccount();
   const [prompt, setPrompt] = useState('');
   const [previews, setPreviews] = useState<boolean>(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
@@ -213,6 +213,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             
             try {
               let hash: `0x${string}`;
+              let mintSuccess = false;
               
               try {
                 hash = await writeMint({
@@ -223,31 +224,73 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                   chainId: 8453,
                 });
                 console.log('✅ NFT mint via factory sent! Hash:', hash);
+                mintSuccess = true;
               } catch (factoryError: any) {
-                console.warn('⚠️ Factory mint failed, trying direct collection mint...', factoryError);
+                console.warn('⚠️ Factory mint failed, trying alternatives...', factoryError);
                 
                 if (factoryError?.message?.includes('User rejected')) {
                   throw factoryError;
                 }
                 
-                hash = await writeMint({
-                  address: collectionAddress as Address,
-                  abi: ERC721_ABI,
-                  functionName: 'safeMint',
-                  args: [address as Address, metadataURI],
-                  chainId: 8453,
-                });
-                console.log('✅ NFT mint via collection sent! Hash:', hash);
-                toast.info('Minting directly to collection...');
+                try {
+                  hash = await writeMint({
+                    address: collectionAddress as Address,
+                    abi: ERC721_ABI,
+                    functionName: 'safeMint',
+                    args: [address as Address, metadataURI],
+                    chainId: 8453,
+                  });
+                  console.log('✅ NFT mint via safeMint sent! Hash:', hash);
+                  mintSuccess = true;
+                } catch (safeMintError: any) {
+                  console.warn('⚠️ safeMint failed, trying mint()...', safeMintError);
+                  
+                  if (safeMintError?.message?.includes('User rejected')) {
+                    throw safeMintError;
+                  }
+                  
+                  try {
+                    hash = await writeMint({
+                      address: collectionAddress as Address,
+                      abi: ERC721_ABI,
+                      functionName: 'mint',
+                      args: [address as Address],
+                      chainId: 8453,
+                    });
+                    console.log('✅ NFT mint via mint() sent! Hash:', hash);
+                    mintSuccess = true;
+                    toast.info('NFT minted! Setting metadata separately...');
+                  } catch (mintFuncError: any) {
+                    console.warn('⚠️ mint() failed, trying mintTo()...', mintFuncError);
+                    
+                    if (mintFuncError?.message?.includes('User rejected')) {
+                      throw mintFuncError;
+                    }
+                    
+                    hash = await writeMint({
+                      address: collectionAddress as Address,
+                      abi: ERC721_ABI,
+                      functionName: 'mintTo',
+                      args: [address as Address],
+                      chainId: 8453,
+                    });
+                    console.log('✅ NFT mint via mintTo() sent! Hash:', hash);
+                    mintSuccess = true;
+                  }
+                }
+                
+                if (mintSuccess) {
+                  toast.info('Minting directly to collection...');
+                }
               }
               
               setMintHash(hash);
             } catch (mintError: any) {
-              console.error('❌ Mint transaction error:', mintError);
+              console.error('❌ All mint attempts failed:', mintError);
               if (mintError?.message?.includes('User rejected')) {
                 toast.error('NFT minting cancelled');
               } else {
-                toast.error('Failed to mint NFT. Please try again.');
+                toast.error('Failed to mint NFT. The collection may require special permissions.');
               }
               setIsProcessing(false);
               setPaymentStep('idle');

@@ -144,5 +144,33 @@ export const ERC721_ABI = [
       { name: 'uri', type: 'string' }
     ],
     outputs: []
+  },
+  {
+    name: 'mint',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'to', type: 'address' }
+    ],
+    outputs: [{ name: '', type: 'uint256' }]
+  },
+  {
+    name: 'mintTo',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: '_recipient', type: 'address' }
+    ],
+    outputs: []
+  },
+  {
+    name: 'setTokenURI',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'tokenId', type: 'uint256' },
+      { name: 'uri', type: 'string' }
+    ],
+    outputs: []
   }
 ] as const;

@@ -20,6 +20,7 @@ import {
   getTokenBuilderFee,
   formatUSDC,
 } from '../../utils/feePayment';
+import { uploadToIPFS } from '../../utils/tokenLogoStorage';
 import {
   Select,
   SelectContent,
@@ -53,6 +54,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStep, setPaymentStep] = useState<'idle' | 'paying' | 'paid' | 'creating'>('idle');
   const [formData, setFormData] = useState({
@@ -66,15 +68,35 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     canBurn: false,
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setLogoFile(file);
+    
+    // Show preview immediately
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setLogoUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to IPFS in background
+    setIsUploadingLogo(true);
+    try {
+      const ipfsUrl = await uploadToIPFS(file);
+      setLogoUrl(ipfsUrl);
+      toast.success('Logo uploaded to IPFS!', {
+        description: 'Your logo is now permanently stored.',
+      });
+    } catch (error) {
+      console.error('IPFS upload failed:', error);
+      toast.error('IPFS upload failed', {
+        description: 'Using local preview instead. Logo will still work!',
+      });
+      // Keep the base64 preview as fallback
+    } finally {
+      setIsUploadingLogo(false);
     }
   };
 
@@ -422,21 +444,46 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
                       accept="image/png,image/svg+xml,image/jpeg,image/webp"
                       onChange={handleFileUpload}
                       className="hidden"
+                      disabled={isUploadingLogo}
                     />
                     <div className="border-2 border-dashed border-mintara-border rounded-lg p-8 text-center hover:border-mintara-accent/50 transition-colors">
-                      <Upload className="w-8 h-8 text-mintara-accent mx-auto mb-3" />
-                      <p className="text-sm text-mintara-text-primary mb-1">
-                        {logoFile ? logoFile.name : 'Click to upload or drag and drop'}
-                      </p>
-                      <p className="text-xs text-mintara-text-secondary">
-                        PNG, JPG, SVG • 512×512px recommended
-                      </p>
+                      {isUploadingLogo ? (
+                        <>
+                          <Loader2 className="w-8 h-8 text-mintara-accent mx-auto mb-3 animate-spin" />
+                          <p className="text-sm text-mintara-text-primary mb-1">
+                            Uploading to IPFS...
+                          </p>
+                          <p className="text-xs text-mintara-text-secondary">
+                            Your logo will be permanently stored
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-mintara-accent mx-auto mb-3" />
+                          <p className="text-sm text-mintara-text-primary mb-1">
+                            {logoFile ? logoFile.name : 'Click to upload or drag and drop'}
+                          </p>
+                          <p className="text-xs text-mintara-text-secondary">
+                            PNG, JPG, SVG • 512×512px recommended
+                          </p>
+                        </>
+                      )}
                     </div>
                   </label>
-                  {logoFile && logoUrl && (
+                  {logoFile && logoUrl && !isUploadingLogo && (
                     <div className="mt-3 p-3 bg-mintara-surface/30 border border-mintara-border rounded-lg">
-                      <p className="text-xs text-mintara-text-secondary mb-2">Preview:</p>
-                      <img src={logoUrl} alt="Logo preview" className="w-16 h-16 rounded-lg object-cover" />
+                      <div className="flex items-center gap-3">
+                        <img src={logoUrl} alt="Logo preview" className="w-16 h-16 rounded-lg object-cover" />
+                        <div>
+                          <p className="text-xs text-mintara-text-secondary mb-1">Logo Preview</p>
+                          {logoUrl.startsWith('https://gateway.pinata.cloud') && (
+                            <p className="text-xs text-green-400 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Stored on IPFS
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </TabsContent>

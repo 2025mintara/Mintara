@@ -1,297 +1,40 @@
 # Mintara Base - Token & NFT Builder Platform
 
 ## Overview
-Mintara Base is a no-code platform for creating tokens and AI-generated NFTs on the Base Network. The platform simplifies the process of tokenization and NFT creation, making it accessible to users without requiring any coding knowledge.
+Mintara Base is a no-code platform designed to simplify the creation of tokens and AI-generated NFTs on the Base Network. It aims to make tokenization and NFT creation accessible to users without any coding knowledge. The platform includes a Token Builder, AI NFT Builder, a comprehensive Dashboard for managing creations, and a Launchpad for token projects, all integrated with wallet functionality for the Base Network.
 
-## Project Structure
-- **Frontend**: React + Vite + TypeScript
-- **Styling**: Tailwind CSS v4 + Custom Mintara theme
-- **UI Components**: Radix UI components for accessible interfaces
-- **Port**: Development server runs on port 5000
+## User Preferences
+I prefer iterative development and want to be involved in key decisions. Please ask before making major architectural changes or introducing new external dependencies. I also prefer clear and concise explanations.
 
-## Key Features
-1. **Token Builder** - Create custom tokens on Base Network without code
-2. **AI NFT Builder** - Generate and mint AI-powered NFTs using SDXL Turbo
-3. **Dashboard** - Manage your created tokens and NFTs
-4. **Launchpad** - Launch your token projects
-5. **Wallet Integration** - Connect wallet functionality for Base Network
+## System Architecture
+The platform is built with React 19.0.0, Vite, and TypeScript for the frontend, utilizing Tailwind CSS 4.1.16 with a custom Mintara theme and Radix UI components for accessible interfaces. Key features include a Token Builder, AI NFT Builder (using Pollinations AI for free image generation), a Dashboard with NFT Gallery, Liquidity Pool Creator, Airdrop Tool, and Token Vesting/Locking functionalities.
 
-## Technology Stack
-- **Framework**: React 19.0.0
-- **Build Tool**: Vite 6.3.5
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS 4.1.16 with @tailwindcss/postcss
-- **UI Library**: Radix UI components
-- **Wallet Integration**: 
-  - RainbowKit 2.2.2 (primary wallet connector with Rainbow wallet support)
-  - Coinbase OnchainKit 1.1.2 (Base-specific features)
-  - wagmi 2.15+ & viem 2.25+ (Web3 hooks)
-- **Web3**: Base Network (Chain ID: 8453)
-- **Farcaster**: @farcaster/miniapp-sdk 0.2.1 (Base App integration)
-- **Icons**: Lucide React
-- **Forms**: React Hook Form
-- **Charts**: Recharts
-- **Notifications**: Sonner
-- **Theme**: next-themes for dark mode support
+Wallet integration is handled via RainbowKit (supporting multiple wallets like Rainbow, MetaMask, Coinbase, WalletConnect, Safe, Trust Wallet, Rabby, Phantom) and Coinbase OnchainKit, specifically configured for the Base Network (Chain ID: 8453). All platform fees (1 USDC per token deployment/NFT mint) are automatically routed to the owner's wallet (0x71DEdF5544692aF64FC2ce040a2b3dA573957275) in USDC on the Base Network, implemented as a two-step transaction process. Smart contracts include MintaraTokenFactory and MintaraNFTFactory, deployed on the Base Network. Token logos are uploaded to Pinata IPFS for permanent storage. The application supports dark mode via `next-themes`.
 
-## Development Setup
-The project is configured to run on Replit with:
-- Host: 0.0.0.0
-- Port: 5000
-- HMR enabled with client port 5000
-
-## Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-
-## Fee Payment System
-All platform fees are automatically sent to the owner wallet address via USDC on Base Network:
-- **Owner Wallet**: 0x71DEdF5544692aF64FC2ce040a2b3dA573957275
-- **Token Builder Fee**: 1 USDC per token deployment
-- **NFT Builder Fee**: 1 USDC per NFT mint
-- **Payment Method**: USDC (Base Network contract: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
-- **Payment Flow**: User connects wallet → Creates token/NFT → Pays 1 USDC to owner → Transaction confirmed → Token deployed/NFT minted
-
-## Recent Changes
-
-### November 7, 2025 - TOKEN CREATION BUG FIXES + LOGO SYSTEM
-- **CRITICAL FIX**: Contract address now captured and displayed after token creation
-- Added event log parsing with `parseEventLogs` to extract token address from `TokenCreated` event
-- **Success Modal Enhancements**:
-  - Contract address displayed with copy button
-  - BaseScan link works correctly (points to contract or transaction)
-  - Share buttons implemented: Twitter and Farcaster with pre-filled text
-  - All share links include contract address and token symbol
-- **Token Logo System** (NO API REQUIRED):
-  - Logo upload/URL input now saves to localStorage (completely free)
-  - Dashboard displays token logos automatically
-  - Base64 encoding for uploaded files
-  - Fallback to Coins icon if no logo
-- **Dashboard Fix**: Tokens now appear in "My Tokens" tab with logos
-- Token Factory ABI updated with `TokenCreated` event and `getUserTokens` function
-
-### November 7, 2025 - LIGHT MODE WALLET + RAINBOWKIT
-- **Wallet Modal Light Theme**: RainbowKit modal now uses light theme instead of dark
-- RainbowKit primary wallet connector (supports Rainbow, MetaMask, Coinbase, WalletConnect, and 40+ wallets)
-- Added Farcaster MiniApp SDK for Base App integration
-- Created `.well-known/farcaster.json` manifest for Base App preview
-- **Logo Update**: New circular logo design with gradient "M" matching user specification
-- Removed react-day-picker to resolve dependency conflicts
-- Build size optimized and working correctly
-
-### November 5, 2025 - VERCEL DEPLOYMENT FIX (Previous)
-- **CRITICAL FIX**: Fixed import paths for Vercel production builds
-- Changed all component imports from relative paths (`./components/...`) to alias paths (`@/components/...`)
-- Build now completes successfully without errors
-- Removed Hardhat dependencies from package.json to prevent peer dependency conflicts
-- Build output directory: `build/` (configured in vite.config.ts)
-- All TypeScript/LSP errors resolved
-- Ready for GitHub + Vercel deployment
-
-### November 5, 2025 - WALLET & TRANSACTION FIX (Previous)
-- **CRITICAL FIX**: Token Builder and AI NFT Builder two-step transactions now work properly
-- Changed from `writeContract` to `writeContractAsync` for proper async/await handling
-- Added `chainId: 8453` to ALL transactions to force Base Network (prevents Ethereum mainnet errors)
-- Both payment and creation/minting transactions now trigger correctly
-- Added comprehensive error handling and user-friendly error messages
-- **WALLET EXPANSION**: Added support for 7 different wallets:
-  1. Coinbase Wallet (Smart Wallet + Standard)
-  2. MetaMask
-  3. Trust Wallet
-  4. Rabby Wallet
-  5. Phantom
-  6. WalletConnect (mobile wallets)
-  7. Safe (Gnosis Safe)
-- All transactions now stay on Base Network (no more high gas fees from wrong network)
-
-### November 5, 2025 - ADVANCED FEATURES UPDATE (Previous)
-- **4 MAJOR FEATURES ADDED**: NFT Gallery, Liquidity Pool Creator, Airdrop Tool, Token Vesting System!
-
-#### New Features:
-1. **NFT Gallery** ✅
-   - Grid view display of user's NFT collections
-   - NFT preview with metadata (image, name, description, attributes)
-   - Click to view full NFT details in modal
-   - OpenSea and BaseScan links for each NFT
-   - Real-time NFT data from blockchain
-   - Shows up to 4 NFT previews per collection
-
-2. **Liquidity Pool Creator** ✅
-   - Create liquidity pools on Base DEXs (Aerodrome, Uniswap V3, BaseSwap)
-   - Token + ETH pair configuration
-   - Automatic price calculation
-   - Pool share tracking
-   - View pools on Aerodrome
-   - Manage existing pools
-
-3. **Airdrop Tool** ✅
-   - CSV file upload for bulk airdrops
-   - Manual CSV paste support
-   - Download CSV template
-   - Batch token distribution
-   - Real-time sending progress
-   - Total amount calculation
-   - Supports unlimited recipients
-
-4. **Token Vesting/Locking** ✅
-   - Create vesting schedules with cliff periods
-   - Linear vesting over time
-   - Beneficiary management
-   - Real-time vested amount calculation
-   - Progress tracking with visual bars
-   - Release tokens when available
-   - Active/Completed status tracking
-
-#### Dashboard Updates:
-- Expanded to 6 tabs: My Tokens, NFT Gallery, AI Tokenomics, Airdrop, Vesting, Liquidity
-- Removed "Credits" tab (not relevant)
-- All features accessible from main dashboard
-- Consistent Mintara theme across all new components
-
-### November 5, 2025 - FULL FEATURE UPDATE (Previous)
-- **ALL FEATURES COMPLETED**: Tüm kritik özellikler eklendi ve çalışıyor!
-
-#### Smart Contracts Deployed:
-1. **MintaraTokenFactory**: `0x8384442FA9384F6276Cf175F8EB48c737ee204a6`
-   - Creates real ERC20 tokens on Base Network
-   - Tokens automatically appear in user wallets
-   - Optional mint/burn capabilities
-   
-2. **MintaraNFTFactory**: `0x56ba49A2a1fcd316B92355B1ccc12638cC1EefA8`
-   - Creates NFT collections on Base Network
-   - Mints AI-generated NFTs with metadata
-   - Full ERC721 support
-
-#### New Features Added:
-1. **Fee Payment System** ✅
-   - 1 USDC fee for token creation (goes to owner wallet)
-   - 1 USDC fee for NFT minting (goes to owner wallet)
-   - Two-step process: Pay fee → Create/Mint automatically
-   - Real USDC transfers on Base Network
-
-2. **Real NFT Minting** ✅
-   - AI generates image with Pollinations FLUX
-   - Creates NFT collection on Base Network
-   - Mints NFT with metadata (name, description, image, attributes)
-   - NFTs appear in user wallets
-
-3. **Blockchain-Connected Dashboard** ✅
-   - Fetches user's real tokens from TokenFactory
-   - Fetches user's real NFT collections from NFTFactory
-   - Shows actual on-chain data (no mock data)
-   - Updates in real-time when new tokens/NFTs are created
-
-4. **Token Management Tools** ✅
-   - Mint: Create new tokens (if enabled)
-   - Burn: Destroy tokens
-   - Transfer: Send tokens to other addresses
-   - Modal interface for all operations
-
-5. **Social Sharing Features** ✅
-   - Share on Twitter button (auto-generates tweet)
-   - BaseScan links (direct to token/NFT on block explorer)
-   - OpenSea links (for NFT collections)
-   - Copy address to clipboard
-   - All integrated into Dashboard
-
-6. **Utilities Created**:
-   - `src/utils/nftFactory.ts` - NFT Factory ABI and address
-   - `src/utils/socialShare.ts` - Twitter, BaseScan, OpenSea helpers
-   - `src/components/TokenManagementModal.tsx` - Token tools modal
-
-#### Technical Details:
-- Foundry used for smart contract deployment
-- wagmi hooks for blockchain reads/writes
-- Two-step transaction flows (fee payment + action)
-- Real-time transaction status updates
-- Toast notifications for all actions
-
-### November 4, 2025 - Very Late Night (WALLET CONNECTOR UPGRADE)
-- **WALLET CONNECTORS EXPANDED**: Added MetaMask, WalletConnect, and Safe wallet support
-- Users can now connect with: Coinbase Wallet, MetaMask, WalletConnect (mobile), Safe wallet
-- Changed Coinbase preference from 'smartWalletOnly' to 'all' for broader compatibility
-- WalletConnect configured with public project ID and proper metadata
-- Token Factory ABI and contracts prepared for future token deployment
-
-### November 4, 2025 - Very Late Night (FINAL FIXES v2)
-- **NFT AI BUILDER FIX**: Switched to Pollinations AI (completely free, no API key needed)
-- Pollinations AI uses FLUX model for high-quality NFT generation
-- Removed Hugging Face dependency (their API endpoint changed and is no longer free-tier friendly)
-- NFT Builder now works instantly with zero setup required
-- All critical issues resolved:
-  1. ✅ Wallet modal shows correct Mintara logo
-  2. ✅ NFT Builder generates real AI images (FREE via Pollinations)
-  3. ✅ Wallet connection persists across pages
-  4. ✅ Token Builder logo upload works perfectly
-
-### November 4, 2025 - Very Late Night (FINAL FIXES)
-- **WALLET PERSISTENCE FIX**: Added localStorage storage to wagmi config for persistent wallet connections across pages
-- **LOGO FIX**: Created public/logo.svg with Mintara brand gradient logo for OnchainKit wallet modal
-- Updated wagmi connector to use new logo.svg in appLogoUrl
-- Added createStorage with localStorage to maintain wallet state across navigation
-
-### November 4, 2025 - Very Late Night
-- Fixed Token Builder logo upload - now opens file input properly with file preview
-- Created src/utils/huggingface.ts for real AI image generation
-- Added HUGGINGFACE_API_KEY to environment (via Replit Secrets)
-- Token Builder has working file upload with drag-and-drop support and image preview
-- All TypeScript errors resolved
-
-### November 4, 2025 - Late Night
-- **WALLET MODAL FIX**: Configured OnchainKit wallet modal with Coinbase Smart Wallet
-- Simplified wagmi connectors to use only Coinbase Wallet for better OnchainKit integration
-- Added Identity components (Avatar, Name, Address, EthBalance) to WalletDropdown
-- Set wallet display mode to 'modal' in OnchainKitProvider config
-- Modal infrastructure is in place (WalletModal, Dialog components rendering)
-- Removed unused connector imports (walletConnect, injected)
-
-### November 4, 2025 - Late Evening
-- **CRITICAL**: Implemented real blockchain fee payment system
-- Created feePayment.ts utility with USDC contract integration
-- Integrated wagmi's useWriteContract and useWaitForTransactionReceipt hooks
-- TokenBuilder now processes real USDC payments to owner wallet before deployment
-- AINFTBuilder now processes real USDC payments to owner wallet before minting
-- Added loading states and transaction confirmation handling
-- All fees (100%) automatically go to owner wallet: 0x71DEdF5544692aF64FC2ce040a2b3dA573957275
-- Users see real-time transaction status with toast notifications
-- Customized OnchainKit wallet button with Mintara theme (green/turquoise gradient)
-- Moved all OnchainKit CSS to globals.css for cleaner imports
-
-### November 4, 2025 - Evening
-- **Major Upgrade**: Integrated Coinbase OnchainKit for real wallet connectivity
-- Upgraded to React 19.0.0 (required for OnchainKit compatibility)
-- Added wagmi, viem, and @tanstack/react-query for Web3 functionality
-- Replaced mock WalletContext with real OnchainKit wallet components
-- Configured WagmiProvider and OnchainKitProvider for Base Network
-- Removed old WalletContext system entirely
-- Updated TokenBuilder and AINFTBuilder to use wagmi's useAccount hook
-- OnchainKit supports Metamask, Coinbase Wallet, WalletConnect, and more
-
-### November 4, 2025 - Afternoon
-- Fixed critical Tailwind CSS v4 issue by adding `@import "tailwindcss"` to globals.css
-- Fixed Tailwind CSS color configuration (removed hsl() wrapper, colors now work properly)
-- Added allowedHosts: true to Vite config for Replit proxy compatibility
-- Fixed TypeScript errors in Dashboard component (added onNavigate prop interface)
-- Removed unused Lock icon import from Whitepaper component
-- Updated index.html title for better SEO
-
-### November 2, 2025
-- Fixed TypeScript configuration (removed Next.js references)
-- Updated Vite config for Replit environment (port 5000, host 0.0.0.0)
-- Fixed package imports (removed version-specific import paths)
-- Installed missing dependencies (@types/react, @types/react-dom, @tailwindcss/postcss)
-- Configured Tailwind CSS v4 with PostCSS
-- Set up deployment configuration for autoscale deployment
-
-## Deployment
-The project is configured for autoscale deployment:
-- Build command: `npm run build`
-- Run command: `npx vite preview --host 0.0.0.0 --port 5000`
-
-## Color Scheme (Mintara Brand)
+The UI adheres to a specific Mintara brand color scheme:
 - Background: #001A12 (Dark emerald)
 - Surface: #03261B
 - Primary: #00A676 (Mintara green)
 - Accent: #00E0C6 (Turquoise)
 - Text Primary: #E8FFF5
 - Text Secondary: #A7DAC6
+
+## External Dependencies
+- **Web3**:
+    - RainbowKit (for wallet connection)
+    - Coinbase OnchainKit (Base-specific features, wallet modal, identity components)
+    - wagmi & viem (Web3 hooks and utilities)
+    - Base Network (blockchain)
+    - USDC (payment token on Base Network: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
+- **AI Image Generation**: Pollinations AI (FLUX model)
+- **IPFS Storage**: Pinata (for NFT and token logo storage)
+- **Social**:
+    - Farcaster (@farcaster/miniapp-sdk)
+    - Twitter API (for sharing features)
+- **UI Libraries**:
+    - Radix UI
+    - Lucide React (icons)
+    - Recharts (charts)
+    - Sonner (notifications)
+    - next-themes (dark mode)
+- **Forms**: React Hook Form

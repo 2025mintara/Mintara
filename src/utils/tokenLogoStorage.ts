@@ -44,6 +44,15 @@ export const uploadToIPFS = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
 
+    const metadata = JSON.stringify({
+      name: `token-logo-${file.name}`,
+      keyvalues: {
+        type: 'token-logo',
+        uploadedAt: new Date().toISOString()
+      }
+    });
+    formData.append('pinataMetadata', metadata);
+
     const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
       method: 'POST',
       headers: {
@@ -53,13 +62,17 @@ export const uploadToIPFS = async (file: File): Promise<string> => {
     });
 
     if (!response.ok) {
-      throw new Error('IPFS upload failed');
+      const errorData = await response.text();
+      console.error('Pinata error:', errorData);
+      throw new Error(`IPFS upload failed: ${response.status}`);
     }
 
     const data = await response.json();
-    return `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
+    const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
+    console.log('✅ Logo uploaded to IPFS:', ipfsUrl);
+    return ipfsUrl;
   } catch (error) {
-    console.error('IPFS upload error:', error);
+    console.error('❌ IPFS upload error:', error);
     throw error;
   }
 };

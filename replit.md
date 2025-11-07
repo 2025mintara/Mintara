@@ -54,9 +54,25 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
-### November 7, 2025 - RAINBOWKIT + FARCASTER + LOGO UPDATE
-- **MAJOR UPGRADE**: Integrated RainbowKit for better wallet connectivity
-- RainbowKit now primary wallet connector (supports Rainbow, MetaMask, Coinbase, WalletConnect, and 40+ wallets)
+### November 7, 2025 - TOKEN CREATION BUG FIXES + LOGO SYSTEM
+- **CRITICAL FIX**: Contract address now captured and displayed after token creation
+- Added event log parsing with `parseEventLogs` to extract token address from `TokenCreated` event
+- **Success Modal Enhancements**:
+  - Contract address displayed with copy button
+  - BaseScan link works correctly (points to contract or transaction)
+  - Share buttons implemented: Twitter and Farcaster with pre-filled text
+  - All share links include contract address and token symbol
+- **Token Logo System** (NO API REQUIRED):
+  - Logo upload/URL input now saves to localStorage (completely free)
+  - Dashboard displays token logos automatically
+  - Base64 encoding for uploaded files
+  - Fallback to Coins icon if no logo
+- **Dashboard Fix**: Tokens now appear in "My Tokens" tab with logos
+- Token Factory ABI updated with `TokenCreated` event and `getUserTokens` function
+
+### November 7, 2025 - LIGHT MODE WALLET + RAINBOWKIT
+- **Wallet Modal Light Theme**: RainbowKit modal now uses light theme instead of dark
+- RainbowKit primary wallet connector (supports Rainbow, MetaMask, Coinbase, WalletConnect, and 40+ wallets)
 - Added Farcaster MiniApp SDK for Base App integration
 - Created `.well-known/farcaster.json` manifest for Base App preview
 - **Logo Update**: New circular logo design with gradient "M" matching user specification

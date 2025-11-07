@@ -20,6 +20,7 @@ import {
   NFT_FACTORY_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
+import { parseEventLogs } from 'viem';
 import {
   Dialog,
   DialogContent,
@@ -57,10 +58,17 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
   const { writeContractAsync: writeMint } = useWriteContract();
   
   const [paymentHash, setPaymentHash] = useState<`0x${string}` | undefined>();
+  const [collectionHash, setCollectionHash] = useState<`0x${string}` | undefined>();
   const [mintHash, setMintHash] = useState<`0x${string}` | undefined>();
+  const [createdCollectionAddress, setCreatedCollectionAddress] = useState<string>('');
+  const [uploadedMetadataURI, setUploadedMetadataURI] = useState<string>('');
   
   const { isSuccess: isPaymentConfirmed, isError: isPaymentError } = useWaitForTransactionReceipt({
     hash: paymentHash,
+  });
+
+  const { data: collectionReceipt, isSuccess: isCollectionConfirmed, isError: isCollectionError } = useWaitForTransactionReceipt({
+    hash: collectionHash,
   });
 
   const { isSuccess: isMintConfirmed, isError: isMintError } = useWaitForTransactionReceipt({
@@ -76,6 +84,14 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
   }, [isPaymentError, paymentStep]);
 
   useEffect(() => {
+    if (isCollectionError && paymentStep === 'paid') {
+      toast.error('Collection creation failed. Please try again.');
+      setIsProcessing(false);
+      setPaymentStep('idle');
+    }
+  }, [isCollectionError, paymentStep]);
+
+  useEffect(() => {
     if (isMintError && paymentStep === 'minting') {
       toast.error('NFT minting failed. Please try again.');
       setIsProcessing(false);
@@ -85,43 +101,151 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
 
   useEffect(() => {
     if (isPaymentConfirmed && paymentStep === 'paying') {
-      console.log('✅ Payment confirmed! Now minting NFT...');
+      console.log('✅ Payment confirmed! Creating NFT collection...');
       setPaymentStep('paid');
-      toast.success('Fee paid! Minting your NFT...');
+      toast.success('Fee paid! Creating collection...');
       
-      const mintNFT = async () => {
+      const createCollection = async () => {
         try {
           const hash = await writeMint({
             address: NFT_FACTORY_ADDRESS,
             abi: NFT_FACTORY_ABI,
             functionName: 'createCollection',
             args: [
-              nftMetadata.collection,
+              nftMetadata.name,
               nftMetadata.symbol,
               nftMetadata.collection,
               nftMetadata.description,
             ],
-            chainId: 8453, // BASE NETWORK ZORUNLU
+            chainId: 8453,
           });
           
-          console.log('✅ NFT minting transaction sent! Hash:', hash);
-          setMintHash(hash);
-          setPaymentStep('minting');
+          console.log('✅ Collection creation transaction sent! Hash:', hash);
+          setCollectionHash(hash);
         } catch (error: any) {
-          console.error('❌ NFT minting error:', error);
+          console.error('❌ Collection creation error:', error);
           if (error?.message?.includes('User rejected')) {
-            toast.error('NFT minting cancelled');
+            toast.error('Collection creation cancelled');
           } else {
-            toast.error('Failed to mint NFT. Please try again.');
+            toast.error('Failed to create collection. Please try again.');
           }
           setIsProcessing(false);
           setPaymentStep('idle');
         }
       };
       
-      mintNFT();
+      createCollection();
     }
   }, [isPaymentConfirmed, paymentStep, nftMetadata, writeMint]);
+
+  useEffect(() => {
+    if (isCollectionConfirmed && collectionReceipt && paymentStep === 'paid') {
+      console.log('✅ Collection created! Receipt:', collectionReceipt);
+      
+      try {
+        const logs = parseEventLogs({
+          abi: NFT_FACTORY_ABI,
+          logs: collectionReceipt.logs,
+          eventName: 'NFTCollectionCreated',
+        });
+        
+        console.log('📝 Parsed logs:', logs);
+        
+        if (logs.length > 0 && logs[0].args.collectionAddress) {
+          const collectionAddress = logs[0].args.collectionAddress;
+          console.log('🎉 Collection Address:', collectionAddress);
+          setCreatedCollectionAddress(collectionAddress);
+          
+          toast.success('Collection created! Now uploading metadata...');
+          
+          const uploadAndMint = async () => {
+            try {
+              const metadata = {
+                name: nftMetadata.name,
+                description: nftMetadata.description,
+                image: generatedImageUrl,
+                attributes: [
+                  {
+                    trait_type: 'AI Generated',
+                    value: 'FLUX Model'
+                  },
+                  {
+                    trait_type: 'Collection',
+                    value: nftMetadata.collection
+                  }
+                ]
+              };
+              
+              console.log('📤 Uploading metadata to IPFS...');
+              const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+              const metadataFile = new File([metadataBlob], 'metadata.json', { type: 'application/json' });
+              
+              const formData = new FormData();
+              formData.append('file', metadataFile);
+              
+              const pinataMetadata = JSON.stringify({
+                name: `nft-metadata-${nftMetadata.name}`,
+                keyvalues: {
+                  type: 'nft-metadata',
+                  collection: nftMetadata.collection
+                }
+              });
+              formData.append('pinataMetadata', pinataMetadata);
+              
+              const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${import.meta.env.VITE_PINATA_JWT || ''}`
+                },
+                body: formData
+              });
+              
+              if (!response.ok) {
+                throw new Error(`Metadata upload failed: ${response.status}`);
+              }
+              
+              const data = await response.json();
+              const metadataURI = `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
+              console.log('✅ Metadata uploaded to IPFS:', metadataURI);
+              setUploadedMetadataURI(metadataURI);
+              
+              toast.success('Metadata uploaded! Now minting NFT...');
+              
+              const mintHash = await writeMint({
+                address: NFT_FACTORY_ADDRESS,
+                abi: NFT_FACTORY_ABI,
+                functionName: 'mintNFT',
+                args: [collectionAddress, metadataURI],
+                chainId: 8453,
+              });
+              
+              console.log('✅ NFT mint transaction sent! Hash:', mintHash);
+              setMintHash(mintHash);
+              setPaymentStep('minting');
+              
+            } catch (error: any) {
+              console.error('❌ Upload/Mint error:', error);
+              toast.error('Failed to upload metadata or mint NFT');
+              setIsProcessing(false);
+              setPaymentStep('idle');
+            }
+          };
+          
+          uploadAndMint();
+        } else {
+          console.warn('⚠️ No NFTCollectionCreated event found');
+          toast.error('Collection created but address not found');
+          setIsProcessing(false);
+          setPaymentStep('idle');
+        }
+      } catch (error) {
+        console.error('❌ Error parsing logs:', error);
+        toast.error('Collection created but verification failed');
+        setIsProcessing(false);
+        setPaymentStep('idle');
+      }
+    }
+  }, [isCollectionConfirmed, collectionReceipt, paymentStep, nftMetadata, generatedImageUrl, writeMint]);
 
   useEffect(() => {
     if (isMintConfirmed && paymentStep === 'minting') {
@@ -463,24 +587,44 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 pt-4">
+            {createdCollectionAddress && (
+              <div className="p-3 bg-mintara-background/50 border border-mintara-border rounded-lg">
+                <p className="text-xs text-mintara-text-secondary mb-1">Collection Address</p>
+                <div className="flex items-center gap-2">
+                  <code className="text-xs text-mintara-text-primary break-all flex-1">
+                    {createdCollectionAddress}
+                  </code>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      navigator.clipboard.writeText(createdCollectionAddress);
+                      toast.success('Address copied!');
+                    }}
+                  >
+                    📋
+                  </Button>
+                </div>
+              </div>
+            )}
             <Button
               variant="outline"
               className="w-full gap-2"
-              onClick={() => window.open('https://basescan.org', '_blank')}
+              onClick={() => window.open(`https://basescan.org/address/${createdCollectionAddress}`, '_blank')}
             >
               <ExternalLink className="w-4 h-4" />
-              View on BaseScan
+              View Collection on BaseScan
             </Button>
             <Button
               variant="secondary"
               className="w-full gap-2"
               onClick={() => {
-                const shareText = `Check out my AI-generated NFT on Mintara Base! 🎨`;
+                const shareText = `Check out my AI-generated NFT on Mintara Base! 🎨\nCollection: ${createdCollectionAddress}\n\nhttps://mintara.base`;
                 if (navigator.share) {
                   navigator.share({ text: shareText });
                 } else {
                   navigator.clipboard.writeText(shareText);
-                  alert('Link copied to clipboard!');
+                  toast.success('Share text copied!');
                 }
               }}
             >

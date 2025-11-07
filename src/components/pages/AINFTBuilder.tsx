@@ -138,78 +138,80 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
   }, [isPaymentConfirmed, paymentStep, nftMetadata, writeMint]);
 
   useEffect(() => {
-    if (isCollectionConfirmed && collectionReceipt && paymentStep === 'paid') {
+    if (isCollectionConfirmed && collectionReceipt && paymentStep === 'paid' && !mintHash) {
       console.log('✅ Collection created! Receipt:', collectionReceipt);
       
-      try {
-        const logs = parseEventLogs({
-          abi: NFT_FACTORY_ABI,
-          logs: collectionReceipt.logs,
-          eventName: 'NFTCollectionCreated',
-        });
-        
-        console.log('📝 Parsed logs:', logs);
-        
-        if (logs.length > 0 && logs[0].args.collectionAddress) {
-          const collectionAddress = logs[0].args.collectionAddress;
-          console.log('🎉 Collection Address:', collectionAddress);
-          setCreatedCollectionAddress(collectionAddress);
+      setPaymentStep('minting');
+      
+      const processCollection = async () => {
+        try {
+          const logs = parseEventLogs({
+            abi: NFT_FACTORY_ABI,
+            logs: collectionReceipt.logs,
+            eventName: 'NFTCollectionCreated',
+          });
           
-          toast.success('Collection created! Now uploading metadata...');
+          console.log('📝 Parsed logs:', logs);
           
-          const uploadAndMint = async () => {
-            try {
-              const metadata = {
-                name: nftMetadata.name,
-                description: nftMetadata.description,
-                image: generatedImageUrl,
-                attributes: [
-                  {
-                    trait_type: 'AI Generated',
-                    value: 'FLUX Model'
-                  },
-                  {
-                    trait_type: 'Collection',
-                    value: nftMetadata.collection
-                  }
-                ]
-              };
-              
-              console.log('📤 Uploading metadata to IPFS...');
-              const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
-              const metadataFile = new File([metadataBlob], 'metadata.json', { type: 'application/json' });
-              
-              const formData = new FormData();
-              formData.append('file', metadataFile);
-              
-              const pinataMetadata = JSON.stringify({
-                name: `nft-metadata-${nftMetadata.name}`,
-                keyvalues: {
-                  type: 'nft-metadata',
-                  collection: nftMetadata.collection
-                }
-              });
-              formData.append('pinataMetadata', pinataMetadata);
-              
-              const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${import.meta.env.VITE_PINATA_JWT || ''}`
+          if (logs.length > 0 && logs[0].args.collectionAddress) {
+            const collectionAddress = logs[0].args.collectionAddress;
+            console.log('🎉 Collection Address:', collectionAddress);
+            setCreatedCollectionAddress(collectionAddress);
+            
+            toast.success('Collection created! Now uploading metadata...');
+            
+            const metadata = {
+              name: nftMetadata.name,
+              description: nftMetadata.description,
+              image: generatedImageUrl,
+              attributes: [
+                {
+                  trait_type: 'AI Generated',
+                  value: 'FLUX Model'
                 },
-                body: formData
-              });
-              
-              if (!response.ok) {
-                throw new Error(`Metadata upload failed: ${response.status}`);
+                {
+                  trait_type: 'Collection',
+                  value: nftMetadata.collection
+                }
+              ]
+            };
+            
+            console.log('📤 Uploading metadata to IPFS...');
+            const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+            const metadataFile = new File([metadataBlob], 'metadata.json', { type: 'application/json' });
+            
+            const formData = new FormData();
+            formData.append('file', metadataFile);
+            
+            const pinataMetadata = JSON.stringify({
+              name: `nft-metadata-${nftMetadata.name}`,
+              keyvalues: {
+                type: 'nft-metadata',
+                collection: nftMetadata.collection
               }
-              
-              const data = await response.json();
-              const metadataURI = `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
-              console.log('✅ Metadata uploaded to IPFS:', metadataURI);
-              
-              toast.success('Metadata uploaded! Now minting NFT...');
-              
-              const mintHash = await writeMint({
+            });
+            formData.append('pinataMetadata', pinataMetadata);
+            
+            const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${import.meta.env.VITE_PINATA_JWT || ''}`
+              },
+              body: formData
+            });
+            
+            if (!response.ok) {
+              throw new Error(`Metadata upload failed: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const metadataURI = `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
+            console.log('✅ Metadata uploaded to IPFS:', metadataURI);
+            
+            toast.success('Metadata uploaded! Now minting NFT...');
+            
+            try {
+              const hash = await writeMint({
                 address: NFT_FACTORY_ADDRESS,
                 abi: NFT_FACTORY_ABI,
                 functionName: 'mintNFT',
@@ -217,33 +219,35 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                 chainId: 8453,
               });
               
-              console.log('✅ NFT mint transaction sent! Hash:', mintHash);
-              setMintHash(mintHash);
-              setPaymentStep('minting');
-              
-            } catch (error: any) {
-              console.error('❌ Upload/Mint error:', error);
-              toast.error('Failed to upload metadata or mint NFT');
+              console.log('✅ NFT mint transaction sent! Hash:', hash);
+              setMintHash(hash);
+            } catch (mintError: any) {
+              console.error('❌ Mint transaction error:', mintError);
+              if (mintError?.message?.includes('User rejected')) {
+                toast.error('NFT minting cancelled');
+              } else {
+                toast.error('Failed to mint NFT. Please try again.');
+              }
               setIsProcessing(false);
               setPaymentStep('idle');
             }
-          };
-          
-          uploadAndMint();
-        } else {
-          console.warn('⚠️ No NFTCollectionCreated event found');
-          toast.error('Collection created but address not found');
+          } else {
+            console.warn('⚠️ No NFTCollectionCreated event found');
+            toast.error('Collection created but address not found');
+            setIsProcessing(false);
+            setPaymentStep('idle');
+          }
+        } catch (error: any) {
+          console.error('❌ Process collection error:', error);
+          toast.error('Failed to process collection');
           setIsProcessing(false);
           setPaymentStep('idle');
         }
-      } catch (error) {
-        console.error('❌ Error parsing logs:', error);
-        toast.error('Collection created but verification failed');
-        setIsProcessing(false);
-        setPaymentStep('idle');
-      }
+      };
+      
+      processCollection();
     }
-  }, [isCollectionConfirmed, collectionReceipt, paymentStep, nftMetadata, generatedImageUrl, writeMint]);
+  }, [isCollectionConfirmed, collectionReceipt, paymentStep, mintHash]);
 
   useEffect(() => {
     if (isMintConfirmed && paymentStep === 'minting') {

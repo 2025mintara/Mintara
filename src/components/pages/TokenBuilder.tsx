@@ -555,6 +555,11 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
                   </p>
                 </div>
               )}
+              <div className="text-center mt-3 px-4 py-2">
+                <p className="text-sm text-mintara-text-secondary">
+                  You can view your created tokens in the Dashboard
+                </p>
+              </div>
             </div>
           </form>
         </Card>

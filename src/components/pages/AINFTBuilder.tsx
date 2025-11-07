@@ -540,6 +540,11 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                   </p>
                 </div>
               )}
+              <div className="text-center mt-3 px-4 py-2">
+                <p className="text-sm text-mintara-text-secondary">
+                  You can view your created NFTs in the Dashboard
+                </p>
+              </div>
             </div>
           )}
         </Card>

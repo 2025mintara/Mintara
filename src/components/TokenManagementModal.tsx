@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Send, Coins, Flame } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Send, Coins, Flame } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
 import { ERC20_ABI } from '../utils/tokenFactory';
+import { parseUnits } from 'viem';
 import type { Address } from 'viem';
 
 interface TokenManagementModalProps {
@@ -28,9 +29,24 @@ export function TokenManagementModal({
   const [recipient, setRecipient] = useState('');
 
   const { writeContract, data: hash } = useWriteContract();
-  const { isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { isSuccess, isError } = useWaitForTransactionReceipt({ hash });
 
-  const handleAction = () => {
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(`${action} completed successfully!`);
+      onClose();
+      setAmount('');
+      setRecipient('');
+    }
+  }, [isSuccess, action, onClose]);
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(`${action} transaction failed`);
+    }
+  }, [isError, action]);
+
+  const handleAction = async () => {
     if (!amount) {
       toast.error('Please enter an amount');
       return;
@@ -41,39 +57,49 @@ export function TokenManagementModal({
       return;
     }
 
+    if ((action === 'mint') && !recipient) {
+      toast.error('Please enter a recipient address for minting');
+      return;
+    }
+
     try {
+      const amountInWei = parseUnits(amount, 18);
+
       if (action === 'mint') {
-        writeContract({
+        await writeContract({
           address: tokenAddress as Address,
           abi: ERC20_ABI,
           functionName: 'mint',
-          args: [recipient as Address || tokenAddress as Address, BigInt(amount)],
+          args: [recipient as Address, amountInWei],
+          chainId: 8453,
         });
       } else if (action === 'burn') {
-        writeContract({
+        await writeContract({
           address: tokenAddress as Address,
           abi: ERC20_ABI,
           functionName: 'burn',
-          args: [BigInt(amount)],
+          args: [amountInWei],
+          chainId: 8453,
         });
       } else if (action === 'transfer') {
-        writeContract({
+        await writeContract({
           address: tokenAddress as Address,
           abi: ERC20_ABI,
           functionName: 'transfer',
-          args: [recipient as Address, BigInt(amount)],
+          args: [recipient as Address, amountInWei],
+          chainId: 8453,
         });
       }
-      toast.success(`${action} transaction initiated!`);
-    } catch (error) {
-      toast.error(`Failed to ${action} tokens`);
+      toast.info(`${action} transaction sent! Waiting for confirmation...`);
+    } catch (error: any) {
+      console.error(`${action} error:`, error);
+      if (error?.message?.includes('User rejected')) {
+        toast.error('Transaction cancelled');
+      } else {
+        toast.error(`Failed to ${action} tokens`);
+      }
     }
   };
-
-  if (isSuccess) {
-    onClose();
-    toast.success(`${action} completed successfully!`);
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -97,9 +123,11 @@ export function TokenManagementModal({
               className="bg-mintara-background border-mintara-border text-mintara-text-primary"
             />
           </div>
-          {action === 'transfer' && (
+          {(action === 'transfer' || action === 'mint') && (
             <div className="space-y-2">
-              <Label className="text-mintara-text-primary">Recipient Address</Label>
+              <Label className="text-mintara-text-primary">
+                {action === 'mint' ? 'Recipient Address (for minting)' : 'Recipient Address'}
+              </Label>
               <Input
                 placeholder="0x..."
                 value={recipient}

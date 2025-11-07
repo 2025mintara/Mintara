@@ -134,5 +134,15 @@ export const ERC721_ABI = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ name: '', type: 'uint256' }]
+  },
+  {
+    name: 'safeMint',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'to', type: 'address' },
+      { name: 'uri', type: 'string' }
+    ],
+    outputs: []
   }
 ] as const;

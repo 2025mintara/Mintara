@@ -18,6 +18,7 @@ import {
 import {
   NFT_FACTORY_ADDRESS,
   NFT_FACTORY_ABI,
+  ERC721_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import { parseEventLogs } from 'viem';
@@ -211,15 +212,35 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             toast.success('Metadata uploaded! Now minting NFT...');
             
             try {
-              const hash = await writeMint({
-                address: NFT_FACTORY_ADDRESS,
-                abi: NFT_FACTORY_ABI,
-                functionName: 'mintNFT',
-                args: [collectionAddress, metadataURI],
-                chainId: 8453,
-              });
+              let hash: `0x${string}`;
               
-              console.log('✅ NFT mint transaction sent! Hash:', hash);
+              try {
+                hash = await writeMint({
+                  address: NFT_FACTORY_ADDRESS,
+                  abi: NFT_FACTORY_ABI,
+                  functionName: 'mintNFT',
+                  args: [collectionAddress, metadataURI],
+                  chainId: 8453,
+                });
+                console.log('✅ NFT mint via factory sent! Hash:', hash);
+              } catch (factoryError: any) {
+                console.warn('⚠️ Factory mint failed, trying direct collection mint...', factoryError);
+                
+                if (factoryError?.message?.includes('User rejected')) {
+                  throw factoryError;
+                }
+                
+                hash = await writeMint({
+                  address: collectionAddress as Address,
+                  abi: ERC721_ABI,
+                  functionName: 'safeMint',
+                  args: [address as Address, metadataURI],
+                  chainId: 8453,
+                });
+                console.log('✅ NFT mint via collection sent! Hash:', hash);
+                toast.info('Minting directly to collection...');
+              }
+              
               setMintHash(hash);
             } catch (mintError: any) {
               console.error('❌ Mint transaction error:', mintError);

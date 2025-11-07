@@ -8,6 +8,7 @@ import { Textarea } from '../ui/textarea';
 import { FeeBadge } from '../FeeBadge';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
+import { parseEventLogs } from 'viem';
 import {
   TOKEN_FACTORY_ADDRESS,
   TOKEN_FACTORY_ABI,
@@ -48,6 +49,7 @@ interface TokenBuilderProps {
 export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   const { isConnected, chain } = useAccount();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdTokenAddress, setCreatedTokenAddress] = useState<string>('');
   const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const [logoUrl, setLogoUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -86,7 +88,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     hash: paymentHash,
   });
 
-  const { isSuccess: isTokenConfirmed, isError: isTokenError } = useWaitForTransactionReceipt({
+  const { data: tokenReceipt, isSuccess: isTokenConfirmed, isError: isTokenError } = useWaitForTransactionReceipt({
     hash: tokenHash,
   });
 
@@ -159,13 +161,50 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
   }, [isPaymentConfirmed, paymentStep, formData, writeToken]);
 
   useEffect(() => {
-    if (isTokenConfirmed && paymentStep === 'creating') {
+    if (isTokenConfirmed && tokenReceipt && paymentStep === 'creating') {
+      console.log('✅ Token confirmed! Receipt:', tokenReceipt);
+      
+      try {
+        const logs = parseEventLogs({
+          abi: TOKEN_FACTORY_ABI,
+          logs: tokenReceipt.logs,
+          eventName: 'TokenCreated',
+        });
+        
+        console.log('📝 Parsed logs:', logs);
+        
+        if (logs.length > 0 && logs[0].args.tokenAddress) {
+          const tokenAddress = logs[0].args.tokenAddress;
+          console.log('🎉 Token Address:', tokenAddress);
+          setCreatedTokenAddress(tokenAddress);
+          
+          if (logoUrl) {
+            const { saveTokenLogo } = require('../../utils/tokenLogoStorage');
+            saveTokenLogo({
+              tokenAddress,
+              logoUrl,
+              tokenName: formData.name,
+              tokenSymbol: formData.symbol,
+              uploadedAt: Date.now(),
+            });
+            console.log('💾 Logo saved for token:', tokenAddress);
+          }
+          
+          toast.success('Token created successfully! Check your wallet.');
+        } else {
+          console.warn('⚠️ No TokenCreated event found in logs');
+          toast.success('Token created! Check BaseScan for details.');
+        }
+      } catch (error) {
+        console.error('❌ Error parsing logs:', error);
+        toast.success('Token created! Check BaseScan for details.');
+      }
+      
       setIsProcessing(false);
       setPaymentStep('idle');
       setShowSuccessModal(true);
-      toast.success('Token created successfully! Check your wallet.');
     }
-  }, [isTokenConfirmed, paymentStep]);
+  }, [isTokenConfirmed, tokenReceipt, paymentStep, logoUrl, formData.name, formData.symbol]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -570,31 +609,72 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
               Your token has been deployed to Base Network
             </DialogDescription>
           </DialogHeader>
+          
+          {createdTokenAddress && (
+            <div className="bg-mintara-background/50 p-3 rounded-lg border border-mintara-border">
+              <p className="text-xs text-mintara-text-secondary mb-1">Contract Address:</p>
+              <div className="flex items-center gap-2">
+                <code className="text-xs font-mono text-mintara-accent break-all flex-1">
+                  {createdTokenAddress}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(createdTokenAddress);
+                    toast.success('Address copied!');
+                  }}
+                  className="h-6 w-6 p-0"
+                >
+                  <Info className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3 pt-4">
             <Button
               variant="outline"
               className="w-full gap-2"
-              onClick={() => window.open('https://basescan.org', '_blank')}
+              onClick={() => {
+                const url = createdTokenAddress 
+                  ? `https://basescan.org/address/${createdTokenAddress}`
+                  : `https://basescan.org/tx/${tokenHash}`;
+                window.open(url, '_blank');
+              }}
+              disabled={!createdTokenAddress && !tokenHash}
             >
               <ExternalLink className="w-4 h-4" />
               View on BaseScan
             </Button>
-            <Button
-              variant="secondary"
-              className="w-full gap-2"
-              onClick={() => {
-                const shareText = `I just created a token on Mintara Base! 🚀`;
-                if (navigator.share) {
-                  navigator.share({ text: shareText });
-                } else {
-                  navigator.clipboard.writeText(shareText);
-                  alert('Link copied to clipboard!');
-                }
-              }}
-            >
-              <Share2 className="w-4 h-4" />
-              Share
-            </Button>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  const text = `I just created ${formData.symbol} token on @base! 🚀\n\nContract: ${createdTokenAddress}\n\nBuilt with @mintara_base\n\n#BaseNetwork #Crypto`;
+                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+                }}
+                disabled={!createdTokenAddress}
+              >
+                <Share2 className="w-3 h-3 mr-1" />
+                Twitter
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  const text = `I just created ${formData.symbol} token on Base! 🚀\n\nContract: ${createdTokenAddress}\n\nBuilt with Mintara Base`;
+                  window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`, '_blank');
+                }}
+                disabled={!createdTokenAddress}
+              >
+                <Share2 className="w-3 h-3 mr-1" />
+                Farcaster
+              </Button>
+            </div>
+            
             <Button
               className="w-full"
               onClick={() => {

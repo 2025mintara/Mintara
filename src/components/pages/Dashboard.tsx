@@ -14,6 +14,7 @@ import { NFTGallery } from '../NFTGallery';
 import { AirdropTool } from '../AirdropTool';
 import { TokenVesting } from '../TokenVesting';
 import { LiquidityPoolCreator } from '../LiquidityPoolCreator';
+import { getTokenLogo } from '../../utils/tokenLogoStorage';
 import {
   Select,
   SelectContent,
@@ -57,6 +58,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     symbol: token.symbol,
     address: token.tokenAddress,
     type: 'token',
+    logoUrl: getTokenLogo(token.tokenAddress),
   }));
 
   const myNFTCollections = (userNFTs || []).map((nft: any) => ({
@@ -160,8 +162,16 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-mintara-primary/20 flex items-center justify-center">
-                        <Coins className="w-6 h-6 text-mintara-accent" />
+                      <div className="w-12 h-12 rounded-xl bg-mintara-primary/20 flex items-center justify-center overflow-hidden">
+                        {item.logoUrl ? (
+                          <img 
+                            src={item.logoUrl} 
+                            alt={`${item.symbol} logo`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Coins className="w-6 h-6 text-mintara-accent" />
+                        )}
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-mintara-text-primary">

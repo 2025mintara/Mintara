@@ -16,6 +16,36 @@ export const TOKEN_FACTORY_ABI = [
       { name: 'canBurn', type: 'bool' }
     ],
     outputs: [{ name: 'tokenAddress', type: 'address' }]
+  },
+  {
+    name: 'TokenCreated',
+    type: 'event',
+    inputs: [
+      { name: 'tokenAddress', type: 'address', indexed: true },
+      { name: 'owner', type: 'address', indexed: true },
+      { name: 'name', type: 'string', indexed: false },
+      { name: 'symbol', type: 'string', indexed: false },
+      { name: 'initialSupply', type: 'uint256', indexed: false }
+    ]
+  },
+  {
+    name: 'getUserTokens',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'user', type: 'address' }],
+    outputs: [{
+      name: '',
+      type: 'tuple[]',
+      components: [
+        { name: 'tokenAddress', type: 'address' },
+        { name: 'name', type: 'string' },
+        { name: 'symbol', type: 'string' },
+        { name: 'decimals', type: 'uint8' },
+        { name: 'initialSupply', type: 'uint256' },
+        { name: 'owner', type: 'address' },
+        { name: 'createdAt', type: 'uint256' }
+      ]
+    }]
   }
 ] as const;
 

@@ -22,8 +22,12 @@ Mintara Base is a no-code platform for creating tokens and AI-generated NFTs on 
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4.1.16 with @tailwindcss/postcss
 - **UI Library**: Radix UI components
-- **Wallet Integration**: Coinbase OnchainKit 1.1.2 with wagmi & viem
+- **Wallet Integration**: 
+  - RainbowKit 2.2.2 (primary wallet connector with Rainbow wallet support)
+  - Coinbase OnchainKit 1.1.2 (Base-specific features)
+  - wagmi 2.15+ & viem 2.25+ (Web3 hooks)
 - **Web3**: Base Network (Chain ID: 8453)
+- **Farcaster**: @farcaster/miniapp-sdk 0.2.1 (Base App integration)
 - **Icons**: Lucide React
 - **Forms**: React Hook Form
 - **Charts**: Recharts
@@ -50,7 +54,16 @@ All platform fees are automatically sent to the owner wallet address via USDC on
 
 ## Recent Changes
 
-### November 5, 2025 - VERCEL DEPLOYMENT FIX
+### November 7, 2025 - RAINBOWKIT + FARCASTER + LOGO UPDATE
+- **MAJOR UPGRADE**: Integrated RainbowKit for better wallet connectivity
+- RainbowKit now primary wallet connector (supports Rainbow, MetaMask, Coinbase, WalletConnect, and 40+ wallets)
+- Added Farcaster MiniApp SDK for Base App integration
+- Created `.well-known/farcaster.json` manifest for Base App preview
+- **Logo Update**: New circular logo design with gradient "M" matching user specification
+- Removed react-day-picker to resolve dependency conflicts
+- Build size optimized and working correctly
+
+### November 5, 2025 - VERCEL DEPLOYMENT FIX (Previous)
 - **CRITICAL FIX**: Fixed import paths for Vercel production builds
 - Changed all component imports from relative paths (`./components/...`) to alias paths (`@/components/...`)
 - Build now completes successfully without errors

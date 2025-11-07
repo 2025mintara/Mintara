@@ -61,7 +61,6 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
   const [collectionHash, setCollectionHash] = useState<`0x${string}` | undefined>();
   const [mintHash, setMintHash] = useState<`0x${string}` | undefined>();
   const [createdCollectionAddress, setCreatedCollectionAddress] = useState<string>('');
-  const [uploadedMetadataURI, setUploadedMetadataURI] = useState<string>('');
   
   const { isSuccess: isPaymentConfirmed, isError: isPaymentError } = useWaitForTransactionReceipt({
     hash: paymentHash,
@@ -207,7 +206,6 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
               const data = await response.json();
               const metadataURI = `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
               console.log('✅ Metadata uploaded to IPFS:', metadataURI);
-              setUploadedMetadataURI(metadataURI);
               
               toast.success('Metadata uploaded! Now minting NFT...');
               

@@ -42,19 +42,21 @@ export function Whitepaper() {
     { param: 'Symbol', value: 'MINTA' },
     { param: 'Network', value: 'Base' },
     { param: 'Standard', value: 'ERC-20' },
-    { param: 'Total Supply', value: '100 M' },
+    { param: 'Total Supply', value: '100,000,000 MINTA' },
     { param: 'Decimals', value: '18' },
-    { param: 'Airdrop Date', value: 'Q1 2026' },
+    { param: 'Presale Date', value: 'December 2025' },
+    { param: 'Airdrop Date', value: 'Q2 2026' },
     { param: 'Contract Address', value: 'TBA (post-audit)' },
   ];
 
   const tokenomics = [
-    { allocation: 'Airdrop', percent: 25, description: 'Community & Base users' },
-    { allocation: 'Dev & Infra', percent: 25, description: 'AI modules, audits' },
-    { allocation: 'Ecosystem', percent: 20, description: 'Integrations & rewards' },
-    { allocation: 'Team', percent: 15, description: '24 mo vesting' },
-    { allocation: 'Liquidity', percent: 10, description: 'BaseDEX + CEX' },
-    { allocation: 'Treasury', percent: 5, description: 'Reserves' },
+    { allocation: 'Airdrop', percent: 15, description: 'Community & Base user rewards' },
+    { allocation: 'Presale', percent: 15, description: 'Initial liquidity & marketing' },
+    { allocation: 'Dev & Infrastructure', percent: 25, description: 'AI modules, audits, backend' },
+    { allocation: 'Ecosystem & Partnerships', percent: 20, description: 'Integrations & user incentives' },
+    { allocation: 'Team', percent: 15, description: '24-month linear vesting' },
+    { allocation: 'Liquidity', percent: 7, description: 'BaseDEX & CEX pools' },
+    { allocation: 'Treasury', percent: 3, description: 'Strategic reserves' },
   ];
 
   const utilities = [
@@ -67,12 +69,12 @@ export function Whitepaper() {
   ];
 
   const roadmap = [
-    { quarter: 'Q4 2025', title: 'Beta Launch', icon: CheckCircle2, status: 'completed' },
-    { quarter: 'Q1 2026', title: 'Airdrop', icon: Rocket, status: 'upcoming' },
-    { quarter: 'Q2 2026', title: 'AI Engine Release', icon: Bot, status: 'upcoming' },
-    { quarter: 'Q3 2026', title: 'IVO Launchpad', icon: TrendingUp, status: 'upcoming' },
-    { quarter: 'Q4 2026', title: 'Staking Launch', icon: Coins, status: 'upcoming' },
-    { quarter: '2027', title: 'DePIN Scaling + Governance', icon: Network, status: 'future' },
+    { quarter: 'Q4 2025', title: 'Beta Launch on Base Testnet', icon: CheckCircle2, status: 'completed' },
+    { quarter: 'Dec 2025', title: 'Presale (IVO) + Final Audit', icon: TrendingUp, status: 'upcoming' },
+    { quarter: 'Q2 2026', title: 'Airdrop + Full AI NFT Builder', icon: Rocket, status: 'upcoming' },
+    { quarter: 'Q3 2026', title: 'IVO Launchpad Public Release', icon: Bot, status: 'upcoming' },
+    { quarter: 'Q4 2026', title: 'Staking & Validator Rewards', icon: Coins, status: 'upcoming' },
+    { quarter: '2027', title: 'Governance + Cross-Chain Expansion', icon: Network, status: 'future' },
   ];
 
   const innovations = [
@@ -101,12 +103,20 @@ export function Whitepaper() {
     'BaseScan verification',
   ];
 
+  const coreValues = [
+    { icon: Users, title: 'Accessibility', desc: 'Token and NFT creation available to everyone' },
+    { icon: Shield, title: 'Security', desc: 'Complete AI audit prior to deployment' },
+    { icon: CheckCircle2, title: 'Transparency', desc: 'All processes verifiable on-chain' },
+    { icon: Coins, title: 'Sustainability', desc: '35% revenue allocated to buyback & burn' },
+    { icon: Network, title: 'Autonomy', desc: 'Fully decentralized deployments on Base' },
+  ];
+
   const modules = [
-    { number: '1', title: 'No-Code Token Builder', desc: 'Deploy tokens in minutes without writing code' },
-    { number: '2', title: 'AI Audit & Optimization', desc: 'Real-time security analysis and gas optimization' },
-    { number: '3', title: 'AI NFT Builder', desc: 'Generate and mint NFTs with AI' },
-    { number: '4', title: 'IVO Launchpad', desc: 'Verified token fundraising platform' },
-    { number: '5', title: 'DePIN Compute Network', desc: 'Decentralized infrastructure powering AI audits' },
+    { number: '1', title: 'No-Code Token Builder', desc: 'Create custom ERC-20 tokens on Base instantly' },
+    { number: '2', title: 'AI Audit & Optimization', desc: 'Real-time code analysis with Smart Score rating' },
+    { number: '3', title: 'AI NFT Builder 🚀', desc: 'Generate and mint AI-created NFTs with metadata' },
+    { number: '4', title: 'IVO Launchpad', desc: 'Secure AI-verified presale with escrow protection' },
+    { number: '5', title: 'Distributed AI Verification', desc: 'Trustless validation by AI validators' },
   ];
 
   return (
@@ -136,17 +146,22 @@ export function Whitepaper() {
                 </h2>
                 <div className="space-y-4 text-mintara-text-secondary leading-relaxed">
                   <p>
-                    <strong className="text-mintara-text-primary">Mintara</strong> is an AI-powered, no-code token creation platform built exclusively on the <strong className="text-mintara-accent">Base Network</strong>.
+                    <strong className="text-mintara-text-primary">Mintara</strong> is an AI-powered, no-code token and NFT creation platform built exclusively on the <strong className="text-mintara-accent">Base Network</strong>.
                   </p>
                   <p>
-                    It enables anyone to deploy secure ERC-20 tokens in minutes — no coding required.
+                    The platform empowers users to create and deploy fully secure ERC-20 tokens and AI-generated NFTs within minutes — without requiring any coding skills.
                   </p>
                   <p>
-                    <strong className="text-mintara-text-primary">MINTA</strong> fuels AI audits, deployment fees, staking rewards, and governance.
+                    <strong className="text-mintara-text-primary">$MINTA</strong> is the native utility token that fuels all ecosystem operations, including AI audits, deployment fees, staking, governance, and premium access.
                   </p>
-                  <p className="text-mintara-accent font-semibold pt-4 text-center">
-                    Mission: Simplify tokenization on Base — make it secure, affordable, intelligent.
-                  </p>
+                  <div className="pt-4 space-y-2">
+                    <p className="text-mintara-accent font-semibold text-center">
+                      Mission: To simplify tokenization and NFT creation on Base — making it secure, accessible, and intelligent.
+                    </p>
+                    <p className="text-mintara-text-primary text-center">
+                      Vision: To build the foundation for AI-driven decentralized creation and automation across the Web3 ecosystem.
+                    </p>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -155,28 +170,24 @@ export function Whitepaper() {
 
         <SectionDivider />
 
-        {/* Vision */}
+        {/* Core Values */}
         <FadeInSection delay={0.1}>
-          <section id="vision">
+          <section id="core-values">
             <h2 className="text-4xl font-semibold text-mintara-text-primary mb-12 text-center">
-              Vision
+              Core Values
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { icon: Users, title: 'Accessibility', desc: 'Anyone can launch tokens easily.' },
-                { icon: Shield, title: 'Security', desc: 'All contracts AI-audited before deploy.' },
-                { icon: Zap, title: 'Autonomy', desc: 'Runs on decentralized compute (DePIN).' },
-              ].map((pillar, index) => (
-                <Card key={index} className="p-8 bg-mintara-surface/30 border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 hover:scale-105 group">
-                  <div className="w-16 h-16 rounded-xl bg-mintara-primary/20 flex items-center justify-center mb-6 group-hover:bg-mintara-primary/30 transition-colors">
-                    <pillar.icon className="w-8 h-8 text-mintara-accent" />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {coreValues.map((value, index) => (
+                <Card key={index} className="p-6 bg-mintara-surface/30 border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 hover:scale-105 group">
+                  <div className="w-14 h-14 rounded-xl bg-mintara-primary/20 flex items-center justify-center mb-4 group-hover:bg-mintara-primary/30 transition-colors">
+                    <value.icon className="w-7 h-7 text-mintara-accent" />
                   </div>
-                  <h3 className="text-xl font-semibold text-mintara-text-primary mb-3">
-                    {pillar.title}
+                  <h3 className="text-lg font-semibold text-mintara-text-primary mb-2">
+                    {value.title}
                   </h3>
-                  <p className="text-mintara-text-secondary">
-                    {pillar.desc}
+                  <p className="text-sm text-mintara-text-secondary">
+                    {value.desc}
                   </p>
                 </Card>
               ))}
@@ -213,7 +224,7 @@ export function Whitepaper() {
 
             <div className="mt-8 text-center">
               <p className="text-sm text-mintara-text-secondary italic">
-                → Token Creation → AI Audit → IVO Launch → DePIN Verification →
+                Ecosystem Flow: → Token/NFT Creation → AI Audit → IVO Presale → Airdrop → Verification → Launch
               </p>
             </div>
           </section>

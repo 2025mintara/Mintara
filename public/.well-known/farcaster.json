@@ -31,7 +31,7 @@
       "/screenshot-token.png",
       "/screenshot-nft.png"
     ],
-    "iconUrl": "/logo.svg",
+    "iconUrl": "/icon.png",
     "splashImageUrl": "/splash.png",
     "splashBackgroundColor": "#001A12",
     "homeUrl": "/",

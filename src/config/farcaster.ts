@@ -18,7 +18,7 @@ export const minikitConfig = {
       `${ROOT_URL}/screenshot-token.png`,
       `${ROOT_URL}/screenshot-nft.png`
     ],
-    iconUrl: `${ROOT_URL}/logo.svg`,
+    iconUrl: `${ROOT_URL}/icon.png`,
     splashImageUrl: `${ROOT_URL}/og-image.png`,
     splashBackgroundColor: "#001A12",
     homeUrl: ROOT_URL,

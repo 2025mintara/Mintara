@@ -18,6 +18,7 @@ import {
 import {
   NFT_FACTORY_ADDRESS,
   NFT_FACTORY_ABI,
+  ERC721_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import { parseEventLogs, type Address } from 'viem';
@@ -229,21 +230,24 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             }
             
             try {
-              console.log('🔄 Minting NFT via Factory on Base Network...');
+              console.log('🔄 Step 1: Minting NFT to collection...');
               console.log('Collection:', collectionAddress);
-              console.log('Metadata URI:', metadataURI);
+              console.log('Recipient:', address);
               
-              const hash = await writeContractAsync({
-                address: NFT_FACTORY_ADDRESS,
-                abi: NFT_FACTORY_ABI,
-                functionName: 'mintNFT',
-                args: [collectionAddress as Address, metadataURI],
+              const mintTx = await writeContractAsync({
+                address: collectionAddress as Address,
+                abi: ERC721_ABI,
+                functionName: 'mint',
+                args: [address as Address],
                 chainId: 8453,
               });
               
-              console.log('✅ NFT mint transaction sent! Hash:', hash);
-              toast.success('NFT mint transaction sent!');
-              setMintHash(hash);
+              console.log('✅ Mint transaction sent! Hash:', mintTx);
+              console.log('⏳ Waiting for mint confirmation...');
+              
+              toast.info('NFT minting... Please wait for confirmation');
+              
+              setMintHash(mintTx);
             } catch (mintError: any) {
               console.error('❌ NFT mint failed:', mintError);
               console.error('Error details:', {

@@ -18,7 +18,6 @@ import {
 import {
   NFT_FACTORY_ADDRESS,
   NFT_FACTORY_ABI,
-  ERC721_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import { parseEventLogs, type Address } from 'viem';
@@ -232,17 +231,17 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             }
             
             try {
-              console.log('🔄 Minting NFT directly to collection (Professional Web3 Pattern)...');
+              console.log('🔄 Minting NFT via Factory (Factory → Collection pattern)...');
+              console.log('Factory:', NFT_FACTORY_ADDRESS);
               console.log('Collection:', collectionAddress);
-              console.log('Recipient:', address);
               console.log('TokenURI:', metadataURI);
               console.log('Chain:', base.id, base.name);
               
               const mintTx = await writeContractAsync({
-                address: collectionAddress as Address,
-                abi: ERC721_ABI,
-                functionName: 'safeMint',
-                args: [address as Address, metadataURI],
+                address: NFT_FACTORY_ADDRESS,
+                abi: NFT_FACTORY_ABI,
+                functionName: 'mintNFT',
+                args: [collectionAddress as Address, metadataURI],
                 chain: base,
               });
               
@@ -252,6 +251,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
               toast.info('NFT minting... Please wait for confirmation');
               
               setMintHash(mintTx);
+              setPaymentStep('minting');
             } catch (mintError: any) {
               console.error('❌ NFT mint failed:', mintError);
               console.error('Error details:', {
@@ -263,12 +263,18 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
               
               if (mintError?.message?.includes('User rejected') || mintError?.message?.includes('User denied') || mintError?.message?.includes('user rejected')) {
                 toast.error('NFT minting cancelled by user');
-              } else if (mintError?.message?.includes('gas')) {
-                toast.error('Insufficient ETH for gas. Please add more ETH to your wallet on Base Network.');
-              } else if (mintError?.message?.includes('chain')) {
-                toast.error('Please switch to Base Network (Chain ID 8453)');
+              } else if (mintError?.message?.includes('gas') || mintError?.message?.includes('insufficient funds')) {
+                toast.error('Insufficient ETH for gas', {
+                  description: 'Add more ETH to your wallet on Base Network',
+                });
+              } else if (mintError?.message?.includes('Chain mismatch') || mintError?.message?.includes('chain')) {
+                toast.error('Wrong network', {
+                  description: 'Please switch to Base Network in your wallet',
+                });
               } else {
-                toast.error('Mint failed: ' + (mintError?.shortMessage || 'Please try again'));
+                toast.error('NFT mint failed', {
+                  description: mintError?.shortMessage || mintError?.message || 'Please try again',
+                });
               }
               setIsProcessing(false);
               setPaymentStep('idle');

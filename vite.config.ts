@@ -12,11 +12,26 @@ export default defineConfig({
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
       '@': path.resolve(__dirname, './src'),
+      buffer: 'buffer',
+    },
+  },
+  define: {
+    'global': 'globalThis',
+  },
+  optimizeDeps: {
+    include: ['buffer'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
     },
   },
   build: {
     target: 'esnext',
     outDir: 'build',
+    rollupOptions: {
+      plugins: [],
+    },
   },
   server: {
     host: '0.0.0.0',

@@ -12,7 +12,6 @@ import {
   Rocket,
   TrendingUp,
   Vote,
-  Server,
   Twitter,
   Send,
   Github
@@ -60,12 +59,12 @@ export function Whitepaper() {
   ];
 
   const utilities = [
-    { icon: Sparkles, label: 'AI Credits' },
-    { icon: Coins, label: 'Transaction Fees' },
-    { icon: Award, label: 'Staking Rewards' },
-    { icon: Zap, label: 'Premium Access' },
-    { icon: Vote, label: 'Governance' },
-    { icon: Server, label: 'Node Rewards' },
+    { icon: Sparkles, label: 'AI Credits', desc: 'Power AI audits and NFT generation tools' },
+    { icon: Coins, label: 'Transaction Fees', desc: 'Pay for token and NFT deployments' },
+    { icon: Award, label: 'Staking Rewards', desc: 'Earn yield by staking $MINTA' },
+    { icon: Vote, label: 'Governance', desc: 'Vote on ecosystem parameters and burn models' },
+    { icon: Network, label: 'Verification Rewards', desc: 'Incentives for distributed AI validators' },
+    { icon: Zap, label: 'Premium Access', desc: 'Unlock advanced creator tools and analytics' },
   ];
 
   const roadmap = [
@@ -348,23 +347,92 @@ export function Whitepaper() {
 
         <SectionDivider />
 
-        {/* MINTA Utility */}
+        {/* Revenue Model & Burn Mechanism */}
+        <FadeInSection delay={0.1}>
+          <section id="revenue-model">
+            <h2 className="text-4xl font-semibold text-mintara-text-primary mb-12 text-center">
+              Revenue Model & Burn Mechanism
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Revenue Streams */}
+              <Card className="p-8 bg-mintara-surface/40 border-2 border-mintara-border hover:border-mintara-accent/50 transition-all">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-mintara-accent/20 flex items-center justify-center">
+                    <Coins className="w-6 h-6 text-mintara-accent" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-mintara-text-primary">
+                    Revenue Streams
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    'Token deployment & AI audit fees',
+                    'NFT minting services',
+                    'IVO Launchpad presale fees',
+                    'Premium user subscriptions'
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-mintara-accent flex-shrink-0 mt-0.5" />
+                      <span className="text-mintara-text-secondary">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Deflationary Mechanism */}
+              <Card className="p-8 bg-mintara-surface/40 border-2 border-mintara-border hover:border-mintara-accent/50 transition-all">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-mintara-accent/20 flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-mintara-accent" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-mintara-text-primary">
+                    Deflationary Mechanism
+                  </h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-2">
+                    <span className="text-2xl">🔥</span>
+                    <p className="text-mintara-accent font-semibold">
+                      35% of all platform revenue is used to buy back and burn $MINTA tokens directly on-chain.
+                    </p>
+                  </div>
+                  <p className="text-mintara-text-secondary">
+                    This continuous burn cycle reduces circulating supply and enhances long-term token scarcity and value.
+                  </p>
+                  <p className="text-mintara-text-secondary text-sm">
+                    The remaining 65% supports ongoing development, infrastructure, and community growth.
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </section>
+        </FadeInSection>
+
+        <SectionDivider />
+
+        {/* MINTA Token Utility */}
         <FadeInSection delay={0.1}>
           <section id="minta-utility">
             <h2 className="text-4xl font-semibold text-mintara-text-primary mb-12 text-center">
-              MINTA Utility
+              MINTA Token Utility
             </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {utilities.map((util, index) => (
-                <Card key={index} className="p-6 bg-mintara-surface/40 border-mintara-border hover:border-mintara-accent hover:bg-mintara-accent/5 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,224,198,0.3)] cursor-pointer group">
-                  <div className="flex flex-col items-center gap-3 text-center">
-                    <div className="w-12 h-12 rounded-xl bg-mintara-primary/20 flex items-center justify-center group-hover:bg-mintara-primary/40 transition-colors">
-                      <util.icon className="w-6 h-6 text-mintara-accent group-hover:scale-110 transition-transform" />
+                <Card key={index} className="p-6 bg-mintara-surface/40 border-2 border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,224,198,0.2)] group">
+                  <div className="flex flex-col items-center text-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-mintara-accent/20 flex items-center justify-center group-hover:bg-mintara-accent/30 transition-colors">
+                      <util.icon className="w-8 h-8 text-mintara-accent" />
                     </div>
-                    <span className="text-sm text-mintara-text-primary font-medium">
-                      {util.label}
-                    </span>
+                    <div>
+                      <h3 className="text-lg font-semibold text-mintara-text-primary mb-2">
+                        {util.label}
+                      </h3>
+                      <p className="text-sm text-mintara-text-secondary">
+                        {util.desc}
+                      </p>
+                    </div>
                   </div>
                 </Card>
               ))}

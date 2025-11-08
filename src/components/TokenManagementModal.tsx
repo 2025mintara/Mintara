@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useReadContract, useAccount } from 'wagmi';
 import { toast } from 'sonner';
 import { ERC20_ABI } from '../utils/tokenFactory';
 import { parseUnits } from 'viem';
@@ -30,6 +30,7 @@ export function TokenManagementModal({
 }: TokenManagementModalProps) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState('');
+  const { address: userAddress } = useAccount();
 
   const { data: fetchedDecimals } = useReadContract({
     address: tokenAddress as Address,
@@ -77,6 +78,11 @@ export function TokenManagementModal({
     }
 
     try {
+      if (!userAddress) {
+        toast.error('Please connect your wallet');
+        return;
+      }
+
       const amountInWei = parseUnits(amount, decimals);
 
       if (action === 'mint') {
@@ -86,6 +92,8 @@ export function TokenManagementModal({
           functionName: 'mint',
           args: [recipient as Address, amountInWei],
           chain: base,
+          account: userAddress,
+          gas: BigInt(200000),
         });
       } else if (action === 'burn') {
         await writeContract({
@@ -94,6 +102,8 @@ export function TokenManagementModal({
           functionName: 'burn',
           args: [amountInWei],
           chain: base,
+          account: userAddress,
+          gas: BigInt(200000),
         });
       } else if (action === 'transfer') {
         await writeContract({
@@ -102,6 +112,8 @@ export function TokenManagementModal({
           functionName: 'transfer',
           args: [recipient as Address, amountInWei],
           chain: base,
+          account: userAddress,
+          gas: BigInt(200000),
         });
       }
       toast.info(`${action} transaction sent! Waiting for confirmation...`);

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useReadContract, useAccount } from 'wagmi';
 import { toast } from 'sonner';
 import { ERC20_ABI } from '../utils/tokenFactory';
 import type { Address } from 'viem';
@@ -36,6 +36,7 @@ export function MultisendModal({
     { id: 1, address: '', amount: '' },
   ]);
   const [isSending, setIsSending] = useState(false);
+  const { address: userAddress } = useAccount();
 
   const { data: fetchedDecimals } = useReadContract({
     address: tokenAddress as Address,
@@ -71,6 +72,11 @@ export function MultisendModal({
   };
 
   const handleMultisend = async () => {
+    if (!userAddress) {
+      toast.error('Please connect your wallet');
+      return;
+    }
+
     const validRecipients = recipients.filter((r) => r.address && r.amount);
     
     if (validRecipients.length === 0) {
@@ -92,6 +98,8 @@ export function MultisendModal({
           functionName: 'transfer',
           args: [recipient.address as Address, amountInWei],
           chain: base,
+          account: userAddress,
+          gas: BigInt(150000),
         });
 
         await new Promise((resolve) => setTimeout(resolve, 2000));

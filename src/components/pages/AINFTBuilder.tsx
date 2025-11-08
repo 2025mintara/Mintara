@@ -118,6 +118,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             ],
             chain: base,
             account: address as Address,
+            gas: BigInt(300000),
           });
           
           console.log('✅ Collection creation transaction sent! Hash:', hash);
@@ -243,6 +244,8 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                 functionName: 'mintNFT',
                 args: [collectionAddress as Address, metadataURI],
                 chain: base,
+                account: address as Address,
+                gas: BigInt(250000),
               });
               
               console.log('✅ NFT mint transaction sent! Hash:', mintTx);
@@ -371,6 +374,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
         args: [OWNER_WALLET, feeAmount],
         chain: base,
         account: address as Address,
+        gas: BigInt(100000),
       });
 
       console.log('✅ Payment transaction sent! Hash:', hash);

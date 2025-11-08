@@ -11,7 +11,7 @@ import { TokenManagementModal } from '../TokenManagementModal';
 import { TokenInfoModal } from '../TokenInfoModal';
 import { MultisendModal } from '../MultisendModal';
 import { NFTGallery } from '../NFTGallery';
-import { getTokenLogo } from '../../utils/tokenLogoStorage';
+import { getTokenLogo, getTokenLogos, saveTokenLogo } from '../../utils/tokenLogoStorage';
 import {
   Select,
   SelectContent,
@@ -35,11 +35,10 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   const [infoTokenAddress, setInfoTokenAddress] = useState<string>('');
   const [showMultisendModal, setShowMultisendModal] = useState(false);
   const [multisendToken, setMultisendToken] = useState<{ address: string; symbol: string; decimals: number } | null>(null);
-
   const [walletTokens, setWalletTokens] = useState<any[]>([]);
   const [isLoadingWallet, setIsLoadingWallet] = useState(false);
 
-  const { data: factoryTokens, refetch: refetchTokens, isLoading: isLoadingFactory } = useReadContract({
+  const { data: userTokens, refetch: refetchTokens, isLoading: isLoadingTokens } = useReadContract({
     address: TOKEN_FACTORY_ADDRESS,
     abi: TOKEN_FACTORY_ABI,
     functionName: 'getUserTokens',
@@ -58,6 +57,76 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
       enabled: !!address,
     },
   });
+
+  const [factoryLogosLoading, setFactoryLogosLoading] = useState(false);
+
+  const factoryTokens = (userTokens || []).map((token: any) => ({
+    name: token.name,
+    symbol: token.symbol,
+    address: token.tokenAddress,
+    decimals: Number(token.decimals),
+    canMint: token.canMint ?? true,
+    canBurn: token.canBurn ?? true,
+    type: 'token',
+    logoUrl: getTokenLogo(token.tokenAddress),
+    tokenData: token,
+  }));
+
+  useEffect(() => {
+    const fetchFactoryLogos = async () => {
+      if (!factoryTokens.length || factoryLogosLoading) return;
+      
+      const tokensNeedingLogos = factoryTokens.filter(t => !t.logoUrl);
+      if (!tokensNeedingLogos.length) return;
+
+      setFactoryLogosLoading(true);
+      try {
+        await Promise.all(
+          tokensNeedingLogos.map(async (token) => {
+            try {
+              const res = await fetch(
+                `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.address}`
+              );
+              const data = await res.json();
+              if (data.result?.icon_url) {
+                saveTokenLogo({
+                  tokenAddress: token.address,
+                  logoUrl: data.result.icon_url,
+                  tokenName: token.name,
+                  tokenSymbol: token.symbol,
+                  uploadedAt: Date.now(),
+                });
+              }
+            } catch (e) {
+              console.log(`No logo for ${token.symbol}`);
+            }
+          })
+        );
+      } finally {
+        setFactoryLogosLoading(false);
+      }
+    };
+
+    fetchFactoryLogos();
+  }, [userTokens]);
+
+  const localStorageTokens = getTokenLogos()
+    .filter(token => {
+      const isInFactory = factoryTokens.some(
+        t => t.address.toLowerCase() === token.tokenAddress.toLowerCase()
+      );
+      return !isInFactory;
+    })
+    .map(token => ({
+      name: token.tokenName,
+      symbol: token.tokenSymbol,
+      address: token.tokenAddress,
+      decimals: 18,
+      canMint: false,
+      canBurn: false,
+      type: 'wallet-token',
+      logoUrl: token.logoUrl,
+    }));
 
   useEffect(() => {
     const fetchWalletTokens = async () => {
@@ -78,23 +147,33 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
             data.result
               .filter((token: any) => token.type === 'ERC-20')
               .map(async (token: any) => {
-                let logoUrl = null;
-                try {
-                  const logoResponse = await fetch(
-                    `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.contractAddress}`
-                  );
-                  const logoData = await logoResponse.json();
-                  if (logoData.result && logoData.result.icon_url) {
-                    logoUrl = logoData.result.icon_url;
+                let logoUrl = getTokenLogo(token.contractAddress);
+                
+                if (!logoUrl) {
+                  try {
+                    const logoRes = await fetch(
+                      `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.contractAddress}`
+                    );
+                    const logoData = await logoRes.json();
+                    if (logoData.result?.icon_url) {
+                      logoUrl = logoData.result.icon_url;
+                      saveTokenLogo({
+                        tokenAddress: token.contractAddress,
+                        logoUrl,
+                        tokenName: token.name,
+                        tokenSymbol: token.symbol,
+                        uploadedAt: Date.now(),
+                      });
+                    }
+                  } catch (e) {
+                    console.log(`No logo for ${token.symbol}`);
                   }
-                } catch (e) {
-                  console.log('No logo found for', token.symbol);
                 }
                 
                 return {
                   name: token.name,
                   symbol: token.symbol,
-                  address: token.contractAddress.toLowerCase(),
+                  address: token.contractAddress,
                   decimals: Number(token.decimals),
                   balance: token.balance,
                   type: 'wallet-token',
@@ -105,7 +184,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
               })
           );
           setWalletTokens(tokens);
-          console.log('💰 Wallet Tokens from Blockscout:', tokens);
         }
       } catch (error) {
         console.error('Failed to fetch wallet tokens:', error);
@@ -117,22 +195,18 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     fetchWalletTokens();
   }, [address]);
 
-  const mintaraTokens = (factoryTokens || []).map((token: any) => ({
-    name: token.name,
-    symbol: token.symbol,
-    address: token.tokenAddress.toLowerCase(),
-    decimals: Number(token.decimals),
-    canMint: token.canMint ?? true,
-    canBurn: token.canBurn ?? true,
-    type: 'mintara-token',
-    logoUrl: getTokenLogo(token.tokenAddress),
-  }));
+  const factoryAddresses = new Set(factoryTokens.map(t => t.address.toLowerCase()));
+  const allLocalAddresses = new Set([
+    ...localStorageTokens.map(t => t.address.toLowerCase()),
+    ...walletTokens.map(t => t.address.toLowerCase())
+  ]);
+  
+  const uniqueWalletTokens = walletTokens.filter(
+    t => !factoryAddresses.has(t.address.toLowerCase())
+  );
 
-  const mintaraAddresses = new Set(mintaraTokens.map(t => t.address));
-  const otherWalletTokens = walletTokens.filter(t => !mintaraAddresses.has(t.address));
-
-  const myTokens = [...mintaraTokens, ...otherWalletTokens];
-  const isLoadingTokens = isLoadingFactory || isLoadingWallet;
+  const myTokens = [...factoryTokens, ...uniqueWalletTokens];
+  const isLoading = isLoadingTokens || isLoadingWallet;
 
   const myNFTCollections = (userNFTs || []).map((nft: any) => ({
     collectionAddress: nft.collectionAddress,
@@ -142,11 +216,12 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     collectionDescription: nft.collectionDescription,
   }));
 
-  console.log('🔍 Dashboard Debug:', {
+  console.log('🔍 Dashboard:', {
     address,
-    mintaraTokens: mintaraTokens.length,
-    walletTokens: walletTokens.length,
-    totalTokens: myTokens.length,
+    factory: factoryTokens.length,
+    wallet: walletTokens.length,
+    total: myTokens.length,
+    tokens: myTokens.map(t => t.symbol),
   });
 
   const tokenomicsRecommendations: Record<string, any> = {
@@ -183,7 +258,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   };
 
   const handleRefresh = async () => {
-    toast.info('Refreshing your tokens and NFTs...');
+    toast.info('Refreshing...');
     setIsLoadingWallet(true);
     try {
       await Promise.all([
@@ -197,23 +272,33 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                 data.result
                   .filter((token: any) => token.type === 'ERC-20')
                   .map(async (token: any) => {
-                    let logoUrl = null;
-                    try {
-                      const logoResponse = await fetch(
-                        `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.contractAddress}`
-                      );
-                      const logoData = await logoResponse.json();
-                      if (logoData.result && logoData.result.icon_url) {
-                        logoUrl = logoData.result.icon_url;
+                    let logoUrl = getTokenLogo(token.contractAddress);
+                    
+                    if (!logoUrl) {
+                      try {
+                        const logoRes = await fetch(
+                          `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.contractAddress}`
+                        );
+                        const logoData = await logoRes.json();
+                        if (logoData.result?.icon_url) {
+                          logoUrl = logoData.result.icon_url;
+                          saveTokenLogo({
+                            tokenAddress: token.contractAddress,
+                            logoUrl,
+                            tokenName: token.name,
+                            tokenSymbol: token.symbol,
+                            uploadedAt: Date.now(),
+                          });
+                        }
+                      } catch (e) {
+                        console.log(`No logo for ${token.symbol}`);
                       }
-                    } catch (e) {
-                      console.log('No logo');
                     }
                     
                     return {
                       name: token.name,
                       symbol: token.symbol,
-                      address: token.contractAddress.toLowerCase(),
+                      address: token.contractAddress,
                       decimals: Number(token.decimals),
                       balance: token.balance,
                       type: 'wallet-token',
@@ -227,7 +312,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
             }
           })
       ]);
-      toast.success('Dashboard refreshed!');
+      toast.success('Refreshed!');
     } finally {
       setIsLoadingWallet(false);
     }
@@ -290,7 +375,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                   Connect Wallet
                 </Button>
               </Card>
-            ) : isLoadingTokens ? (
+            ) : isLoading ? (
               <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
                 <div className="flex items-center justify-center gap-3">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-mintara-primary"></div>
@@ -338,12 +423,8 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                             {item.symbol}
                           </p>
                         </div>
-                        <span className={`px-3 py-1 rounded-md text-sm font-medium ${
-                          item.type === 'mintara-token' 
-                            ? 'bg-mintara-primary/20 text-mintara-primary' 
-                            : 'bg-mintara-accent/20 text-mintara-accent'
-                        }`}>
-                          {item.type === 'mintara-token' ? 'Mintara' : 'token'}
+                        <span className="px-3 py-1 rounded-md text-sm font-medium bg-mintara-accent/20 text-mintara-accent">
+                          token
                         </span>
                       </div>
                       <p className="text-sm text-mintara-text-secondary font-mono mt-2">

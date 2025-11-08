@@ -20,16 +20,17 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Secondary: #A7DAC6
 
 ## Recent Changes
-### November 8, 2025 - Complete Base Chain Integration & Transaction Fixes
-- **NFT Minting**: Full Base chain integration with `chain: base`, `account: address`, gas fallback (150000)
-- **Error Handling**: Comprehensive error messages for NFT mint ("Minting is disabled", "Only owner", "Insufficient payment", gas estimation errors)
-- **Token Management**: All operations (Mint, Burn, Transfer, Multisend) now use `chain: base` parameter
-- **Dashboard Buttons**: All token management buttons fully functional with modal-based UI
-- **parseUnits Fix**: Multisend now correctly converts amounts to Wei using parseUnits
-- **Base Network**: All writeContract calls standardized with `import { base } from 'viem/chains'`
-- **Whitepaper Updated**: New version with updated tokenomics (Airdrop 15%, Presale 15%, Dev 25%, etc.)
-- **Core Values Section**: Added Accessibility, Security, Transparency, Sustainability, Autonomy
-- **Roadmap Updated**: December 2025 Presale, Q2 2026 Airdrop, Q3 2026 IVO Launchpad Public Release
+### November 8, 2025 - Production-Ready Deployment Build
+- **CRITICAL FIX - Token Decimals**: TokenManagementModal and MultisendModal now correctly handle token decimals from getUserTokens or via useReadContract, fixing amount calculation errors
+- **Base Chain Integration**: All writeContract calls use `chain: base` from viem/chains (no more chainId)
+- **NFT Minting**: Full Base chain with `account: address`, gas fallback, comprehensive error messages
+- **Error Handling**: Specific messages for "Minting is disabled", "Only owner", "Insufficient payment", gas errors
+- **Token Management**: All operations (Mint, Burn, Transfer, Multisend) use correct decimals for amount calculations
+- **Dashboard**: All token management buttons fully functional with proper decimals from getUserTokens
+- **Deployment Config**: Vite build output set to 'dist', deployment target 'autoscale', npm run preview configured
+- **Production Ready**: Architect review PASSED - no blockers, ready for Vercel deployment
+- **Whitepaper Updated**: New tokenomics (Airdrop 15%, Presale 15%, Dev 25%), Core Values, Roadmap
+- **Clean Codebase**: 77 source files, no test files, optimized structure
 
 ### November 7, 2025 - NFT Minting System Implementation
 - Payment → Collection creation → Metadata IPFS upload → NFT mint flow working

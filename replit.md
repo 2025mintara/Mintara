@@ -20,16 +20,16 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Secondary: #A7DAC6
 
 ## Recent Changes
-### November 8, 2025 - NFT Minting System & Whitepaper Updates
-- **Buffer Polyfill**: Added Buffer polyfill in main.tsx for Web3 compatibility
-- **CSP Configuration**: Content Security Policy allows 'unsafe-eval' for Web3 operations
-- **NFT Minting**: Simple collection.mint() implementation for reliable NFT creation
-- **Single useWriteContract Hook**: All transactions use one hook to prevent conflicts
-- **Error Handling**: All async operations wrapped with .catch() to prevent unhandled rejections
+### November 8, 2025 - Complete Base Chain Integration & Transaction Fixes
+- **NFT Minting**: Full Base chain integration with `chain: base`, `account: address`, gas fallback (150000)
+- **Error Handling**: Comprehensive error messages for NFT mint ("Minting is disabled", "Only owner", "Insufficient payment", gas estimation errors)
+- **Token Management**: All operations (Mint, Burn, Transfer, Multisend) now use `chain: base` parameter
+- **Dashboard Buttons**: All token management buttons fully functional with modal-based UI
+- **parseUnits Fix**: Multisend now correctly converts amounts to Wei using parseUnits
+- **Base Network**: All writeContract calls standardized with `import { base } from 'viem/chains'`
 - **Whitepaper Updated**: New version with updated tokenomics (Airdrop 15%, Presale 15%, Dev 25%, etc.)
 - **Core Values Section**: Added Accessibility, Security, Transparency, Sustainability, Autonomy
 - **Roadmap Updated**: December 2025 Presale, Q2 2026 Airdrop, Q3 2026 IVO Launchpad Public Release
-- **Dashboard**: Clean implementation - removed simulated features (no mock data)
 
 ### November 7, 2025 - NFT Minting System Implementation
 - Payment → Collection creation → Metadata IPFS upload → NFT mint flow working

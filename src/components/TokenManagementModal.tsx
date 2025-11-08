@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { ERC20_ABI } from '../utils/tokenFactory';
 import { parseUnits } from 'viem';
 import type { Address } from 'viem';
+import { base } from 'viem/chains';
 
 interface TokenManagementModalProps {
   isOpen: boolean;
@@ -71,7 +72,7 @@ export function TokenManagementModal({
           abi: ERC20_ABI,
           functionName: 'mint',
           args: [recipient as Address, amountInWei],
-          chainId: 8453,
+          chain: base,
         });
       } else if (action === 'burn') {
         await writeContract({
@@ -79,7 +80,7 @@ export function TokenManagementModal({
           abi: ERC20_ABI,
           functionName: 'burn',
           args: [amountInWei],
-          chainId: 8453,
+          chain: base,
         });
       } else if (action === 'transfer') {
         await writeContract({
@@ -87,7 +88,7 @@ export function TokenManagementModal({
           abi: ERC20_ABI,
           functionName: 'transfer',
           args: [recipient as Address, amountInWei],
-          chainId: 8453,
+          chain: base,
         });
       }
       toast.info(`${action} transaction sent! Waiting for confirmation...`);

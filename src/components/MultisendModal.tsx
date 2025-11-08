@@ -8,6 +8,8 @@ import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
 import { ERC20_ABI } from '../utils/tokenFactory';
 import type { Address } from 'viem';
+import { parseUnits } from 'viem';
+import { base } from 'viem/chains';
 
 interface MultisendModalProps {
   isOpen: boolean;
@@ -69,11 +71,14 @@ export function MultisendModal({
       for (const recipient of validRecipients) {
         toast.info(`Sending ${recipient.amount} ${tokenSymbol} to ${recipient.address.slice(0, 6)}...${recipient.address.slice(-4)}`);
         
+        const amountInWei = parseUnits(recipient.amount, 18);
+        
         writeContract({
           address: tokenAddress as Address,
           abi: ERC20_ABI,
           functionName: 'transfer',
-          args: [recipient.address as Address, BigInt(recipient.amount)],
+          args: [recipient.address as Address, amountInWei],
+          chain: base,
         });
 
         await new Promise((resolve) => setTimeout(resolve, 2000));

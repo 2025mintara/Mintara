@@ -107,10 +107,30 @@ export function TokenManagementModal({
       toast.info(`${action} transaction sent! Waiting for confirmation...`);
     } catch (error: any) {
       console.error(`${action} error:`, error);
-      if (error?.message?.includes('User rejected')) {
-        toast.error('Transaction cancelled');
+      const errorMessage = error?.message || error?.toString() || '';
+      
+      if (errorMessage.includes('User rejected') || errorMessage.includes('User denied')) {
+        toast.error('Transaction cancelled by user');
+      } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('gas')) {
+        toast.error('Insufficient balance for gas fees', {
+          description: 'Make sure you have enough ETH on Base Network for gas',
+        });
+      } else if (errorMessage.includes('Chain mismatch')) {
+        toast.error('Wrong network', {
+          description: 'Please switch to Base Network in your wallet',
+        });
+      } else if (errorMessage.includes('Minting is disabled') || errorMessage.includes('not mintable')) {
+        toast.error('Token minting is disabled', {
+          description: 'This token was created without minting capabilities',
+        });
+      } else if (errorMessage.includes('Burning is disabled') || errorMessage.includes('not burnable')) {
+        toast.error('Token burning is disabled', {
+          description: 'This token was created without burning capabilities',
+        });
       } else {
-        toast.error(`Failed to ${action} tokens`);
+        toast.error(`Failed to ${action} tokens`, {
+          description: errorMessage.length > 100 ? errorMessage.substring(0, 100) + '...' : errorMessage,
+        });
       }
     }
   };

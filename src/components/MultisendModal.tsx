@@ -86,7 +86,7 @@ export function MultisendModal({
         
         const amountInWei = parseUnits(recipient.amount, decimals);
         
-        writeContract({
+        await writeContract({
           address: tokenAddress as Address,
           abi: ERC20_ABI,
           functionName: 'transfer',
@@ -98,9 +98,27 @@ export function MultisendModal({
       }
 
       toast.success(`Multisend completed! Sent to ${validRecipients.length} recipients.`);
-    } catch (error) {
+      onClose();
+      setRecipients([{ id: 1, address: '', amount: '' }]);
+    } catch (error: any) {
       console.error('Multisend error:', error);
-      toast.error('Failed to complete multisend');
+      const errorMessage = error?.message || error?.toString() || '';
+      
+      if (errorMessage.includes('User rejected') || errorMessage.includes('User denied')) {
+        toast.error('Transaction cancelled by user');
+      } else if (errorMessage.includes('insufficient funds') || errorMessage.includes('gas')) {
+        toast.error('Insufficient balance', {
+          description: 'Check your token balance and ETH for gas fees',
+        });
+      } else if (errorMessage.includes('Chain mismatch')) {
+        toast.error('Wrong network', {
+          description: 'Please switch to Base Network in your wallet',
+        });
+      } else {
+        toast.error('Failed to complete multisend', {
+          description: errorMessage.length > 100 ? errorMessage.substring(0, 100) + '...' : errorMessage,
+        });
+      }
     } finally {
       setIsSending(false);
     }

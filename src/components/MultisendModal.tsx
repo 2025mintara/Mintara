@@ -173,15 +173,18 @@ export function MultisendModal({
                   </div>
                   <div>
                     <Label className="text-xs text-mintara-text-secondary">
-                      Amount
+                      Amount (in {tokenSymbol})
                     </Label>
                     <Input
-                      type="number"
-                      placeholder="0.0"
+                      type="text"
+                      placeholder={`Amount (e.g., 1000)`}
                       value={recipient.amount}
-                      onChange={(e) =>
-                        updateRecipient(recipient.id, 'amount', e.target.value)
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                          updateRecipient(recipient.id, 'amount', value);
+                        }
+                      }}
                       className="bg-mintara-surface border-mintara-border text-mintara-text-primary"
                     />
                   </div>
@@ -226,6 +229,9 @@ export function MultisendModal({
                 {recipients.filter((r) => r.address && r.amount).length}
               </span>
             </div>
+            <p className="text-xs text-mintara-text-secondary mt-2">
+              Token decimals: {decimals}. Enter token amounts directly (e.g., "1" = 1 {tokenSymbol})
+            </p>
           </div>
 
           <Button

@@ -160,14 +160,24 @@ export function TokenManagementModal({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="text-mintara-text-primary">Amount</Label>
+            <Label className="text-mintara-text-primary">
+              Amount (in {tokenSymbol} tokens)
+            </Label>
             <Input
-              type="number"
-              placeholder="0.0"
+              type="text"
+              placeholder={`Enter amount (e.g., 1000 for 1000 ${tokenSymbol})`}
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                  setAmount(value);
+                }
+              }}
               className="bg-mintara-background border-mintara-border text-mintara-text-primary"
             />
+            <p className="text-xs text-mintara-text-secondary">
+              Token has {decimals} decimals. Enter the amount you want (e.g., "1" = 1 {tokenSymbol})
+            </p>
           </div>
           {(action === 'transfer' || action === 'mint') && (
             <div className="space-y-2">

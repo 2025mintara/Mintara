@@ -196,16 +196,12 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   }, [address]);
 
   const factoryAddresses = new Set(factoryTokens.map(t => t.address.toLowerCase()));
-  const allLocalAddresses = new Set([
-    ...localStorageTokens.map(t => t.address.toLowerCase()),
-    ...walletTokens.map(t => t.address.toLowerCase())
-  ]);
   
   const uniqueWalletTokens = walletTokens.filter(
     t => !factoryAddresses.has(t.address.toLowerCase())
   );
 
-  const myTokens = [...factoryTokens, ...uniqueWalletTokens];
+  const myTokens = [...factoryTokens, ...localStorageTokens, ...uniqueWalletTokens];
   const isLoading = isLoadingTokens || isLoadingWallet;
 
   const myNFTCollections = (userNFTs || []).map((nft: any) => ({

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ExternalLink, Share2, Coins, MessageCircle, X, Flame, Send, Info } from 'lucide-react';
+import { ExternalLink, Share2, Coins, MessageCircle, X, Flame, Send, Info, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -36,18 +36,26 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   const [showMultisendModal, setShowMultisendModal] = useState(false);
   const [multisendToken, setMultisendToken] = useState<{ address: string; symbol: string; decimals: number } | null>(null);
 
-  const { data: userTokens } = useReadContract({
+  const { data: userTokens, refetch: refetchTokens } = useReadContract({
     address: TOKEN_FACTORY_ADDRESS,
     abi: TOKEN_FACTORY_ABI,
     functionName: 'getUserTokens',
     args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+      refetchInterval: 5000,
+    },
   });
 
-  const { data: userNFTs } = useReadContract({
+  const { data: userNFTs, refetch: refetchNFTs } = useReadContract({
     address: NFT_FACTORY_ADDRESS,
     abi: NFT_FACTORY_ABI,
     functionName: 'getUserCollections',
     args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+      refetchInterval: 5000,
+    },
   });
 
   const myTokens = (userTokens || []).map((token: any) => ({
@@ -102,12 +110,29 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     });
   };
 
+  const handleRefresh = async () => {
+    toast.info('Refreshing your tokens and NFTs...');
+    await Promise.all([refetchTokens(), refetchNFTs()]);
+    toast.success('Dashboard refreshed!');
+  };
+
   return (
     <div className="min-h-screen pt-32 px-6 py-16">
       <div className="max-w-[1200px] mx-auto">
-        <h1 className="text-4xl md:text-5xl font-semibold text-mintara-text-primary mb-2">
-          Dashboard
-        </h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-4xl md:text-5xl font-semibold text-mintara-text-primary">
+            Dashboard
+          </h1>
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            size="sm"
+            className="border-mintara-border text-mintara-text-primary hover:bg-mintara-surface flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
         <p className="text-xl text-mintara-text-secondary mb-12">
           My Creations & AI Assistant
         </p>

@@ -22,6 +22,7 @@ The UI adheres to a specific Mintara brand color scheme:
 ## Recent Changes
 ### November 8, 2025 - NFT Mint & Token Management Complete Overhaul
 - **CRITICAL NFT MINT FIX**: Uses Factory.mintNFT() pattern - Factory owns collections and mints on behalf of users. This eliminates all permission errors since Factory has minter role. Enhanced error handling with clear user-friendly messages for gas, chain mismatch, and user rejection errors.
+- **Dashboard Auto-Refresh System**: Implemented dual refresh strategy - automatic polling every 5 seconds (refetchInterval: 5000) PLUS manual refresh button for instant updates. Newly created tokens and NFTs now appear immediately in Dashboard.
 - **Token Management Tools Fixed**: Dashboard now displays token capabilities (Mintable/Burnable badges) and disables buttons for non-capable tokens, preventing failed transactions. CoinFactory.app-inspired UX.
 - **Token Creation Defaults**: TokenBuilder now creates tokens with `canMint: true` and `canBurn: true` by default, enabling all token management features (Mint, Burn, Transfer, Multisend)
 - **Factory ABI Updated**: getUserTokens now returns canMint and canBurn boolean flags for each token

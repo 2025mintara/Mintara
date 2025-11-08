@@ -32,7 +32,7 @@
       "/screenshot-nft.png"
     ],
     "iconUrl": "/icon.png",
-    "splashImageUrl": "/splash.png",
+    "splashImageUrl": "/og-image.png",
     "splashBackgroundColor": "#001A12",
     "homeUrl": "/",
     "webhookUrl": "",

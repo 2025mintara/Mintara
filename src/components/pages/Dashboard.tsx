@@ -36,7 +36,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   const [showMultisendModal, setShowMultisendModal] = useState(false);
   const [multisendToken, setMultisendToken] = useState<{ address: string; symbol: string; decimals: number } | null>(null);
 
-  const { data: userTokens, refetch: refetchTokens } = useReadContract({
+  const { data: userTokens, refetch: refetchTokens, isLoading: isLoadingTokens, isError: isTokensError, error: tokensError } = useReadContract({
     address: TOKEN_FACTORY_ADDRESS,
     abi: TOKEN_FACTORY_ABI,
     functionName: 'getUserTokens',
@@ -47,7 +47,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     },
   });
 
-  const { data: userNFTs, refetch: refetchNFTs } = useReadContract({
+  const { data: userNFTs, refetch: refetchNFTs, isLoading: isLoadingNFTs } = useReadContract({
     address: NFT_FACTORY_ADDRESS,
     abi: NFT_FACTORY_ABI,
     functionName: 'getUserCollections',
@@ -56,6 +56,15 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
       enabled: !!address,
       refetchInterval: 5000,
     },
+  });
+
+  console.log('🔍 Dashboard Debug:', {
+    address,
+    userTokens,
+    isLoadingTokens,
+    isTokensError,
+    tokensError: tokensError?.message,
+    rawTokensData: userTokens,
   });
 
   const myTokens = (userTokens || []).map((token: any) => ({
@@ -76,6 +85,9 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     collectionName: nft.collectionName,
     collectionDescription: nft.collectionDescription,
   }));
+
+  console.log('📊 Processed Tokens:', myTokens);
+  console.log('🖼️ Processed NFTs:', myNFTCollections);
 
   const tokenomicsRecommendations: Record<string, any> = {
     meme: {
@@ -161,8 +173,40 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
 
           {/* My Creations Tab */}
           <TabsContent value="creations" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              {myTokens.map((item, index) => (
+            {!address ? (
+              <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
+                <p className="text-mintara-text-secondary text-lg mb-4">
+                  Please connect your wallet to view your tokens
+                </p>
+                <Button
+                  onClick={() => document.querySelector<HTMLButtonElement>('[data-testid="rk-connect-button"]')?.click()}
+                  className="bg-mintara-primary hover:bg-mintara-primary/80"
+                >
+                  Connect Wallet
+                </Button>
+              </Card>
+            ) : isLoadingTokens ? (
+              <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-mintara-primary"></div>
+                  <p className="text-mintara-text-secondary text-lg">Loading your tokens...</p>
+                </div>
+              </Card>
+            ) : myTokens.length === 0 ? (
+              <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
+                <p className="text-mintara-text-secondary text-lg mb-4">
+                  You haven't created any tokens yet
+                </p>
+                <Button
+                  onClick={() => window.location.href = '/token-builder'}
+                  className="bg-mintara-primary hover:bg-mintara-primary/80"
+                >
+                  Create Your First Token
+                </Button>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {myTokens.map((item, index) => (
                 <Card
                   key={index}
                   className="p-6 bg-mintara-surface/50 border-mintara-border backdrop-blur-sm hover:border-mintara-accent/50 transition-all duration-300"
@@ -325,14 +369,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                   </div>
                 </Card>
               ))}
-            </div>
-
-            {myTokens.length === 0 && (
-              <Card className="p-12 bg-mintara-surface/50 border-mintara-border text-center">
-                <p className="text-mintara-text-secondary">
-                  No tokens yet. Start by creating a token with Token Builder!
-                </p>
-              </Card>
+              </div>
             )}
           </TabsContent>
 

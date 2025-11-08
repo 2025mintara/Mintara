@@ -25,12 +25,32 @@ const wagmiConfig = getDefaultConfig({
 });
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  const getPageFromPath = () => {
+    const path = window.location.pathname;
+    if (path === '/token-builder') return 'token-builder';
+    if (path === '/ai-nft-builder') return 'ai-nft-builder';
+    if (path === '/dashboard') return 'dashboard';
+    if (path === '/whitepaper') return 'whitepaper';
+    if (path === '/launchpad') return 'launchpad';
+    return 'home';
+  };
+
+  const [currentPage, setCurrentPage] = useState(getPageFromPath());
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
+    window.history.pushState({}, '', page === 'home' ? '/' : `/${page}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getPageFromPath());
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   useEffect(() => {
     // Add page transition animation

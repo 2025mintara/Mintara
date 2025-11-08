@@ -133,7 +133,12 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
         }
       };
       
-      createCollection();
+      createCollection().catch((error) => {
+        console.error('❌ Unhandled error in createCollection:', error);
+        toast.error('An unexpected error occurred while creating collection');
+        setIsProcessing(false);
+        setPaymentStep('idle');
+      });
     }
   }, [isPaymentConfirmed, paymentStep, nftMetadata, writeContractAsync]);
 
@@ -273,7 +278,12 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
         }
       };
       
-      processCollection();
+      processCollection().catch((error) => {
+        console.error('❌ Unhandled error in processCollection:', error);
+        toast.error('An unexpected error occurred while processing NFT');
+        setIsProcessing(false);
+        setPaymentStep('idle');
+      });
     }
   }, [isCollectionConfirmed, collectionReceipt, paymentStep, mintHash, chain, address, writeContractAsync, generatedImageUrl, nftMetadata]);
 

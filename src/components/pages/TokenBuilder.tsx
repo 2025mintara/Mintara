@@ -9,6 +9,7 @@ import { FeeBadge } from '../FeeBadge';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { toast } from 'sonner';
 import { parseEventLogs } from 'viem';
+import { base } from 'viem/chains';
 import {
   TOKEN_FACTORY_ADDRESS,
   TOKEN_FACTORY_ABI,
@@ -160,7 +161,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
               formData.canMint,
               formData.canBurn,
             ],
-            chainId: 8453, // BASE NETWORK ZORUNLU
+            chain: base,
           });
           
           console.log('✅ Token creation transaction sent! Hash:', hash);
@@ -257,7 +258,7 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
         abi: USDC_ABI,
         functionName: 'transfer',
         args: [OWNER_WALLET, feeAmount],
-        chainId: 8453, // BASE NETWORK ZORUNLU
+        chain: base,
       });
 
       console.log('✅ Payment transaction sent! Hash:', hash);

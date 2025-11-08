@@ -22,6 +22,7 @@ import {
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import { parseEventLogs, type Address } from 'viem';
+import { base } from 'viem/chains';
 import {
   Dialog,
   DialogContent,
@@ -116,7 +117,8 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
               nftMetadata.collection,
               nftMetadata.description,
             ],
-            chainId: 8453,
+            chain: base,
+            account: address as Address,
           });
           
           console.log('✅ Collection creation transaction sent! Hash:', hash);
@@ -233,13 +235,26 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
               console.log('🔄 Step 1: Minting NFT to collection...');
               console.log('Collection:', collectionAddress);
               console.log('Recipient:', address);
+              console.log('Chain:', base.id, base.name);
               
               const mintTx = await writeContractAsync({
                 address: collectionAddress as Address,
                 abi: ERC721_ABI,
                 functionName: 'mint',
                 args: [address as Address],
-                chainId: 8453,
+                chain: base,
+                account: address as Address,
+                gas: BigInt(150000), // Gas fallback
+              }).catch((estimationError: any) => {
+                console.warn('⚠️ Gas estimation failed, retrying without gas param:', estimationError);
+                return writeContractAsync({
+                  address: collectionAddress as Address,
+                  abi: ERC721_ABI,
+                  functionName: 'mint',
+                  args: [address as Address],
+                  chain: base,
+                  account: address as Address,
+                });
               });
               
               console.log('✅ Mint transaction sent! Hash:', mintTx);
@@ -254,12 +269,17 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                 message: mintError?.message,
                 shortMessage: mintError?.shortMessage,
                 cause: mintError?.cause,
+                name: mintError?.name,
               });
               
-              if (mintError?.message?.includes('User rejected') || mintError?.message?.includes('User denied')) {
+              if (mintError?.message?.includes('User rejected') || mintError?.message?.includes('User denied') || mintError?.message?.includes('user rejected')) {
                 toast.error('NFT minting cancelled by user');
+              } else if (mintError?.message?.includes('estimate gas') || mintError?.message?.includes('gas')) {
+                toast.error('Gas estimation failed. Please ensure you have enough ETH on Base Network.');
               } else if (mintError?.message?.includes('chain')) {
                 toast.error('Please switch to Base Network (Chain ID 8453)');
+              } else if (mintError?.message?.includes('execution reverted')) {
+                toast.error('Transaction reverted. Please check contract permissions or try again.');
               } else {
                 toast.error('Failed to mint NFT: ' + (mintError?.shortMessage || mintError?.message || 'Unknown error'));
               }
@@ -356,7 +376,8 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
         abi: USDC_ABI,
         functionName: 'transfer',
         args: [OWNER_WALLET, feeAmount],
-        chainId: 8453, // BASE NETWORK ZORUNLU
+        chain: base,
+        account: address as Address,
       });
 
       console.log('✅ Payment transaction sent! Hash:', hash);

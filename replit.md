@@ -20,6 +20,19 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Secondary: #A7DAC6
 
 ## Recent Changes
+### November 8, 2025 - SEO Optimization & Farcaster Integration Complete
+- **SEO Meta Tags**: Comprehensive meta tags for Google, Yandex, Bing (title, description, keywords, author, robots, canonical URL)
+- **Open Graph Tags**: Full Facebook/LinkedIn integration with og:type, og:url, og:site_name, og:image dimensions
+- **Twitter Card**: Summary large image card with proper metadata
+- **Structured Data**: JSON-LD schema markup for WebApplication with pricing, features, and screenshots
+- **Sitemap.xml**: Complete sitemap with all pages, priorities, and change frequencies
+- **Robots.txt**: Search engine crawl rules with sitemap reference
+- **Farcaster Frame**: Frame metadata with 3 action buttons (Token Builder, NFT Builder, Dashboard)
+- **Farcaster Config**: Account association for mintara.xyz domain verification, owner address setup
+- **Favicons**: Updated favicon.ico, favicon.png, icon.png for cross-platform compatibility
+- **Visual Assets**: 3 screenshots (Home, Token Builder, NFT Builder), splash screen, OG image
+- **Domain URLs**: All Farcaster frame targets updated to mintara.xyz
+
 ### November 8, 2025 - NFT Mint & Token Management Complete Overhaul
 - **CRITICAL NFT MINT FIX**: Uses Factory.mintNFT() pattern - Factory owns collections and mints on behalf of users. This eliminates all permission errors since Factory has minter role. Enhanced error handling with clear user-friendly messages for gas, chain mismatch, and user rejection errors.
 - **Dashboard Auto-Refresh System**: Implemented dual refresh strategy - automatic polling every 5 seconds (refetchInterval: 5000) PLUS manual refresh button for instant updates. Newly created tokens and NFTs now appear immediately in Dashboard.

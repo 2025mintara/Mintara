@@ -18,7 +18,6 @@ import {
 import {
   NFT_FACTORY_ADDRESS,
   NFT_FACTORY_ABI,
-  ERC721_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import { parseEventLogs, type Address } from 'viem';
@@ -230,16 +229,15 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             }
             
             try {
-              console.log('🔄 Minting NFT on Base Network...');
+              console.log('🔄 Minting NFT via Factory on Base Network...');
               console.log('Collection:', collectionAddress);
-              console.log('Recipient:', address);
               console.log('Metadata URI:', metadataURI);
               
               const hash = await writeContractAsync({
-                address: collectionAddress as Address,
-                abi: ERC721_ABI,
-                functionName: 'safeMint',
-                args: [address as Address, metadataURI],
+                address: NFT_FACTORY_ADDRESS,
+                abi: NFT_FACTORY_ABI,
+                functionName: 'mintNFT',
+                args: [collectionAddress as Address, metadataURI],
                 chainId: 8453,
               });
               

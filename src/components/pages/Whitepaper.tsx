@@ -78,19 +78,19 @@ export function Whitepaper() {
 
   const innovations = [
     {
-      icon: Bot,
-      title: 'Mintara AI Engine',
-      description: 'Scans bytecode, optimizes gas, learns from Base data.',
+      icon: Shield,
+      title: 'AI Audit Engine',
+      description: 'Analyzes contract bytecode for vulnerabilities, detects scams, exploits, and gas inefficiencies. Continuously learns from Base Network data to enhance precision.',
     },
     {
-      icon: Network,
-      title: 'DePIN Verification Layer',
-      description: 'Distributed nodes perform AI micro-audits, rewarded in MINTA.',
+      icon: Sparkles,
+      title: 'AI NFT Builder',
+      description: 'Generates artwork and metadata autonomously. Supports rarity logic, batch minting, and instant on-chain verification. Empowers creators to deploy NFT collections with zero code.',
     },
     {
       icon: TrendingUp,
       title: 'IVO Launchpad',
-      description: 'Verified fundraising via escrow smart contracts.',
+      description: 'Transparent presale system secured by escrow smart contracts. AI-verified token legitimacy before listing. Seamless integration with $MINTA utilities.',
     },
   ];
 
@@ -495,30 +495,22 @@ export function Whitepaper() {
 
             <div className="space-y-6">
               {innovations.map((innovation, index) => (
-                <Card key={index} className="relative p-8 bg-mintara-surface/40 border-2 border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 group overflow-hidden">
-                  <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-mintara-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  
-                  <div className="relative flex items-start gap-6">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-mintara-primary to-mintara-accent border-2 border-mintara-accent/50 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(0,224,198,0.3)] group-hover:shadow-[0_0_25px_rgba(0,224,198,0.5)] transition-all">
-                      <innovation.icon className="w-8 h-8 text-mintara-text-primary" />
+                <Card key={index} className="relative p-8 bg-mintara-surface/40 border-2 border-mintara-border hover:border-mintara-accent/50 transition-all duration-300 group">
+                  <div className="flex items-start gap-6">
+                    <div className="w-14 h-14 rounded-xl bg-mintara-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-mintara-accent/30 transition-colors">
+                      <innovation.icon className="w-7 h-7 text-mintara-accent" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-semibold text-mintara-text-primary mb-3">
+                      <h3 className="text-xl font-semibold text-mintara-text-primary mb-3">
                         {innovation.title}
                       </h3>
-                      <p className="text-mintara-text-secondary">
+                      <p className="text-sm text-mintara-text-secondary leading-relaxed">
                         {innovation.description}
                       </p>
                     </div>
                   </div>
                 </Card>
               ))}
-            </div>
-
-            <div className="mt-8 text-center">
-              <p className="text-sm text-mintara-text-secondary italic">
-                AI → DePIN → IVO
-              </p>
             </div>
           </section>
         </FadeInSection>
@@ -584,40 +576,44 @@ export function Whitepaper() {
         {/* Summary & Tagline */}
         <FadeInSection delay={0.1}>
           <section id="summary">
-            <Card className="relative p-12 md:p-16 bg-gradient-to-br from-mintara-surface/90 to-mintara-primary/10 border-2 border-mintara-accent/30 backdrop-blur-sm text-center overflow-hidden">
+            <Card className="relative p-12 md:p-16 bg-mintara-surface/50 border-2 border-mintara-border backdrop-blur-sm text-center overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-mintara-accent/5 via-transparent to-mintara-primary/5"></div>
               
               <div className="relative z-10 space-y-8">
                 <div className="flex justify-center mb-6">
-                  <Logo className="w-20 h-20" />
+                  <div className="w-20 h-20 rounded-full border-2 border-mintara-accent flex items-center justify-center bg-mintara-surface">
+                    <Logo className="w-12 h-12" />
+                  </div>
                 </div>
 
-                <h2 className="text-3xl md:text-4xl font-semibold text-mintara-text-primary leading-relaxed">
-                  Mintara Token (MINTA) powers the first AI-driven no-code ecosystem on Base Network.
+                <h2 className="text-2xl md:text-3xl font-semibold text-mintara-text-primary leading-relaxed max-w-4xl mx-auto">
+                  Mintara ($MINTA) powers the first AI-driven, no-code ecosystem for token and NFT creation on the Base Network.
                 </h2>
 
-                <p className="text-xl text-mintara-text-secondary max-w-3xl mx-auto">
-                  Through AI intelligence, DePIN verification and IVO transparency, Mintara builds a safer and smarter Web3 future.
+                <p className="text-lg text-mintara-text-secondary max-w-3xl mx-auto">
+                  By merging artificial intelligence, secure presale infrastructure, and a deflationary revenue model, Mintara is building the foundation of a safer, smarter, and more sustainable Web3 future.
                 </p>
 
-                <div className="pt-6">
-                  <p className="text-2xl text-mintara-accent font-semibold italic">
-                    "Mintara — Building the Future of Intelligent Tokenization."
+                <div className="pt-4">
+                  <p className="text-xl text-mintara-accent font-semibold italic flex items-center justify-center gap-2">
+                    <span className="text-2xl">🪶</span>
+                    "Mintara — Building the Future of Intelligent Tokenization & Creation."
                   </p>
                 </div>
 
-                <div className="pt-8">
-                  <Badge className="px-4 py-2 bg-mintara-primary/20 text-mintara-accent border-mintara-accent/30 text-sm">
+                <div className="pt-6">
+                  <Badge className="px-4 py-2 bg-mintara-primary/20 text-mintara-accent border-mintara-accent/30 text-sm font-medium">
                     Built on Base Network
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-center gap-4 pt-8">
+                <div className="flex items-center justify-center gap-6 pt-8">
                   <a
                     href="https://x.com/mintaratoken"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full border border-mintara-border flex items-center justify-center text-mintara-text-primary hover:text-mintara-accent hover:border-mintara-accent hover:scale-110 hover:shadow-[inset_0_0_12px_rgba(0,224,198,0.2)] transition-all duration-250"
+                    className="w-12 h-12 rounded-full border-2 border-mintara-border flex items-center justify-center text-mintara-text-primary hover:text-mintara-accent hover:border-mintara-accent hover:scale-110 transition-all duration-300"
+                    aria-label="Twitter"
                   >
                     <Twitter className="w-5 h-5" />
                   </a>
@@ -625,7 +621,8 @@ export function Whitepaper() {
                     href="https://t.me/mintaratoken"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full border border-mintara-border flex items-center justify-center text-mintara-text-primary hover:text-mintara-accent hover:border-mintara-accent hover:scale-110 hover:shadow-[inset_0_0_12px_rgba(0,224,198,0.2)] transition-all duration-250"
+                    className="w-12 h-12 rounded-full border-2 border-mintara-border flex items-center justify-center text-mintara-text-primary hover:text-mintara-accent hover:border-mintara-accent hover:scale-110 transition-all duration-300"
+                    aria-label="Telegram"
                   >
                     <Send className="w-5 h-5" />
                   </a>
@@ -633,7 +630,8 @@ export function Whitepaper() {
                     href="https://github.com/2025mintara/Mintara"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full border border-mintara-border flex items-center justify-center text-mintara-text-primary hover:text-mintara-accent hover:border-mintara-accent hover:scale-110 hover:shadow-[inset_0_0_12px_rgba(0,224,198,0.2)] transition-all duration-250"
+                    className="w-12 h-12 rounded-full border-2 border-mintara-border flex items-center justify-center text-mintara-text-primary hover:text-mintara-accent hover:border-mintara-accent hover:scale-110 transition-all duration-300"
+                    aria-label="GitHub"
                   >
                     <Github className="w-5 h-5" />
                   </a>

@@ -65,8 +65,8 @@ export function TokenBuilder({ onNavigate }: TokenBuilderProps) {
     supply: '',
     description: '',
     payWith: 'USDC',
-    canMint: false,
-    canBurn: false,
+    canMint: true,
+    canBurn: true,
   });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

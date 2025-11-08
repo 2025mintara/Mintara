@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ExternalLink, Share2, Coins, MessageCircle, X, Flame, Send, Info, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -36,7 +36,10 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   const [showMultisendModal, setShowMultisendModal] = useState(false);
   const [multisendToken, setMultisendToken] = useState<{ address: string; symbol: string; decimals: number } | null>(null);
 
-  const { data: userTokens, refetch: refetchTokens, isLoading: isLoadingTokens, isError: isTokensError, error: tokensError } = useReadContract({
+  const [walletTokens, setWalletTokens] = useState<any[]>([]);
+  const [isLoadingWallet, setIsLoadingWallet] = useState(false);
+
+  const { data: factoryTokens, refetch: refetchTokens, isLoading: isLoadingFactory } = useReadContract({
     address: TOKEN_FACTORY_ADDRESS,
     abi: TOKEN_FACTORY_ABI,
     functionName: 'getUserTokens',
@@ -47,7 +50,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     },
   });
 
-  const { data: userNFTs, refetch: refetchNFTs, isLoading: isLoadingNFTs } = useReadContract({
+  const { data: userNFTs, refetch: refetchNFTs } = useReadContract({
     address: NFT_FACTORY_ADDRESS,
     abi: NFT_FACTORY_ABI,
     functionName: 'getUserCollections',
@@ -58,28 +61,63 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     },
   });
 
-  console.log('🔍 Dashboard Debug:', {
-    address,
-    userTokens,
-    userTokensType: typeof userTokens,
-    userTokensLength: Array.isArray(userTokens) ? userTokens.length : 'not-array',
-    isLoadingTokens,
-    isTokensError,
-    tokensError: tokensError?.message,
-    rawTokensData: userTokens,
-    factoryAddress: TOKEN_FACTORY_ADDRESS,
-  });
+  useEffect(() => {
+    const fetchWalletTokens = async () => {
+      if (!address) {
+        setWalletTokens([]);
+        return;
+      }
 
-  const myTokens = (userTokens || []).map((token: any) => ({
+      setIsLoadingWallet(true);
+      try {
+        const response = await fetch(
+          `https://base.blockscout.com/api?module=account&action=tokenlist&address=${address}`
+        );
+        const data = await response.json();
+        
+        if (data.status === '1' && data.result) {
+          const tokens = data.result
+            .filter((token: any) => token.type === 'ERC-20')
+            .map((token: any) => ({
+              name: token.name,
+              symbol: token.symbol,
+              address: token.contractAddress.toLowerCase(),
+              decimals: Number(token.decimals),
+              balance: token.balance,
+              type: 'wallet-token',
+              canMint: false,
+              canBurn: false,
+              logoUrl: null,
+            }));
+          setWalletTokens(tokens);
+          console.log('💰 Wallet Tokens from Blockscout:', tokens);
+        }
+      } catch (error) {
+        console.error('Failed to fetch wallet tokens:', error);
+      } finally {
+        setIsLoadingWallet(false);
+      }
+    };
+
+    fetchWalletTokens();
+  }, [address]);
+
+  const mintaraTokens = (factoryTokens || []).map((token: any) => ({
     name: token.name,
     symbol: token.symbol,
-    address: token.tokenAddress,
+    address: token.tokenAddress.toLowerCase(),
     decimals: Number(token.decimals),
     canMint: token.canMint ?? true,
     canBurn: token.canBurn ?? true,
-    type: 'token',
+    type: 'mintara-token',
     logoUrl: getTokenLogo(token.tokenAddress),
   }));
+
+  const mintaraAddresses = new Set(mintaraTokens.map(t => t.address));
+  const otherWalletTokens = walletTokens.filter(t => !mintaraAddresses.has(t.address));
+
+  const myTokens = [...mintaraTokens, ...otherWalletTokens];
+  const isLoadingTokens = isLoadingFactory || isLoadingWallet;
 
   const myNFTCollections = (userNFTs || []).map((nft: any) => ({
     collectionAddress: nft.collectionAddress,
@@ -89,8 +127,12 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     collectionDescription: nft.collectionDescription,
   }));
 
-  console.log('📊 Processed Tokens:', myTokens);
-  console.log('🖼️ Processed NFTs:', myNFTCollections);
+  console.log('🔍 Dashboard Debug:', {
+    address,
+    mintaraTokens: mintaraTokens.length,
+    walletTokens: walletTokens.length,
+    totalTokens: myTokens.length,
+  });
 
   const tokenomicsRecommendations: Record<string, any> = {
     meme: {
@@ -127,8 +169,36 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
 
   const handleRefresh = async () => {
     toast.info('Refreshing your tokens and NFTs...');
-    await Promise.all([refetchTokens(), refetchNFTs()]);
-    toast.success('Dashboard refreshed!');
+    setIsLoadingWallet(true);
+    try {
+      await Promise.all([
+        refetchTokens(),
+        refetchNFTs(),
+        address && fetch(`https://base.blockscout.com/api?module=account&action=tokenlist&address=${address}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === '1' && data.result) {
+              const tokens = data.result
+                .filter((token: any) => token.type === 'ERC-20')
+                .map((token: any) => ({
+                  name: token.name,
+                  symbol: token.symbol,
+                  address: token.contractAddress.toLowerCase(),
+                  decimals: Number(token.decimals),
+                  balance: token.balance,
+                  type: 'wallet-token',
+                  canMint: false,
+                  canBurn: false,
+                  logoUrl: null,
+                }));
+              setWalletTokens(tokens);
+            }
+          })
+      ]);
+      toast.success('Dashboard refreshed!');
+    } finally {
+      setIsLoadingWallet(false);
+    }
   };
 
   return (
@@ -236,28 +306,33 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                         </p>
                       </div>
                     </div>
-                    <span className="px-2 py-1 rounded bg-mintara-accent/20 text-mintara-accent text-xs font-medium">
-                      {item.type}
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      item.type === 'mintara-token' 
+                        ? 'bg-mintara-primary/20 text-mintara-primary' 
+                        : 'bg-gray-500/20 text-gray-400'
+                    }`}>
+                      {item.type === 'mintara-token' ? 'Mintara' : 'Wallet'}
                     </span>
                   </div>
                   <p className="text-sm text-mintara-text-secondary mb-4 font-mono">
                     {item.address}
                   </p>
                   
-                  {item.type === 'token' && (
+                  <div className="flex gap-1.5 mb-3">
+                    {item.canMint && (
+                      <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-medium">
+                        Mintable
+                      </span>
+                    )}
+                    {item.canBurn && (
+                      <span className="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[10px] font-medium">
+                        Burnable
+                      </span>
+                    )}
+                  </div>
+                      
+                  {item.type === 'mintara-token' && (
                     <>
-                      <div className="flex gap-1.5 mb-3">
-                        {item.canMint && (
-                          <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-medium">
-                            Mintable
-                          </span>
-                        )}
-                        {item.canBurn && (
-                          <span className="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[10px] font-medium">
-                            Burnable
-                          </span>
-                        )}
-                      </div>
                       <div className="grid grid-cols-3 gap-2 mb-2">
                         <Button
                           variant="outline"

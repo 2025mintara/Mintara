@@ -43,7 +43,9 @@ export const TOKEN_FACTORY_ABI = [
         { name: 'decimals', type: 'uint8' },
         { name: 'initialSupply', type: 'uint256' },
         { name: 'owner', type: 'address' },
-        { name: 'createdAt', type: 'uint256' }
+        { name: 'createdAt', type: 'uint256' },
+        { name: 'canMint', type: 'bool' },
+        { name: 'canBurn', type: 'bool' }
       ]
     }]
   }

@@ -55,6 +55,8 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     symbol: token.symbol,
     address: token.tokenAddress,
     decimals: Number(token.decimals),
+    canMint: token.canMint ?? true,
+    canBurn: token.canBurn ?? true,
     type: 'token',
     logoUrl: getTokenLogo(token.tokenAddress),
   }));
@@ -172,14 +174,33 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                   
                   {item.type === 'token' && (
                     <>
+                      <div className="flex gap-1.5 mb-3">
+                        {item.canMint && (
+                          <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-medium">
+                            Mintable
+                          </span>
+                        )}
+                        {item.canBurn && (
+                          <span className="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[10px] font-medium">
+                            Burnable
+                          </span>
+                        )}
+                      </div>
                       <div className="grid grid-cols-3 gap-2 mb-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-mintara-border text-mintara-primary hover:bg-mintara-primary/10"
+                          disabled={!item.canMint}
+                          className="border-mintara-border text-mintara-primary hover:bg-mintara-primary/10 disabled:opacity-40 disabled:cursor-not-allowed"
                           onClick={() => {
-                            setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
-                            setManagementAction('mint');
+                            if (item.canMint) {
+                              setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
+                              setManagementAction('mint');
+                            } else {
+                              toast.error('Minting disabled', {
+                                description: 'This token was created without minting capability',
+                              });
+                            }
                           }}
                         >
                           <Coins className="w-4 h-4 mr-1" />
@@ -188,10 +209,17 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-mintara-border text-red-400 hover:bg-red-400/10"
+                          disabled={!item.canBurn}
+                          className="border-mintara-border text-red-400 hover:bg-red-400/10 disabled:opacity-40 disabled:cursor-not-allowed"
                           onClick={() => {
-                            setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
-                            setManagementAction('burn');
+                            if (item.canBurn) {
+                              setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
+                              setManagementAction('burn');
+                            } else {
+                              toast.error('Burning disabled', {
+                                description: 'This token was created without burning capability',
+                              });
+                            }
                           }}
                         >
                           <Flame className="w-4 h-4 mr-1" />

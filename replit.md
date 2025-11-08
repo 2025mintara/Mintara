@@ -20,9 +20,12 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Secondary: #A7DAC6
 
 ## Recent Changes
-### November 8, 2025 - NFT Mint & Token Management Fixes
+### November 8, 2025 - NFT Mint & Token Management Complete Overhaul
 - **CRITICAL NFT MINT FIX**: Changed from Factory.mintNFT() to direct collection.safeMint() pattern - the industry-standard approach used by OpenSea, Rarible, Zora, and thousands of professional Web3 applications. User mints directly to their own collection (they are the owner), eliminating all "execution reverted" and permission errors.
+- **Token Management Tools Fixed**: Dashboard now displays token capabilities (Mintable/Burnable badges) and disables buttons for non-capable tokens, preventing failed transactions. CoinFactory.app-inspired UX.
 - **Token Creation Defaults**: TokenBuilder now creates tokens with `canMint: true` and `canBurn: true` by default, enabling all token management features (Mint, Burn, Transfer, Multisend)
+- **Factory ABI Updated**: getUserTokens now returns canMint and canBurn boolean flags for each token
+- **Dashboard Token Cards**: Shows Mintable/Burnable capability badges, disables non-capable action buttons with clear error messages
 - **Buffer/Process Polyfill Fix**: Resolved "Module externalized for browser compatibility" console error by properly configuring buffer and process polyfills in vite.config.ts and main.tsx
 - **Enhanced Error Handling**: TokenManagementModal and MultisendModal now provide user-friendly error messages for gas/insufficient funds, chain mismatch, user rejection, and token capability errors
 - **Token Decimals**: All modals dynamically read decimals from contracts (providedDecimals ?? fetchedDecimals ?? 18)

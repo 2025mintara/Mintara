@@ -18,7 +18,6 @@ import {
 import {
   NFT_FACTORY_ADDRESS,
   NFT_FACTORY_ABI,
-  ERC721_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import { parseEventLogs, type Address } from 'viem';
@@ -232,33 +231,23 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             }
             
             try {
-              console.log('🔄 Step 1: Minting NFT to collection...');
+              console.log('🔄 Minting NFT via Factory (100% reliable)...');
+              console.log('Factory:', NFT_FACTORY_ADDRESS);
               console.log('Collection:', collectionAddress);
-              console.log('Recipient:', address);
+              console.log('TokenURI:', metadataURI);
               console.log('Chain:', base.id, base.name);
               
               const mintTx = await writeContractAsync({
-                address: collectionAddress as Address,
-                abi: ERC721_ABI,
-                functionName: 'mint',
-                args: [address as Address],
+                address: NFT_FACTORY_ADDRESS,
+                abi: NFT_FACTORY_ABI,
+                functionName: 'mintNFT',
+                args: [collectionAddress, metadataURI],
                 chain: base,
                 account: address as Address,
-                gas: BigInt(150000),
-              }).catch((estimationError: any) => {
-                console.warn('⚠️ Gas estimation failed, retrying without value/gas:', estimationError);
-                return writeContractAsync({
-                  address: collectionAddress as Address,
-                  abi: ERC721_ABI,
-                  functionName: 'mint',
-                  args: [address as Address],
-                  chain: base,
-                  account: address as Address,
-                });
               });
               
-              console.log('✅ Mint transaction sent! Hash:', mintTx);
-              console.log('⏳ Waiting for mint confirmation...');
+              console.log('✅ NFT mint transaction sent! Hash:', mintTx);
+              console.log('⏳ Waiting for confirmation...');
               
               toast.info('NFT minting... Please wait for confirmation');
               
@@ -274,20 +263,12 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
               
               if (mintError?.message?.includes('User rejected') || mintError?.message?.includes('User denied') || mintError?.message?.includes('user rejected')) {
                 toast.error('NFT minting cancelled by user');
-              } else if (mintError?.message?.includes('Minting is disabled') || mintError?.message?.includes('disabled')) {
-                toast.error('Minting is disabled on this collection. Please contact contract owner.');
-              } else if (mintError?.message?.includes('Only owner') || mintError?.message?.includes('Ownable')) {
-                toast.error('Only contract owner can mint. Please check collection permissions.');
-              } else if (mintError?.message?.includes('Insufficient payment') || mintError?.message?.includes('payment')) {
-                toast.error('Insufficient payment. Please ensure you have enough ETH for mint fee.');
-              } else if (mintError?.message?.includes('estimate gas') || mintError?.message?.includes('gas')) {
-                toast.error('Gas estimation failed. Please ensure you have enough ETH on Base Network.');
+              } else if (mintError?.message?.includes('gas')) {
+                toast.error('Insufficient ETH for gas. Please add more ETH to your wallet on Base Network.');
               } else if (mintError?.message?.includes('chain')) {
                 toast.error('Please switch to Base Network (Chain ID 8453)');
-              } else if (mintError?.message?.includes('execution reverted')) {
-                toast.error('Transaction reverted. Check contract permissions or try again.');
               } else {
-                toast.error('Failed to mint NFT: ' + (mintError?.shortMessage || mintError?.message || 'Unknown error'));
+                toast.error('Mint failed: ' + (mintError?.shortMessage || 'Please try again'));
               }
               setIsProcessing(false);
               setPaymentStep('idle');

@@ -111,12 +111,37 @@ export function Whitepaper() {
     { icon: Network, title: 'Autonomy', desc: 'Fully decentralized deployments on Base' },
   ];
 
-  const modules = [
-    { number: '1', title: 'No-Code Token Builder', desc: 'Create custom ERC-20 tokens on Base instantly' },
-    { number: '2', title: 'AI Audit & Optimization', desc: 'Real-time code analysis with Smart Score rating' },
-    { number: '3', title: 'AI NFT Builder 🚀', desc: 'Generate and mint AI-created NFTs with metadata' },
-    { number: '4', title: 'IVO Launchpad', desc: 'Secure AI-verified presale with escrow protection' },
-    { number: '5', title: 'Distributed AI Verification', desc: 'Trustless validation by AI validators' },
+  const platformModules = [
+    { 
+      number: '1', 
+      icon: Coins, 
+      title: 'No-Code Token Builder', 
+      desc: "Create custom ERC-20 tokens on Base instantly. Mintara's AI automatically audits smart contracts, detects vulnerabilities, and optimizes gas efficiency prior to deployment." 
+    },
+    { 
+      number: '2', 
+      icon: Shield, 
+      title: 'AI Audit & Optimization', 
+      desc: 'The AI Audit Engine performs real-time code analysis, identifies security risks, and assigns a Smart Score before launch — ensuring maximum trust and compliance.' 
+    },
+    { 
+      number: '3', 
+      icon: Sparkles, 
+      title: 'AI NFT Builder', 
+      desc: 'An integrated system enabling users to generate and mint AI-created NFTs, including AI-generated artwork, automatic metadata generation, on-chain minting with BaseScan verification, and batch minting with rarity configuration.' 
+    },
+    { 
+      number: '4', 
+      icon: TrendingUp, 
+      title: 'IVO Launchpad', 
+      desc: 'The Intelligent Verified Offering (IVO) module provides a secure, AI-verified presale system with escrow protection. Investor funds remain locked until predefined audit conditions are met.' 
+    },
+    { 
+      number: '5', 
+      icon: Network, 
+      title: 'Distributed AI Verification', 
+      desc: 'A network of distributed AI validators independently verifies contract safety and performance — ensuring a trustless and decentralized validation process.' 
+    },
   ];
 
   return (
@@ -131,7 +156,7 @@ export function Whitepaper() {
                 Mintara Whitepaper
               </h1>
               <p className="text-xl text-mintara-accent mb-8">
-                v2.0 — AI · DePIN · IVO Enhanced Edition
+                Executive Summary
               </p>
             </div>
 
@@ -204,27 +229,29 @@ export function Whitepaper() {
               Platform Overview
             </h2>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {modules.map((module, index) => (
+            <div className="space-y-6">
+              {platformModules.map((module, index) => (
                 <Card key={index} className="relative p-6 bg-mintara-surface/40 border-2 border-mintara-border hover:border-mintara-accent/70 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,224,198,0.2)] group">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-mintara-primary to-mintara-accent border-2 border-mintara-accent/50 shadow-[0_0_15px_rgba(0,224,198,0.3)] mb-4 group-hover:shadow-[0_0_25px_rgba(0,224,198,0.5)] transition-all">
-                    <span className="text-xl font-semibold text-mintara-text-primary">
-                      {module.number}
-                    </span>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-mintara-accent/20 flex items-center justify-center group-hover:bg-mintara-accent/30 transition-colors">
+                      <module.icon className="w-7 h-7 text-mintara-accent" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-mintara-text-primary mb-2">
+                        {module.number}. {module.title}
+                      </h3>
+                      <p className="text-sm text-mintara-text-secondary leading-relaxed">
+                        {module.desc}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-mintara-text-primary mb-2">
-                    {module.title}
-                  </h3>
-                  <p className="text-sm text-mintara-text-secondary">
-                    {module.desc}
-                  </p>
                 </Card>
               ))}
             </div>
 
             <div className="mt-8 text-center">
-              <p className="text-sm text-mintara-text-secondary italic">
-                Ecosystem Flow: → Token/NFT Creation → AI Audit → IVO Presale → Airdrop → Verification → Launch
+              <p className="text-sm text-mintara-accent italic">
+                <span className="font-medium">Ecosystem Flow:</span> → Token/NFT Creation → AI Audit → IVO Presale → Airdrop → Verification → Launch
               </p>
             </div>
           </section>

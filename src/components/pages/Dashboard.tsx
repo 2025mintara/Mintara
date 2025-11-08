@@ -61,10 +61,13 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   console.log('🔍 Dashboard Debug:', {
     address,
     userTokens,
+    userTokensType: typeof userTokens,
+    userTokensLength: Array.isArray(userTokens) ? userTokens.length : 'not-array',
     isLoadingTokens,
     isTokensError,
     tokensError: tokensError?.message,
     rawTokensData: userTokens,
+    factoryAddress: TOKEN_FACTORY_ADDRESS,
   });
 
   const myTokens = (userTokens || []).map((token: any) => ({

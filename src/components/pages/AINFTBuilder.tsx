@@ -244,9 +244,9 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                 args: [address as Address],
                 chain: base,
                 account: address as Address,
-                gas: BigInt(150000), // Gas fallback
+                gas: BigInt(150000),
               }).catch((estimationError: any) => {
-                console.warn('⚠️ Gas estimation failed, retrying without gas param:', estimationError);
+                console.warn('⚠️ Gas estimation failed, retrying without value/gas:', estimationError);
                 return writeContractAsync({
                   address: collectionAddress as Address,
                   abi: ERC721_ABI,
@@ -274,12 +274,18 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
               
               if (mintError?.message?.includes('User rejected') || mintError?.message?.includes('User denied') || mintError?.message?.includes('user rejected')) {
                 toast.error('NFT minting cancelled by user');
+              } else if (mintError?.message?.includes('Minting is disabled') || mintError?.message?.includes('disabled')) {
+                toast.error('Minting is disabled on this collection. Please contact contract owner.');
+              } else if (mintError?.message?.includes('Only owner') || mintError?.message?.includes('Ownable')) {
+                toast.error('Only contract owner can mint. Please check collection permissions.');
+              } else if (mintError?.message?.includes('Insufficient payment') || mintError?.message?.includes('payment')) {
+                toast.error('Insufficient payment. Please ensure you have enough ETH for mint fee.');
               } else if (mintError?.message?.includes('estimate gas') || mintError?.message?.includes('gas')) {
                 toast.error('Gas estimation failed. Please ensure you have enough ETH on Base Network.');
               } else if (mintError?.message?.includes('chain')) {
                 toast.error('Please switch to Base Network (Chain ID 8453)');
               } else if (mintError?.message?.includes('execution reverted')) {
-                toast.error('Transaction reverted. Please check contract permissions or try again.');
+                toast.error('Transaction reverted. Check contract permissions or try again.');
               } else {
                 toast.error('Failed to mint NFT: ' + (mintError?.shortMessage || mintError?.message || 'Unknown error'));
               }

@@ -55,8 +55,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
     'Fantasy landscape with mountains and aurora',
   ]);
 
-  const { writeContractAsync: writePayment } = useWriteContract();
-  const { writeContractAsync: writeMint } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
   
   const [paymentHash, setPaymentHash] = useState<`0x${string}` | undefined>();
   const [collectionHash, setCollectionHash] = useState<`0x${string}` | undefined>();
@@ -107,7 +106,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       
       const createCollection = async () => {
         try {
-          const hash = await writeMint({
+          const hash = await writeContractAsync({
             address: NFT_FACTORY_ADDRESS,
             abi: NFT_FACTORY_ABI,
             functionName: 'createCollection',
@@ -136,7 +135,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       
       createCollection();
     }
-  }, [isPaymentConfirmed, paymentStep, nftMetadata, writeMint]);
+  }, [isPaymentConfirmed, paymentStep, nftMetadata, writeContractAsync]);
 
   useEffect(() => {
     if (isCollectionConfirmed && collectionReceipt && paymentStep === 'paid' && !mintHash) {
@@ -212,7 +211,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             toast.success('Metadata uploaded! Now minting NFT...');
             
             try {
-              const hash = await writeMint({
+              const hash = await writeContractAsync({
                 address: collectionAddress as Address,
                 abi: ERC721_ABI,
                 functionName: 'safeMint',
@@ -313,7 +312,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       
       toast.info(`Paying ${formatUSDC(feeAmount)} USDC fee...`);
       
-      const hash = await writePayment({
+      const hash = await writeContractAsync({
         address: USDC_CONTRACT_ADDRESS,
         abi: USDC_ABI,
         functionName: 'transfer',

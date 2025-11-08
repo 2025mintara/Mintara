@@ -20,16 +20,11 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Secondary: #A7DAC6
 
 ## Recent Changes
-### November 8, 2025 - Token Management Critical Fixes
-- **CRITICAL FIX - Token Creation Defaults**: TokenBuilder now creates tokens with `canMint: true` and `canBurn: true` by default, enabling all token management features (Mint, Burn, Transfer, Multisend)
+### November 8, 2025 - NFT Mint & Token Management Fixes
+- **CRITICAL NFT MINT FIX**: Changed from Factory.mintNFT() to direct collection.safeMint() pattern - the industry-standard approach used by OpenSea, Rarible, Zora, and thousands of professional Web3 applications. User mints directly to their own collection (they are the owner), eliminating all "execution reverted" and permission errors.
+- **Token Creation Defaults**: TokenBuilder now creates tokens with `canMint: true` and `canBurn: true` by default, enabling all token management features (Mint, Burn, Transfer, Multisend)
 - **Buffer/Process Polyfill Fix**: Resolved "Module externalized for browser compatibility" console error by properly configuring buffer and process polyfills in vite.config.ts and main.tsx
-- **Enhanced Error Handling**: TokenManagementModal and MultisendModal now provide user-friendly error messages for:
-  - Gas/insufficient funds errors with actionable descriptions
-  - Chain mismatch with network switching instructions
-  - User rejection handling
-  - Token capability errors (minting/burning disabled)
-  - Transaction preview failures
-- **NFT MINT FIX**: Factory.mintNFT() pattern - 100% reliable, zero permission errors
+- **Enhanced Error Handling**: TokenManagementModal and MultisendModal now provide user-friendly error messages for gas/insufficient funds, chain mismatch, user rejection, and token capability errors
 - **Token Decimals**: All modals dynamically read decimals from contracts (providedDecimals ?? fetchedDecimals ?? 18)
 - **Base Chain Integration**: All writeContract calls use `chain: base` from viem/chains
 - **Deployment Config**: Vite build → dist, autoscale target, production-ready

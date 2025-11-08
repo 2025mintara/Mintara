@@ -18,6 +18,7 @@ import {
 import {
   NFT_FACTORY_ADDRESS,
   NFT_FACTORY_ABI,
+  ERC721_ABI,
 } from '../../utils/nftFactory';
 import { generateImage } from '../../utils/huggingface';
 import { parseEventLogs, type Address } from 'viem';
@@ -231,19 +232,18 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             }
             
             try {
-              console.log('🔄 Minting NFT via Factory (100% reliable)...');
-              console.log('Factory:', NFT_FACTORY_ADDRESS);
+              console.log('🔄 Minting NFT directly to collection (Professional Web3 Pattern)...');
               console.log('Collection:', collectionAddress);
+              console.log('Recipient:', address);
               console.log('TokenURI:', metadataURI);
               console.log('Chain:', base.id, base.name);
               
               const mintTx = await writeContractAsync({
-                address: NFT_FACTORY_ADDRESS,
-                abi: NFT_FACTORY_ABI,
-                functionName: 'mintNFT',
-                args: [collectionAddress, metadataURI],
+                address: collectionAddress as Address,
+                abi: ERC721_ABI,
+                functionName: 'safeMint',
+                args: [address as Address, metadataURI],
                 chain: base,
-                account: address as Address,
               });
               
               console.log('✅ NFT mint transaction sent! Hash:', mintTx);

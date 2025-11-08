@@ -365,9 +365,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                     )}
                   </div>
                       
-                  {item.type === 'mintara-token' && (
-                    <>
-                      <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="grid grid-cols-3 gap-3 mb-3">
                         <Button
                           variant="outline"
                           size="lg"
@@ -419,7 +417,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                           Transfer
                         </Button>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                         <Button
                           variant="outline"
                           size="lg"
@@ -445,8 +443,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                           Info
                         </Button>
                       </div>
-                    </>
-                  )}
                   
                   <div className="flex gap-2">
                     <Button

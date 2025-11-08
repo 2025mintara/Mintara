@@ -210,7 +210,26 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
             
             toast.success('Metadata uploaded! Now minting NFT...');
             
+            if (chain?.id !== 8453) {
+              toast.error('Please switch to Base Network to mint NFT');
+              setIsProcessing(false);
+              setPaymentStep('idle');
+              return;
+            }
+            
+            if (!address) {
+              toast.error('Wallet not connected');
+              setIsProcessing(false);
+              setPaymentStep('idle');
+              return;
+            }
+            
             try {
+              console.log('🔄 Minting NFT on Base Network...');
+              console.log('Collection:', collectionAddress);
+              console.log('Recipient:', address);
+              console.log('Metadata URI:', metadataURI);
+              
               const hash = await writeContractAsync({
                 address: collectionAddress as Address,
                 abi: ERC721_ABI,
@@ -219,15 +238,23 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
                 chainId: 8453,
               });
               
-              console.log('✅ NFT minted successfully! Hash:', hash);
+              console.log('✅ NFT mint transaction sent! Hash:', hash);
               toast.success('NFT mint transaction sent!');
               setMintHash(hash);
             } catch (mintError: any) {
               console.error('❌ NFT mint failed:', mintError);
-              if (mintError?.message?.includes('User rejected')) {
-                toast.error('NFT minting cancelled');
+              console.error('Error details:', {
+                message: mintError?.message,
+                shortMessage: mintError?.shortMessage,
+                cause: mintError?.cause,
+              });
+              
+              if (mintError?.message?.includes('User rejected') || mintError?.message?.includes('User denied')) {
+                toast.error('NFT minting cancelled by user');
+              } else if (mintError?.message?.includes('chain')) {
+                toast.error('Please switch to Base Network (Chain ID 8453)');
               } else {
-                toast.error('Failed to mint NFT: ' + (mintError?.shortMessage || 'Unknown error'));
+                toast.error('Failed to mint NFT: ' + (mintError?.shortMessage || mintError?.message || 'Unknown error'));
               }
               setIsProcessing(false);
               setPaymentStep('idle');
@@ -248,7 +275,7 @@ export function AINFTBuilder({ onNavigate: _onNavigate }: AINFTBuilderProps) {
       
       processCollection();
     }
-  }, [isCollectionConfirmed, collectionReceipt, paymentStep, mintHash]);
+  }, [isCollectionConfirmed, collectionReceipt, paymentStep, mintHash, chain, address, writeContractAsync, generatedImageUrl, nftMetadata]);
 
   useEffect(() => {
     if (isMintConfirmed && paymentStep === 'minting') {

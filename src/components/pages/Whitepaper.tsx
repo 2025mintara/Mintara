@@ -104,7 +104,7 @@ export function Whitepaper() {
   const modules = [
     { number: '1', title: 'No-Code Token Builder', desc: 'Deploy tokens in minutes without writing code' },
     { number: '2', title: 'AI Audit & Optimization', desc: 'Real-time security analysis and gas optimization' },
-    { number: '3', title: 'AI NFT Builder (Coming Soon)', desc: 'Generate and mint NFTs with AI' },
+    { number: '3', title: 'AI NFT Builder', desc: 'Generate and mint NFTs with AI' },
     { number: '4', title: 'IVO Launchpad', desc: 'Verified token fundraising platform' },
     { number: '5', title: 'DePIN Compute Network', desc: 'Decentralized infrastructure powering AI audits' },
   ];

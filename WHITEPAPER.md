@@ -3,22 +3,23 @@
 ## Executive Summary
 
 Mintara is an AI-powered, no-code token and NFT creation platform built exclusively on the Base Network.
-It enables anyone to create and deploy secure ERC-20 tokens or AI-generated NFTs within minutes — no coding required.
+The platform empowers users to create and deploy fully secure ERC-20 tokens and AI-generated NFTs within minutes — without requiring any coding skills.
 
-**MINTA** is the utility token that powers all ecosystem operations — including AI audits, deployment fees, staking, governance, and premium access.
+**$MINTA** is the native utility token that fuels all ecosystem operations, including AI audits, deployment fees, staking, governance, and premium access.
 
-**Mission:** Simplify tokenization and NFT creation on Base — make it secure, affordable, and intelligent.  
-**Vision:** Build the foundation for AI-driven decentralized creation and automation in Web3.
+**Mission:** To simplify tokenization and NFT creation on Base — making it secure, accessible, and intelligent.
+
+**Vision:** To build the foundation for AI-driven decentralized creation and automation across the Web3 ecosystem.
 
 ---
 
 ## Core Values
 
 - **Accessibility** — Token and NFT creation should be available to everyone.
-- **Security** — Every contract is AI-audited before deployment.
-- **Transparency** — All processes are verifiable on-chain.
-- **Sustainability** — 35% of platform revenue is used to burn $MINTA tokens, ensuring long-term value growth.
-- **Autonomy** — Fully decentralized deployments on the Base Network.
+- **Security** — Every contract undergoes a complete AI audit prior to deployment.
+- **Transparency** — All processes are verifiable and traceable on-chain.
+- **Sustainability** — 35% of all platform revenue is allocated to $MINTA buyback and burn, ensuring long-term value appreciation.
+- **Autonomy** — Fully decentralized, self-governed deployments on the Base Network.
 
 ---
 
@@ -26,31 +27,30 @@ It enables anyone to create and deploy secure ERC-20 tokens or AI-generated NFTs
 
 ### 1. No-Code Token Builder
 
-Create custom ERC-20 tokens on Base easily.
-AI automatically audits contracts, prevents vulnerabilities, and optimizes gas efficiency before deployment.
+Create custom ERC-20 tokens on Base instantly.
+Mintara's AI automatically audits smart contracts, detects vulnerabilities, and optimizes gas efficiency prior to deployment.
 
 ### 2. AI Audit & Optimization
 
-Mintara's audit engine performs real-time code scanning, detects risks, and assigns each contract a security rating before launch.
+The AI Audit Engine performs real-time code analysis, identifies security risks, and assigns a Smart Score before launch — ensuring maximum trust and compliance.
 
 ### 3. AI NFT Builder (Now Live 🚀)
 
-An integrated system to generate and mint AI-created NFTs, including:
+An integrated system enabling users to generate and mint AI-created NFTs, including:
 
 - AI-generated artwork
-- Auto-generated metadata
-- On-chain minting and BaseScan verification
-- Batch mint support and rarity logic
+- Automatic metadata generation
+- On-chain minting with BaseScan verification
+- Batch minting and rarity configuration
 
 ### 4. IVO Launchpad
 
-The Intelligent Verified Offering (IVO) module enables secure token presales and fundraising with escrow protection.
-Investor funds remain locked until audit conditions are met — ensuring full transparency and safety.
+The Intelligent Verified Offering (IVO) module provides a secure, AI-verified presale system with escrow protection.
+Investor funds remain locked until predefined audit conditions are met, ensuring full transparency and investor safety.
 
 ### 5. Distributed AI Verification
 
-Mintara uses distributed AI validators to confirm contract safety and performance.
-This ensures independent, trustless verification of deployed assets.
+A network of distributed AI validators independently verifies contract safety and performance — ensuring a trustless and decentralized validation process.
 
 ---
 
@@ -81,39 +81,41 @@ This ensures independent, trustless verification of deployed assets.
 | Allocation | % | Description |
 |------------|---|-------------|
 | Airdrop | 15% | Community & Base user rewards |
-| Presale (Public Sale) | 15% | Initial liquidity and marketing raise |
-| Dev & Infrastructure | 25% | AI modules, audits, backend, and maintenance |
-| Ecosystem & Partnerships | 20% | Integrations, collaborations, and user incentives |
-| Team | 15% | 24-month linear vesting schedule |
-| Liquidity | 7% | BaseDEX and CEX pools |
-| Treasury | 3% | Reserves for future development |
+| Presale (Public Sale) | 15% | Initial liquidity & marketing raise |
+| Dev & Infrastructure | 25% | AI modules, audits, backend & maintenance |
+| Ecosystem & Partnerships | 20% | Integrations, collaborations & user incentives |
+| Team | 15% | 24-month linear vesting |
+| Liquidity | 7% | BaseDEX & CEX pools |
+| Treasury | 3% | Strategic reserves |
 
-🧾 **All allocations are verifiable on BaseScan.**
+🧾 **All allocations are verifiable on BaseScan for full transparency.**
 
 ---
 
 ## Revenue Model & Burn Mechanism
 
-Mintara generates revenue from:
+### Revenue Streams
 
 - Token deployment & AI audit fees
 - NFT minting services
 - IVO Launchpad presale fees
 - Premium user subscriptions
 
-🔥 **35% of all platform revenue will be used to buy back and burn $MINTA tokens directly on-chain.**  
-This deflationary system continuously reduces circulating supply and increases token scarcity over time.
+### Deflationary Mechanism
 
-The remaining 65% of revenue supports ongoing development, infrastructure, and community rewards.
+🔥 **35% of all platform revenue is used to buy back and burn $MINTA tokens directly on-chain.**  
+This continuous burn cycle reduces circulating supply and enhances long-term token scarcity and value.
+
+The remaining 65% supports ongoing development, infrastructure, and community growth.
 
 ---
 
-## MINTA Utility
+## MINTA Token Utility
 
-- 🧠 **AI Credits** — Fuel AI audits and NFT generation tools
-- ⚙️ **Transaction Fees** — Pay for token and NFT deployment
-- 💎 **Staking Rewards** — Earn yield by staking MINTA
-- 🔒 **Governance** — Vote on ecosystem and burn parameters
+- 🧠 **AI Credits** — Power AI audits and NFT generation tools
+- ⚙️ **Transaction Fees** — Pay for token and NFT deployments
+- 💎 **Staking Rewards** — Earn yield by staking $MINTA
+- 🔒 **Governance** — Vote on ecosystem parameters and burn models
 - 🌐 **Verification Rewards** — Incentives for distributed AI validators
 - 🚀 **Premium Access** — Unlock advanced creator tools and analytics
 
@@ -126,7 +128,7 @@ The remaining 65% of revenue supports ongoing development, infrastructure, and c
 | Q4 2025 | Beta Launch on Base Testnet |
 | Dec 2025 | Presale (IVO) + Final Smart Contract Audit |
 | Q2 2026 | Airdrop Distribution + Full AI NFT Builder Rollout |
-| Q3 2026 | IVO Launchpad Public Release |
+| Q3 2026 | Public Release of IVO Launchpad |
 | Q4 2026 | Staking & Validator Reward Activation |
 | 2027 | Governance Launch + Cross-Chain Expansion |
 
@@ -138,44 +140,44 @@ The remaining 65% of revenue supports ongoing development, infrastructure, and c
 
 - Analyzes contract bytecode for vulnerabilities
 - Detects scams, exploits, and gas inefficiencies
-- Continuously learns from Base Network data for improved precision
+- Continuously learns from Base Network data to enhance precision
 
 ### AI NFT Builder
 
-- Generates artwork and metadata through AI
-- Supports rarity configuration, batch minting, and instant verification
-- Enables creators to deploy NFT collections with zero code
+- Generates artwork and metadata autonomously
+- Supports rarity logic, batch minting, and instant on-chain verification
+- Empowers creators to deploy NFT collections with zero code
 
 ### IVO Launchpad
 
-- Transparent presale process secured by escrow smart contracts
-- AI verifies token legitimacy before listing
-- Fully integrated with MINTA token utility
+- Transparent presale system secured by escrow smart contracts
+- AI-verified token legitimacy before listing
+- Seamless integration with $MINTA utilities
 
 ---
 
 ## Security & Compliance
 
 - Pre-audited ERC-20 & ERC-721 templates
-- On-chain AI risk scoring system
-- Third-party audits before CEX listings
-- Proof-of-Deploy registry for all launches
-- Full BaseScan verification
+- On-chain AI risk scoring and performance tracking
+- Third-party audits prior to centralized exchange listings
+- Proof-of-Deploy registry for all deployed assets
+- Full BaseScan verification for transparency and trust
 
 ---
 
 ## Legal Disclaimer
 
 This document is for informational purposes only and does not constitute investment, legal, or financial advice.
-Participation in the Mintara ecosystem is voluntary and subject to applicable laws and regulations.
-The Mintara team reserves the right to adjust roadmap, tokenomics, and platform features as the project evolves.
+Participation in the Mintara ecosystem is voluntary and subject to all applicable laws and regulations.
+The Mintara team reserves the right to modify the roadmap, tokenomics, and platform features as the project evolves.
 
 ---
 
 ## Closing Statement
 
-**Mintara (MINTA)** powers the first AI-driven no-code ecosystem for token and NFT creation on the Base Network.
-By combining AI intelligence, secure presale infrastructure, and a deflationary revenue-burn model,
-Mintara is building a safer, smarter, and more sustainable Web3 future.
+**Mintara ($MINTA)** powers the first AI-driven, no-code ecosystem for token and NFT creation on the Base Network.
+By merging artificial intelligence, secure presale infrastructure, and a deflationary revenue model,
+Mintara is building the foundation of a safer, smarter, and more sustainable Web3 future.
 
 🪶 **"Mintara — Building the Future of Intelligent Tokenization & Creation."**

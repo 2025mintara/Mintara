@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { getDefaultConfig, RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
+import { FarcasterProvider } from '@/contexts/FarcasterContext';
 import '@rainbow-me/rainbowkit/styles.css';
 
 const queryClient = new QueryClient();
@@ -62,60 +63,62 @@ function App() {
   }, [currentPage]);
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          theme={lightTheme({
-            accentColor: '#00A676',
-            accentColorForeground: 'white',
-            borderRadius: 'medium',
-            fontStack: 'system',
-          })}
-          initialChain={base}
-        >
-          <OnchainKitProvider
-            apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY}
-            chain={base}
-            config={{
-              appearance: {
-                name: 'Mintara Base',
-                logo: `${window.location.origin}/logo.svg`,
-                mode: 'auto',
-                theme: 'default',
-              },
-              wallet: {
-                display: 'modal',
-            },
-          }}
-        >
-          <div className="min-h-screen">
-            <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
-            
-            <main>
-              {currentPage === 'home' && <Home onNavigate={handleNavigate} />}
-              {currentPage === 'token-builder' && <TokenBuilder onNavigate={handleNavigate} />}
-              {currentPage === 'ai-nft-builder' && <AINFTBuilder onNavigate={handleNavigate} />}
-              {currentPage === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
-              {currentPage === 'whitepaper' && <Whitepaper />}
-              {currentPage === 'launchpad' && <Launchpad onNavigate={handleNavigate} />}
-            </main>
-
-            <Footer onNavigate={handleNavigate} />
-            <Toaster
-              position="bottom-right"
-              toastOptions={{
-                style: {
-                  background: '#03261B',
-                  color: '#E8FFF5',
-                  border: '1px solid #2C5E51',
+    <FarcasterProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider
+            theme={lightTheme({
+              accentColor: '#00A676',
+              accentColorForeground: 'white',
+              borderRadius: 'medium',
+              fontStack: 'system',
+            })}
+            initialChain={base}
+          >
+            <OnchainKitProvider
+              apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY}
+              chain={base}
+              config={{
+                appearance: {
+                  name: 'Mintara Base',
+                  logo: `${window.location.origin}/logo.svg`,
+                  mode: 'auto',
+                  theme: 'default',
                 },
-              }}
-            />
-          </div>
-        </OnchainKitProvider>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+                wallet: {
+                  display: 'modal',
+              },
+            }}
+          >
+            <div className="min-h-screen">
+              <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
+              
+              <main>
+                {currentPage === 'home' && <Home onNavigate={handleNavigate} />}
+                {currentPage === 'token-builder' && <TokenBuilder onNavigate={handleNavigate} />}
+                {currentPage === 'ai-nft-builder' && <AINFTBuilder onNavigate={handleNavigate} />}
+                {currentPage === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
+                {currentPage === 'whitepaper' && <Whitepaper />}
+                {currentPage === 'launchpad' && <Launchpad onNavigate={handleNavigate} />}
+              </main>
+
+              <Footer onNavigate={handleNavigate} />
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  style: {
+                    background: '#03261B',
+                    color: '#E8FFF5',
+                    border: '1px solid #2C5E51',
+                  },
+                }}
+              />
+            </div>
+          </OnchainKitProvider>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </FarcasterProvider>
   );
 }
 

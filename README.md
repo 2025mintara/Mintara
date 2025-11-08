@@ -93,17 +93,33 @@ VITE_ONCHAINKIT_API_KEY=your_coinbase_key (optional)
 
 ## Deployment
 
-### Vercel (Recommended)
+### Quick Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone)
+
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for complete deployment guide.
+
+### Manual Deployment
 
 1. Push to GitHub
 2. Import project in Vercel
 3. Configure build settings:
    - **Framework**: Vite
    - **Build Command**: `npm run build`
-   - **Output Directory**: `build`
-   - **Install Command**: `npm install --legacy-peer-deps`
-4. Add environment variables
+   - **Output Directory**: `dist`
+   - **Install Command**: `npm install`
+4. Add environment variables (see DEPLOYMENT.md)
 5. Deploy!
+
+### Environment Variables for Production
+
+```env
+VITE_PINATA_JWT=your_pinata_jwt
+DEPLOYER_PRIVATE_KEY=your_wallet_private_key
+HUGGINGFACE_API_KEY=your_huggingface_key (optional)
+```
+
+**⚠️ IMPORTANT:** Never commit `.env` files to GitHub! Only add them in Vercel dashboard.
 
 ## Supported Wallets
 
@@ -116,9 +132,16 @@ VITE_ONCHAINKIT_API_KEY=your_coinbase_key (optional)
 - Ledger
 - And 30+ more via RainbowKit
 
-## Base App Integration
+## Farcaster Frame Integration
 
-This project includes Farcaster MiniApp manifest at `/.well-known/farcaster.json` for seamless integration with Base App.
+Mintara Base is **Farcaster Frame compatible**! 
+
+Share your deployment URL on Warpcast and users will see:
+- Interactive Frame preview
+- 3 action buttons: Create Token, Create NFT, Dashboard
+- Instant access to all features
+
+The app uses `@farcaster/miniapp-sdk` for enhanced Farcaster integration.
 
 ## Contributing
 

@@ -7,26 +7,41 @@
   "baseBuilder": {
     "ownerAddress": "0x71DEdF5544692aF64FC2ce040a2b3dA573957275"
   },
+  "frame": {
+    "version": "next",
+    "imageUrl": "/og-image.png",
+    "button": {
+      "title": "Launch Mintara Base",
+      "action": {
+        "type": "launch_frame",
+        "name": "Mintara Base",
+        "url": "/",
+        "splashImageUrl": "/og-image.png",
+        "splashBackgroundColor": "#001A12"
+      }
+    }
+  },
   "miniapp": {
     "version": "1",
     "name": "Mintara Base",
-    "homeUrl": "https://mintara-base.vercel.app",
-    "iconUrl": "https://mintara-base.vercel.app/logo.svg",
-    "splashImageUrl": "https://mintara-base.vercel.app/splash.png",
-    "splashBackgroundColor": "#001A12",
-    "webhookUrl": "",
-    "subtitle": "Create tokens & NFTs on Base",
-    "description": "A no-code platform for creating ERC20 tokens and AI-generated NFTs on the Base Network. Build, mint, and manage your Web3 assets without writing code.",
+    "subtitle": "Token & NFT Builder on Base",
+    "description": "Create ERC20 tokens and AI-generated NFTs on Base Network with no coding required. 1 USDC per deployment. Built on Base Network.",
     "screenshotUrls": [
-      "https://mintara-base.vercel.app/og-image.png"
+      "/og-image.png",
+      "/splash.png"
     ],
-    "primaryCategory": "utilities",
-    "tags": ["base", "tokens", "nfts", "web3", "defi"],
-    "heroImageUrl": "https://mintara-base.vercel.app/og-image.png",
-    "tagline": "Build on Base, no code needed",
+    "iconUrl": "/logo.svg",
+    "splashImageUrl": "/splash.png",
+    "splashBackgroundColor": "#001A12",
+    "homeUrl": "/",
+    "webhookUrl": "",
+    "primaryCategory": "defi",
+    "tags": ["base", "tokens", "nft", "ai", "defi", "no-code", "web3", "builder"],
+    "heroImageUrl": "/og-image.png",
+    "tagline": "Create, Mint, and Build on Base",
     "ogTitle": "Mintara Base - Token & NFT Builder",
-    "ogDescription": "Create tokens and AI-generated NFTs on Base Network without code",
-    "ogImageUrl": "https://mintara-base.vercel.app/og-image.png",
+    "ogDescription": "No-code platform for creating ERC20 tokens and AI-generated NFTs on Base Network",
+    "ogImageUrl": "/og-image.png",
     "noindex": false
   }
 }

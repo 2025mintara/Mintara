@@ -44,7 +44,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     functionName: 'getUserTokens',
     args: address ? [address] : undefined,
     query: {
-      enabled: !!address,
+      enabled: false,
     },
   });
 
@@ -54,7 +54,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     functionName: 'getUserCollections',
     args: address ? [address] : undefined,
     query: {
-      enabled: !!address,
+      enabled: false,
     },
   });
 

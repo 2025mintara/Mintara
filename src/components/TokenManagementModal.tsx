@@ -32,17 +32,8 @@ export function TokenManagementModal({
   const [recipient, setRecipient] = useState('');
   const { address: userAddress } = useAccount();
 
-  const { data: fetchedDecimals, isLoading: decimalsLoading } = useReadContract({
-    address: tokenAddress as Address,
-    abi: ERC20_ABI,
-    functionName: 'decimals',
-    query: {
-      enabled: !providedDecimals && !!tokenAddress,
-    },
-  });
-
-  const decimals = providedDecimals ?? (fetchedDecimals as number);
-  const decimalsReady = decimals !== undefined;
+  const decimals = providedDecimals ?? 18;
+  const decimalsReady = true;
 
   const { writeContract, data: hash } = useWriteContract();
   const { isSuccess, isError } = useWaitForTransactionReceipt({ hash });
@@ -209,9 +200,8 @@ export function TokenManagementModal({
           <Button 
             onClick={handleAction} 
             className="w-full"
-            disabled={!decimalsReady || decimalsLoading}
           >
-            {!decimalsReady || decimalsLoading ? 'Loading decimals...' : `Confirm ${action}`}
+            Confirm {action}
           </Button>
         </div>
       </DialogContent>

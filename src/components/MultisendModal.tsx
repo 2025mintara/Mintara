@@ -38,17 +38,8 @@ export function MultisendModal({
   const [isSending, setIsSending] = useState(false);
   const { address: userAddress } = useAccount();
 
-  const { data: fetchedDecimals, isLoading: decimalsLoading } = useReadContract({
-    address: tokenAddress as Address,
-    abi: ERC20_ABI,
-    functionName: 'decimals',
-    query: {
-      enabled: !providedDecimals && !!tokenAddress,
-    },
-  });
-
-  const decimals = providedDecimals ?? (fetchedDecimals as number);
-  const decimalsReady = decimals !== undefined;
+  const decimals = providedDecimals ?? 18;
+  const decimalsReady = true;
 
   const { writeContract, data: hash } = useWriteContract();
   const { isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -251,11 +242,9 @@ export function MultisendModal({
           <Button
             onClick={handleMultisend}
             className="w-full"
-            disabled={isSending || !decimalsReady || decimalsLoading || recipients.filter((r) => r.address && r.amount).length === 0}
+            disabled={isSending || recipients.filter((r) => r.address && r.amount).length === 0}
           >
-            {!decimalsReady || decimalsLoading ? (
-              'Loading decimals...'
-            ) : isSending ? (
+            {isSending ? (
               <>
                 <Send className="w-4 h-4 mr-2 animate-pulse" />
                 Sending...

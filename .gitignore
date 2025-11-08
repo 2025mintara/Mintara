@@ -39,9 +39,33 @@ out
 # TypeScript
 *.tsbuildinfo
 
-# Replit specific
+# Testing
+coverage
+.nyc_output
+
+# Cache
+.cache
+.turbo
+.eslintcache
+
+# OS files
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Vercel
+.vercel
+
+# Local development
+.replit
+replit.nix
 attached_assets
 contracts
 hardhat.config.ts
-.replit
-replit.nix
+scripts

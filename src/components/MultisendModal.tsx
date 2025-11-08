@@ -38,7 +38,7 @@ export function MultisendModal({
   const [isSending, setIsSending] = useState(false);
   const { address: userAddress } = useAccount();
 
-  const { data: fetchedDecimals } = useReadContract({
+  const { data: fetchedDecimals, isLoading: decimalsLoading } = useReadContract({
     address: tokenAddress as Address,
     abi: ERC20_ABI,
     functionName: 'decimals',
@@ -47,7 +47,8 @@ export function MultisendModal({
     },
   });
 
-  const decimals = providedDecimals ?? (fetchedDecimals as number) ?? 18;
+  const decimals = providedDecimals ?? (fetchedDecimals as number);
+  const decimalsReady = decimals !== undefined;
 
   const { writeContract, data: hash } = useWriteContract();
   const { isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -77,6 +78,13 @@ export function MultisendModal({
       return;
     }
 
+    if (!decimalsReady) {
+      toast.error('Loading token decimals...', {
+        description: 'Please wait and try again',
+      });
+      return;
+    }
+
     const validRecipients = recipients.filter((r) => r.address && r.amount);
     
     if (validRecipients.length === 0) {
@@ -90,7 +98,7 @@ export function MultisendModal({
       for (const recipient of validRecipients) {
         toast.info(`Sending ${recipient.amount} ${tokenSymbol} to ${recipient.address.slice(0, 6)}...${recipient.address.slice(-4)}`);
         
-        const amountInWei = parseUnits(recipient.amount, decimals);
+        const amountInWei = parseUnits(recipient.amount, decimals!);
         
         await writeContract({
           address: tokenAddress as Address,
@@ -229,17 +237,25 @@ export function MultisendModal({
                 {recipients.filter((r) => r.address && r.amount).length}
               </span>
             </div>
-            <p className="text-xs text-mintara-text-secondary mt-2">
-              Token decimals: {decimals}. Enter token amounts directly (e.g., "1" = 1 {tokenSymbol})
-            </p>
+            {decimalsReady ? (
+              <p className="text-xs text-mintara-text-secondary mt-2">
+                Token decimals: {decimals}. Enter token amounts directly (e.g., "1" = 1 {tokenSymbol})
+              </p>
+            ) : (
+              <p className="text-xs text-mintara-text-secondary mt-2 animate-pulse">
+                Loading decimals...
+              </p>
+            )}
           </div>
 
           <Button
             onClick={handleMultisend}
             className="w-full"
-            disabled={isSending || recipients.filter((r) => r.address && r.amount).length === 0}
+            disabled={isSending || !decimalsReady || decimalsLoading || recipients.filter((r) => r.address && r.amount).length === 0}
           >
-            {isSending ? (
+            {!decimalsReady || decimalsLoading ? (
+              'Loading decimals...'
+            ) : isSending ? (
               <>
                 <Send className="w-4 h-4 mr-2 animate-pulse" />
                 Sending...

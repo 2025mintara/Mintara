@@ -32,7 +32,7 @@ export function TokenManagementModal({
   const [recipient, setRecipient] = useState('');
   const { address: userAddress } = useAccount();
 
-  const { data: fetchedDecimals } = useReadContract({
+  const { data: fetchedDecimals, isLoading: decimalsLoading } = useReadContract({
     address: tokenAddress as Address,
     abi: ERC20_ABI,
     functionName: 'decimals',
@@ -41,7 +41,8 @@ export function TokenManagementModal({
     },
   });
 
-  const decimals = providedDecimals ?? (fetchedDecimals as number) ?? 18;
+  const decimals = providedDecimals ?? (fetchedDecimals as number);
+  const decimalsReady = decimals !== undefined;
 
   const { writeContract, data: hash } = useWriteContract();
   const { isSuccess, isError } = useWaitForTransactionReceipt({ hash });
@@ -77,13 +78,20 @@ export function TokenManagementModal({
       return;
     }
 
+    if (!decimalsReady) {
+      toast.error('Loading token decimals...', {
+        description: 'Please wait a moment and try again',
+      });
+      return;
+    }
+
     try {
       if (!userAddress) {
         toast.error('Please connect your wallet');
         return;
       }
 
-      const amountInWei = parseUnits(amount, decimals);
+      const amountInWei = parseUnits(amount, decimals!);
 
       if (action === 'mint') {
         await writeContract({
@@ -175,9 +183,15 @@ export function TokenManagementModal({
               }}
               className="bg-mintara-background border-mintara-border text-mintara-text-primary"
             />
-            <p className="text-xs text-mintara-text-secondary">
-              Token has {decimals} decimals. Enter the amount you want (e.g., "1" = 1 {tokenSymbol})
-            </p>
+            {decimalsReady ? (
+              <p className="text-xs text-mintara-text-secondary">
+                Token has {decimals} decimals. Enter the amount you want (e.g., "1" = 1 {tokenSymbol})
+              </p>
+            ) : (
+              <p className="text-xs text-mintara-text-secondary animate-pulse">
+                Loading token decimals...
+              </p>
+            )}
           </div>
           {(action === 'transfer' || action === 'mint') && (
             <div className="space-y-2">
@@ -192,8 +206,12 @@ export function TokenManagementModal({
               />
             </div>
           )}
-          <Button onClick={handleAction} className="w-full">
-            Confirm {action}
+          <Button 
+            onClick={handleAction} 
+            className="w-full"
+            disabled={!decimalsReady || decimalsLoading}
+          >
+            {!decimalsReady || decimalsLoading ? 'Loading decimals...' : `Confirm ${action}`}
           </Button>
         </div>
       </DialogContent>

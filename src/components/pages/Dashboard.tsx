@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ExternalLink, Share2, Coins, MessageCircle, X, Flame, Send, Info, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -57,8 +57,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
       enabled: !!address,
     },
   });
-
-  const [factoryLogosLoading, setFactoryLogosLoading] = useState(false);
 
   const factoryTokens = (userTokens || []).map((token: any) => ({
     name: token.name,
@@ -175,13 +173,15 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                         const logoData = await logoRes.json();
                         if (logoData.result?.icon_url) {
                           logoUrl = logoData.result.icon_url;
-                          saveTokenLogo({
-                            tokenAddress: token.contractAddress,
-                            logoUrl,
-                            tokenName: token.name,
-                            tokenSymbol: token.symbol,
-                            uploadedAt: Date.now(),
-                          });
+                          if (logoUrl) {
+                            saveTokenLogo({
+                              tokenAddress: token.contractAddress,
+                              logoUrl: logoUrl,
+                              tokenName: token.name,
+                              tokenSymbol: token.symbol,
+                              uploadedAt: Date.now(),
+                            });
+                          }
                         }
                       } catch (e) {
                         console.log(`No logo for ${token.symbol}`);

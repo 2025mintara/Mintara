@@ -27,8 +27,9 @@
     "subtitle": "Token & NFT Builder on Base",
     "description": "Create ERC20 tokens and AI-generated NFTs on Base Network with no coding required. 1 USDC per deployment. Built on Base Network.",
     "screenshotUrls": [
-      "/og-image.png",
-      "/splash.png"
+      "/screenshot-home.png",
+      "/screenshot-token.png",
+      "/screenshot-nft.png"
     ],
     "iconUrl": "/logo.svg",
     "splashImageUrl": "/splash.png",

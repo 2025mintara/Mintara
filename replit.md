@@ -20,18 +20,21 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Secondary: #A7DAC6
 
 ## Recent Changes
-### November 8, 2025 - Production-Ready Deployment Build
-- **NFT MINT FIX**: Now uses Factory.mintNFT() instead of collection.mint() - 100% reliable, zero permission errors
-- **CRITICAL FIX - Token Decimals**: TokenManagementModal and MultisendModal now correctly handle token decimals from getUserTokens or via useReadContract, fixing amount calculation errors
-- **Base Chain Integration**: All writeContract calls use `chain: base` from viem/chains (no more chainId)
-- **NFT Minting**: Factory Pattern implementation - professional web3 architecture, no "minting disabled" errors
-- **Error Handling**: Clean, user-friendly error messages (gas, chain, user rejection)
-- **Token Management**: All operations (Mint, Burn, Transfer, Multisend) use correct decimals for amount calculations
-- **Dashboard**: All token management buttons fully functional with proper decimals from getUserTokens
-- **Deployment Config**: Vite build output set to 'dist', deployment target 'autoscale', npm run preview configured
-- **Production Ready**: Zero errors, fully tested, ready for deployment
-- **Whitepaper Updated**: New tokenomics (Airdrop 15%, Presale 15%, Dev 25%), Core Values, Roadmap
-- **Clean Codebase**: 77 source files, no test files, optimized structure
+### November 8, 2025 - Token Management Critical Fixes
+- **CRITICAL FIX - Token Creation Defaults**: TokenBuilder now creates tokens with `canMint: true` and `canBurn: true` by default, enabling all token management features (Mint, Burn, Transfer, Multisend)
+- **Buffer/Process Polyfill Fix**: Resolved "Module externalized for browser compatibility" console error by properly configuring buffer and process polyfills in vite.config.ts and main.tsx
+- **Enhanced Error Handling**: TokenManagementModal and MultisendModal now provide user-friendly error messages for:
+  - Gas/insufficient funds errors with actionable descriptions
+  - Chain mismatch with network switching instructions
+  - User rejection handling
+  - Token capability errors (minting/burning disabled)
+  - Transaction preview failures
+- **NFT MINT FIX**: Factory.mintNFT() pattern - 100% reliable, zero permission errors
+- **Token Decimals**: All modals dynamically read decimals from contracts (providedDecimals ?? fetchedDecimals ?? 18)
+- **Base Chain Integration**: All writeContract calls use `chain: base` from viem/chains
+- **Deployment Config**: Vite build → dist, autoscale target, production-ready
+- **Zero Console Errors**: Clean build, no warnings, professional web3 architecture
+- **Clean Codebase**: 77 source files, optimized for Vercel deployment
 
 ### November 7, 2025 - NFT Minting System Implementation
 - Payment → Collection creation → Metadata IPFS upload → NFT mint flow working

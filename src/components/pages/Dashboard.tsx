@@ -29,12 +29,12 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
   const { address } = useAccount();
   const [chatOpen, setChatOpen] = useState(false);
   const [tokenType, setTokenType] = useState('meme');
-  const [selectedToken, setSelectedToken] = useState<{ address: string; symbol: string } | null>(null);
+  const [selectedToken, setSelectedToken] = useState<{ address: string; symbol: string; decimals: number } | null>(null);
   const [managementAction, setManagementAction] = useState<'mint' | 'burn' | 'transfer' | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoTokenAddress, setInfoTokenAddress] = useState<string>('');
   const [showMultisendModal, setShowMultisendModal] = useState(false);
-  const [multisendToken, setMultisendToken] = useState<{ address: string; symbol: string } | null>(null);
+  const [multisendToken, setMultisendToken] = useState<{ address: string; symbol: string; decimals: number } | null>(null);
 
   const { data: userTokens } = useReadContract({
     address: TOKEN_FACTORY_ADDRESS,
@@ -54,6 +54,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     name: token.name,
     symbol: token.symbol,
     address: token.tokenAddress,
+    decimals: Number(token.decimals),
     type: 'token',
     logoUrl: getTokenLogo(token.tokenAddress),
   }));
@@ -177,7 +178,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                           size="sm"
                           className="border-mintara-border text-mintara-primary hover:bg-mintara-primary/10"
                           onClick={() => {
-                            setSelectedToken({ address: item.address, symbol: item.symbol });
+                            setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
                             setManagementAction('mint');
                           }}
                         >
@@ -189,7 +190,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                           size="sm"
                           className="border-mintara-border text-red-400 hover:bg-red-400/10"
                           onClick={() => {
-                            setSelectedToken({ address: item.address, symbol: item.symbol });
+                            setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
                             setManagementAction('burn');
                           }}
                         >
@@ -201,7 +202,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                           size="sm"
                           className="border-mintara-border text-mintara-accent hover:bg-mintara-accent/10"
                           onClick={() => {
-                            setSelectedToken({ address: item.address, symbol: item.symbol });
+                            setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
                             setManagementAction('transfer');
                           }}
                         >
@@ -215,7 +216,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                           size="sm"
                           className="border-mintara-border text-purple-400 hover:bg-purple-400/10"
                           onClick={() => {
-                            setMultisendToken({ address: item.address, symbol: item.symbol });
+                            setMultisendToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
                             setShowMultisendModal(true);
                           }}
                         >
@@ -426,6 +427,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
           }}
           tokenAddress={selectedToken.address}
           tokenSymbol={selectedToken.symbol}
+          decimals={selectedToken.decimals}
           action={managementAction}
         />
       )}
@@ -450,6 +452,7 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
           }}
           tokenAddress={multisendToken.address}
           tokenSymbol={multisendToken.symbol}
+          decimals={multisendToken.decimals}
         />
       )}
     </div>

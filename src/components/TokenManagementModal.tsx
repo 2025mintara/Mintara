@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { toast } from 'sonner';
 import { ERC20_ABI } from '../utils/tokenFactory';
 import { parseUnits } from 'viem';
@@ -17,6 +17,7 @@ interface TokenManagementModalProps {
   tokenAddress: string;
   tokenSymbol: string;
   action: 'mint' | 'burn' | 'transfer' | null;
+  decimals?: number;
 }
 
 export function TokenManagementModal({
@@ -25,9 +26,21 @@ export function TokenManagementModal({
   tokenAddress,
   tokenSymbol,
   action,
+  decimals: providedDecimals,
 }: TokenManagementModalProps) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState('');
+
+  const { data: fetchedDecimals } = useReadContract({
+    address: tokenAddress as Address,
+    abi: ERC20_ABI,
+    functionName: 'decimals',
+    query: {
+      enabled: !providedDecimals && !!tokenAddress,
+    },
+  });
+
+  const decimals = providedDecimals ?? (fetchedDecimals as number) ?? 18;
 
   const { writeContract, data: hash } = useWriteContract();
   const { isSuccess, isError } = useWaitForTransactionReceipt({ hash });
@@ -64,7 +77,7 @@ export function TokenManagementModal({
     }
 
     try {
-      const amountInWei = parseUnits(amount, 18);
+      const amountInWei = parseUnits(amount, decimals);
 
       if (action === 'mint') {
         await writeContract({

@@ -28,7 +28,7 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
-    outDir: 'build',
+    outDir: 'dist',
     rollupOptions: {
       plugins: [],
     },

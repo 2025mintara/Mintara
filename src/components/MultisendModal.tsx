@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { toast } from 'sonner';
 import { ERC20_ABI } from '../utils/tokenFactory';
 import type { Address } from 'viem';
@@ -16,6 +16,7 @@ interface MultisendModalProps {
   onClose: () => void;
   tokenAddress: string;
   tokenSymbol: string;
+  decimals?: number;
 }
 
 interface Recipient {
@@ -29,11 +30,23 @@ export function MultisendModal({
   onClose,
   tokenAddress,
   tokenSymbol,
+  decimals: providedDecimals,
 }: MultisendModalProps) {
   const [recipients, setRecipients] = useState<Recipient[]>([
     { id: 1, address: '', amount: '' },
   ]);
   const [isSending, setIsSending] = useState(false);
+
+  const { data: fetchedDecimals } = useReadContract({
+    address: tokenAddress as Address,
+    abi: ERC20_ABI,
+    functionName: 'decimals',
+    query: {
+      enabled: !providedDecimals && !!tokenAddress,
+    },
+  });
+
+  const decimals = providedDecimals ?? (fetchedDecimals as number) ?? 18;
 
   const { writeContract, data: hash } = useWriteContract();
   const { isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -71,7 +84,7 @@ export function MultisendModal({
       for (const recipient of validRecipients) {
         toast.info(`Sending ${recipient.amount} ${tokenSymbol} to ${recipient.address.slice(0, 6)}...${recipient.address.slice(-4)}`);
         
-        const amountInWei = parseUnits(recipient.amount, 18);
+        const amountInWei = parseUnits(recipient.amount, decimals);
         
         writeContract({
           address: tokenAddress as Address,

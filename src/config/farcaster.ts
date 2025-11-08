@@ -14,6 +14,7 @@ export const minikitConfig = {
     subtitle: "Token & NFT Builder on Base",
     description: "Create ERC20 tokens and AI-generated NFTs on Base Network with no coding required. 1 USDC per deployment.",
     screenshotUrls: [
+      `${ROOT_URL}/hero-image.png`,
       `${ROOT_URL}/screenshot-home.png`,
       `${ROOT_URL}/screenshot-token.png`,
       `${ROOT_URL}/screenshot-nft.png`

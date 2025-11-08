@@ -46,7 +46,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
-      refetchInterval: 5000,
     },
   });
 
@@ -57,7 +56,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
-      refetchInterval: 5000,
     },
   });
 
@@ -76,19 +74,36 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
         const data = await response.json();
         
         if (data.status === '1' && data.result) {
-          const tokens = data.result
-            .filter((token: any) => token.type === 'ERC-20')
-            .map((token: any) => ({
-              name: token.name,
-              symbol: token.symbol,
-              address: token.contractAddress.toLowerCase(),
-              decimals: Number(token.decimals),
-              balance: token.balance,
-              type: 'wallet-token',
-              canMint: false,
-              canBurn: false,
-              logoUrl: null,
-            }));
+          const tokens = await Promise.all(
+            data.result
+              .filter((token: any) => token.type === 'ERC-20')
+              .map(async (token: any) => {
+                let logoUrl = null;
+                try {
+                  const logoResponse = await fetch(
+                    `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.contractAddress}`
+                  );
+                  const logoData = await logoResponse.json();
+                  if (logoData.result && logoData.result.icon_url) {
+                    logoUrl = logoData.result.icon_url;
+                  }
+                } catch (e) {
+                  console.log('No logo found for', token.symbol);
+                }
+                
+                return {
+                  name: token.name,
+                  symbol: token.symbol,
+                  address: token.contractAddress.toLowerCase(),
+                  decimals: Number(token.decimals),
+                  balance: token.balance,
+                  type: 'wallet-token',
+                  canMint: false,
+                  canBurn: false,
+                  logoUrl,
+                };
+              })
+          );
           setWalletTokens(tokens);
           console.log('💰 Wallet Tokens from Blockscout:', tokens);
         }
@@ -176,21 +191,38 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
         refetchNFTs(),
         address && fetch(`https://base.blockscout.com/api?module=account&action=tokenlist&address=${address}`)
           .then(res => res.json())
-          .then(data => {
+          .then(async (data) => {
             if (data.status === '1' && data.result) {
-              const tokens = data.result
-                .filter((token: any) => token.type === 'ERC-20')
-                .map((token: any) => ({
-                  name: token.name,
-                  symbol: token.symbol,
-                  address: token.contractAddress.toLowerCase(),
-                  decimals: Number(token.decimals),
-                  balance: token.balance,
-                  type: 'wallet-token',
-                  canMint: false,
-                  canBurn: false,
-                  logoUrl: null,
-                }));
+              const tokens = await Promise.all(
+                data.result
+                  .filter((token: any) => token.type === 'ERC-20')
+                  .map(async (token: any) => {
+                    let logoUrl = null;
+                    try {
+                      const logoResponse = await fetch(
+                        `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.contractAddress}`
+                      );
+                      const logoData = await logoResponse.json();
+                      if (logoData.result && logoData.result.icon_url) {
+                        logoUrl = logoData.result.icon_url;
+                      }
+                    } catch (e) {
+                      console.log('No logo');
+                    }
+                    
+                    return {
+                      name: token.name,
+                      symbol: token.symbol,
+                      address: token.contractAddress.toLowerCase(),
+                      decimals: Number(token.decimals),
+                      balance: token.balance,
+                      type: 'wallet-token',
+                      canMint: false,
+                      canBurn: false,
+                      logoUrl,
+                    };
+                  })
+              );
               setWalletTokens(tokens);
             }
           })
@@ -284,39 +316,41 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                   key={index}
                   className="p-6 bg-mintara-surface/50 border-mintara-border backdrop-blur-sm hover:border-mintara-accent/50 transition-all duration-300"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-mintara-primary/20 flex items-center justify-center overflow-hidden">
-                        {item.logoUrl ? (
-                          <img 
-                            src={item.logoUrl} 
-                            alt={`${item.symbol} logo`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <Coins className="w-6 h-6 text-mintara-accent" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-mintara-text-primary">
-                          {item.name}
-                        </h3>
-                        <p className="text-sm text-mintara-text-secondary">
-                          {item.symbol}
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {item.logoUrl ? (
+                        <img 
+                          src={item.logoUrl} 
+                          alt={`${item.symbol} logo`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Coins className="w-8 h-8 text-mintara-primary" />
+                      )}
                     </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      item.type === 'mintara-token' 
-                        ? 'bg-mintara-primary/20 text-mintara-primary' 
-                        : 'bg-gray-500/20 text-gray-400'
-                    }`}>
-                      {item.type === 'mintara-token' ? 'Mintara' : 'Wallet'}
-                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-1">
+                        <div>
+                          <h3 className="text-2xl font-bold text-mintara-text-primary">
+                            {item.name}
+                          </h3>
+                          <p className="text-lg text-mintara-text-secondary">
+                            {item.symbol}
+                          </p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-md text-sm font-medium ${
+                          item.type === 'mintara-token' 
+                            ? 'bg-mintara-primary/20 text-mintara-primary' 
+                            : 'bg-mintara-accent/20 text-mintara-accent'
+                        }`}>
+                          {item.type === 'mintara-token' ? 'Mintara' : 'token'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-mintara-text-secondary font-mono mt-2">
+                        {item.address}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-mintara-text-secondary mb-4 font-mono">
-                    {item.address}
-                  </p>
                   
                   <div className="flex gap-1.5 mb-3">
                     {item.canMint && (
@@ -333,12 +367,12 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                       
                   {item.type === 'mintara-token' && (
                     <>
-                      <div className="grid grid-cols-3 gap-2 mb-2">
+                      <div className="grid grid-cols-3 gap-3 mb-3">
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="lg"
                           disabled={!item.canMint}
-                          className="border-mintara-border text-mintara-primary hover:bg-mintara-primary/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="border-mintara-border text-mintara-primary hover:bg-mintara-primary/10 disabled:opacity-40 disabled:cursor-not-allowed h-12"
                           onClick={() => {
                             if (item.canMint) {
                               setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
@@ -355,9 +389,9 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="lg"
                           disabled={!item.canBurn}
-                          className="border-mintara-border text-red-400 hover:bg-red-400/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="border-mintara-border text-red-400 hover:bg-red-400/10 disabled:opacity-40 disabled:cursor-not-allowed h-12"
                           onClick={() => {
                             if (item.canBurn) {
                               setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
@@ -374,8 +408,8 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
-                          className="border-mintara-border text-mintara-accent hover:bg-mintara-accent/10"
+                          size="lg"
+                          className="border-mintara-border text-mintara-accent hover:bg-mintara-accent/10 h-12"
                           onClick={() => {
                             setSelectedToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
                             setManagementAction('transfer');
@@ -385,11 +419,11 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                           Transfer
                         </Button>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="grid grid-cols-2 gap-3 mb-3">
                         <Button
                           variant="outline"
-                          size="sm"
-                          className="border-mintara-border text-purple-400 hover:bg-purple-400/10"
+                          size="lg"
+                          className="border-mintara-border text-purple-400 hover:bg-purple-400/10 h-12"
                           onClick={() => {
                             setMultisendToken({ address: item.address, symbol: item.symbol, decimals: item.decimals });
                             setShowMultisendModal(true);
@@ -400,8 +434,8 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
                         </Button>
                         <Button
                           variant="outline"
-                          size="sm"
-                          className="border-mintara-border text-mintara-text-primary hover:bg-mintara-surface"
+                          size="lg"
+                          className="border-mintara-border text-mintara-text-primary hover:bg-mintara-surface h-12"
                           onClick={() => {
                             setInfoTokenAddress(item.address);
                             setShowInfoModal(true);

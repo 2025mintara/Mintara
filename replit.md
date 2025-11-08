@@ -20,21 +20,23 @@ The UI adheres to a specific Mintara brand color scheme:
 - Text Secondary: #A7DAC6
 
 ## Recent Changes
-### November 7, 2025 - Dashboard Token Management & NFT Minting Improvements
-- **Token Management Modal**: Fully functional with proper decimal handling (parseUnits), recipient field for minting, Base Network chainId enforcement, and improved error handling for user rejections
-- **NFT Minting Fallback**: Dual-path minting system - attempts factory mint first, falls back to direct collection safeMint if factory fails (resolves "Minting is disabled" errors)
-- **UI Helper Text**: Added informational text below Create Token and Mint Now buttons directing users to Dashboard
-- **Dashboard Features Status**:
-  - **Fully Working**: Token management (Mint, Burn, Transfer, Multisend), NFT Gallery, Token Info modals
-  - **Simulated**: Airdrop Tool (individual transfers), Token Vesting (localStorage based), Liquidity Pool Creator (UI only)
+### November 8, 2025 - NFT Minting Fixed & Whitepaper Added
+- **CSP Issue Resolved**: Added Content Security Policy meta tag to allow 'unsafe-eval' for Web3 operations
+- **NFT Minting Flow**: Direct collection safeMint implementation - bypasses factory permission issues
+- **Single useWriteContract Hook**: Consolidated all transactions (payment, collection, mint) to prevent hook conflicts
+- **Comprehensive Error Handling**: All async operations wrapped with .catch() to prevent unhandled rejections
+- **Base Network Validation**: Added chain ID check before NFT mint with clear error messages
+- **Whitepaper**: Complete WHITEPAPER.md created with tokenomics, roadmap, and MINTA token utility
+- **Dashboard Cleanup**: Removed simulated features (Airdrop Tool, Token Vesting, Liquidity Pool) - no mock data allowed
 
-### November 7, 2025 - NFT Minting System Fully Fixed
+### November 7, 2025 - NFT Minting System Implementation
 - Payment → Collection creation → Metadata IPFS upload → NFT mint flow working
 - Collection address captured from `NFTCollectionCreated` event logs
 - NFT metadata (name, description, image, attributes) automatically uploaded to Pinata IPFS
 - Success Modal displays collection address with copy button and BaseScan link
 - NFTs appear in wallets using ERC721 metadata standard
 - Token logos uploaded to Pinata IPFS with "Stored on IPFS" badge indicator
+- Token Management Modal: Fully functional with Mint, Burn, Transfer, Multisend operations
 
 ## External Dependencies
 - **Web3**:

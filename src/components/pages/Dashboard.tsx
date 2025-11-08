@@ -72,43 +72,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
     tokenData: token,
   }));
 
-  useEffect(() => {
-    const fetchFactoryLogos = async () => {
-      if (!factoryTokens.length || factoryLogosLoading) return;
-      
-      const tokensNeedingLogos = factoryTokens.filter(t => !t.logoUrl);
-      if (!tokensNeedingLogos.length) return;
-
-      setFactoryLogosLoading(true);
-      try {
-        await Promise.all(
-          tokensNeedingLogos.map(async (token) => {
-            try {
-              const res = await fetch(
-                `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.address}`
-              );
-              const data = await res.json();
-              if (data.result?.icon_url) {
-                saveTokenLogo({
-                  tokenAddress: token.address,
-                  logoUrl: data.result.icon_url,
-                  tokenName: token.name,
-                  tokenSymbol: token.symbol,
-                  uploadedAt: Date.now(),
-                });
-              }
-            } catch (e) {
-              console.log(`No logo for ${token.symbol}`);
-            }
-          })
-        );
-      } finally {
-        setFactoryLogosLoading(false);
-      }
-    };
-
-    fetchFactoryLogos();
-  }, [userTokens]);
 
   const localStorageTokens = getTokenLogos()
     .filter(token => {
@@ -128,72 +91,6 @@ export function Dashboard({ onNavigate: _onNavigate }: DashboardProps) {
       logoUrl: token.logoUrl,
     }));
 
-  useEffect(() => {
-    const fetchWalletTokens = async () => {
-      if (!address) {
-        setWalletTokens([]);
-        return;
-      }
-
-      setIsLoadingWallet(true);
-      try {
-        const response = await fetch(
-          `https://base.blockscout.com/api?module=account&action=tokenlist&address=${address}`
-        );
-        const data = await response.json();
-        
-        if (data.status === '1' && data.result) {
-          const tokens = await Promise.all(
-            data.result
-              .filter((token: any) => token.type === 'ERC-20')
-              .map(async (token: any) => {
-                let logoUrl = getTokenLogo(token.contractAddress);
-                
-                if (!logoUrl) {
-                  try {
-                    const logoRes = await fetch(
-                      `https://base.blockscout.com/api?module=token&action=getToken&contractaddress=${token.contractAddress}`
-                    );
-                    const logoData = await logoRes.json();
-                    if (logoData.result?.icon_url) {
-                      logoUrl = logoData.result.icon_url;
-                      saveTokenLogo({
-                        tokenAddress: token.contractAddress,
-                        logoUrl,
-                        tokenName: token.name,
-                        tokenSymbol: token.symbol,
-                        uploadedAt: Date.now(),
-                      });
-                    }
-                  } catch (e) {
-                    console.log(`No logo for ${token.symbol}`);
-                  }
-                }
-                
-                return {
-                  name: token.name,
-                  symbol: token.symbol,
-                  address: token.contractAddress,
-                  decimals: Number(token.decimals),
-                  balance: token.balance,
-                  type: 'wallet-token',
-                  canMint: false,
-                  canBurn: false,
-                  logoUrl,
-                };
-              })
-          );
-          setWalletTokens(tokens);
-        }
-      } catch (error) {
-        console.error('Failed to fetch wallet tokens:', error);
-      } finally {
-        setIsLoadingWallet(false);
-      }
-    };
-
-    fetchWalletTokens();
-  }, [address]);
 
   const factoryAddresses = new Set(factoryTokens.map(t => t.address.toLowerCase()));
   

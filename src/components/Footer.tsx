@@ -1,5 +1,5 @@
 import { Logo } from './Logo';
-import { Twitter, Send, Github } from 'lucide-react';
+import { Twitter, Send } from 'lucide-react';
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -136,15 +136,6 @@ export function Footer({ onNavigate }: FooterProps) {
                   aria-label="Telegram"
                 >
                   <Send className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://github.com/2025mintara/Mintara"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-7 h-7 rounded-full border border-mintara-border flex items-center justify-center text-mintara-text-primary/90 hover:text-mintara-accent hover:border-mintara-accent hover:scale-110 hover:shadow-[inset_0_0_12px_rgba(0,224,198,0.2)] transition-all duration-250"
-                  aria-label="GitHub"
-                >
-                  <Github className="w-4 h-4" />
                 </a>
               </div>
             </div>
